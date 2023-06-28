@@ -15,12 +15,12 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ApiController extends AbstractController
 {
-    #[Route('/', name: 'sd_test')]
+    #[Route('/', name: 'generate_image_route')]
     public function default(): Response
     {
         $client = new Client();
 
-        $uri = 'http://host.docker.internal:7860/sdapi/v1/txt2img';
+        $uri = 'http://host.docker.internal:7860/sdapi/v1/txt2img'; // todo ==> read config
         $method = Request::METHOD_POST;
 
         $aspectRatio = $this->calculateAspectRatio('16:9');
@@ -33,20 +33,23 @@ class ApiController extends AbstractController
         //      ==> API Adapter for automatic1111
         //      ==> API Adapter for DreamStudio
         //      ==> API Adapter for Midjourney
+        //      ==> store Asset and return Asset itself
+        //      ==> add button to image editable
 
         $payload = [
+            'steps' => 10, // todo ==> read config
+            'sd_model_checkpoint' => 'realisticVisionV20_v20', // todo ==> read config
+
             'prompt' => 'b&w photo of cat sitting on a stone, half body, body, high detailed skin, skin pores, coastline, overcast weather, wind, waves, 8k uhd, dslr, soft lighting, high quality, film grain, Fujifilm XT3',
             'negative_prompt' => '(semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime:1.4), text, close up, cropped, out of frame, worst quality, low quality, jpeg artifacts, ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, dehydrated, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck',
 
             'seed' => -1,
-            'steps' => 10,
             'batch_size' => 1,
 
             'width' => $aspectRatio['width'],
             'height' => $aspectRatio['height'],
 
             'sampler_index' => 'Euler a',
-            'sd_model_checkpoint' => 'realisticVisionV20_v20',
             'cfg_scale' => 7,
         ];
 

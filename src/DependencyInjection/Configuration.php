@@ -2,7 +2,6 @@
 
 namespace Basilicom\AiImageGeneratorBundle\DependencyInjection;
 
-use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
@@ -14,10 +13,32 @@ class Configuration implements ConfigurationInterface
     public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder('basilicom_ai_images');
-
-        /** @var ArrayNodeDefinition $rootNode */
         $rootNode = $treeBuilder->getRootNode();
-        $rootNode->addDefaultsIfNotSet();
+
+        $rootNode
+            ->children()
+                ->arrayNode('stable-diffusion-api')
+                    ->children()
+                        ->scalarNode('baseUrl')->end()
+                        ->scalarNode('model')->end()
+                        ->integerNode('steps')->defaultValue(10)->end()
+                    ->end()
+                ->end()
+
+                ->arrayNode('midjourney')
+                    ->children()
+                        ->scalarNode('apiKey')->end()
+                        ->scalarNode('secret')->end()
+                    ->end()
+                ->end()
+
+                ->arrayNode('dreamstudio')
+                    ->children()
+                        ->scalarNode('apiKey')->end()
+                        ->scalarNode('secret')->end()
+                    ->end()
+                ->end()
+            ->end();
 
         return $treeBuilder;
     }
