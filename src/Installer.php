@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace Basilicom\AiImageGeneratorBundle;
 
-use Pimcore\Extension\Bundle\Installer\AbstractInstaller;
+use Pimcore\Extension\Bundle\Installer\SettingsStoreAwareInstaller;
 
-class Installer extends AbstractInstaller
+class Installer extends SettingsStoreAwareInstaller
 {
 }
