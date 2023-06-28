@@ -1,0 +1,13 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  Basilicom\AiImageGeneratorBundle\Installer:
+    public: true
+    arguments:
+      $bundle: "@=service('kernel').getBundle('AiImageGeneratorBundle')"
+
+  Basilicom\AiImageGeneratorBundle\Controller\ApiController:
+    tags: [ 'controller.service_arguments' ]

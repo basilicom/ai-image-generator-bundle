@@ -1,0 +1,4 @@
+pim:
+  resource: "@AiImageGeneratorBundle/Controller/"
+  type: annotation
+  prefix: /ai-images

@@ -1,0 +1,20 @@
+{
+  "name": "basilicom/ai-image-generator",
+  "type": "pimcore-bundle",
+  "autoload": {
+    "psr-4": {
+      "Basilicom\\AiImageGeneratorBundle\\": ""
+    }
+  },
+  "require": {
+    "php": "^8.0",
+    "pimcore/pimcore": "^11.0"
+  },
+  "extra": {
+    "pimcore": {
+      "bundles": [
+        "Basilicom\\AiImageGeneratorBundle"
+      ]
+    }
+  }
+}
