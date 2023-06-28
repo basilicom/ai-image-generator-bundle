@@ -1,4 +1,4 @@
 basilicom_ai_image_generator:
-  resource: "@AiImageGeneratorBundle/Controller/"
+  resource: "../../src/Controller/"
   type: annotation
   prefix: /ai-images

@@ -1,5 +1,5 @@
 {
-  "name": "basilicom/ai-image-generator",
+  "name": "basilicom/ai-image-generator-bundle",
   "type": "pimcore-bundle",
   "autoload": {
     "psr-4": {
