@@ -4,7 +4,7 @@ services:
     autoconfigure: true
     public: false
 
-  Basilicom\AiImageGeneratorBundle\Installer:
+  \Basilicom\AiImageGeneratorBundle\Installer:
     public: true
     arguments:
       $bundle: "@=service('kernel').getBundle('AiImageGeneratorBundle')"

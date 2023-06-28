@@ -1,4 +1,4 @@
-pim:
+basilicom_ai_image_generator:
   resource: "@AiImageGeneratorBundle/Controller/"
   type: annotation
   prefix: /ai-images

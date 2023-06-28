@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Basilicom\AiImageGeneratorBundle\Tools;
+namespace Basilicom\AiImageGeneratorBundle;
 
 use Pimcore\Extension\Bundle\Installer\AbstractInstaller;
 

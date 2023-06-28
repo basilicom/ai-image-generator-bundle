@@ -3,7 +3,7 @@
   "type": "pimcore-bundle",
   "autoload": {
     "psr-4": {
-      "Basilicom\\AiImageGeneratorBundle\\": ""
+      "Basilicom\\AiImageGeneratorBundle\\": "src/"
     }
   },
   "require": {

@@ -8,14 +8,14 @@ use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
-use Pimcore\Controller\FrontendController as PimcoreController;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-class ApiController extends PimcoreController
+class ApiController extends AbstractController
 {
-    #[Route('/stable-diffusion-test', name: 'sd_test')]
+    #[Route('/', name: 'sd_test')]
     public function default(): Response
     {
         $client = new Client();
@@ -53,15 +53,15 @@ class ApiController extends PimcoreController
         // todo ==> controlnet
         /**
         "alwayson_scripts": {
-            "controlnet": {
-                "args": [
-                    {
-                        "input_image": $encodedImage,
-                        "module": "depth",
-                        "model": "diff_control_sd15_depth_fp16 [978ef0a1]"
-                    }
-                ]
-            }
+        "controlnet": {
+        "args": [
+        {
+        "input_image": $encodedImage,
+        "module": "depth",
+        "model": "diff_control_sd15_depth_fp16 [978ef0a1]"
+        }
+        ]
+        }
         }
          */
 
