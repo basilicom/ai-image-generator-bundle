@@ -11,3 +11,10 @@ services:
 
   Basilicom\AiImageGeneratorBundle\Controller\ApiController:
     tags: [ 'controller.service_arguments' ]
+
+  Basilicom\AiImageGeneratorBundle\Config\ConfigurationService: ~
+  Basilicom\AiImageGeneratorBundle\Config\ConfigurationFactory: ~
+
+  Basilicom\AiImageGeneratorBundle\Model\RequestFactory: ~
+
+  Basilicom\AiImageGeneratorBundle\Service\RequestService: ~

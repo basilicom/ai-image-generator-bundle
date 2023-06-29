@@ -1,13 +1,13 @@
-basilicom_ai_images:
-  stable-diffusion-api:
+ai_image_generator:
+  stable_diffusion_api:
     baseUrl: "http://localhost:7860" # the url to your Stable Diffusion API instance
     model: "realisticVisionV20_v20" # the model checkpoint name
     steps: 10 # this will have impact of credits/generation-time
 
-  midjourney:
-    apiKey: "****************"
-    secret: "****************"
-
-  dreamstudio:
-    apiKey: "****************"
-    secret: "****************"
+#  midjourney:
+#    apiKey: "****************"
+#    secret: "****************"
+#
+#  dream_studio:
+#    apiKey: "****************"
+#    secret: "****************"
