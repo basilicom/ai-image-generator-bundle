@@ -3,7 +3,6 @@
 namespace Basilicom\AiImageGeneratorBundle\Model;
 
 use Basilicom\AiImageGeneratorBundle\Config\ConfigurationService;
-use Basilicom\AiImageGeneratorBundle\Config\Model\DreamStudioConfig;
 use Basilicom\AiImageGeneratorBundle\Config\Model\StableDiffusionApiConfig;
 use Basilicom\AiImageGeneratorBundle\Helper\AspectRatioCalculator;
 use InvalidArgumentException;

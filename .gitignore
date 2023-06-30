@@ -48,5 +48,6 @@ Thumbs.db
 *.mov
 *.wmv
 
+.php-cs-fixer.cache
 composer.lock
 vendor

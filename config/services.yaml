@@ -18,3 +18,8 @@ services:
   Basilicom\AiImageGeneratorBundle\Model\RequestFactory: ~
 
   Basilicom\AiImageGeneratorBundle\Service\RequestService: ~
+  Basilicom\AiImageGeneratorBundle\Service\LockManager: ~
+
+  Basilicom\AiImageGeneratorBundle\EventSubscriber\:
+    resource: '../src/EventSubscriber/*'
+    tags: [ kernel.event_listener ]
