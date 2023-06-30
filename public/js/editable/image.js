@@ -14,9 +14,13 @@ pimcore.document.editables.image = Class.create(pimcore.document.editables.image
     },
 
     generateAiImage: function () {
-        this.button.innerHTML = 'Loading...';
+        const params = new URLSearchParams({
+            width: this.element.getWidth(),
+            height: this.element.getHeight()
+        });
 
-        fetch("/ai-images/")
+        this.button.innerHTML = 'Loading...';
+        fetch("/ai-images?" + params.toString())
             .then(response => response.json())
             .then(jsonData => {
                 if (jsonData.success === true) {
@@ -28,7 +32,8 @@ pimcore.document.editables.image = Class.create(pimcore.document.editables.image
                 } else {
                     pimcore.helpers.showNotification(t("error"), jsonData.message, "error");
                 }
-
+            })
+            .finally(() => {
                 this.button.innerHTML = this.label;
             });
     }

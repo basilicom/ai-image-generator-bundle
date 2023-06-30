@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Basilicom\AiImageGeneratorBundle\Controller;
 
+use Basilicom\AiImageGeneratorBundle\Helper\AspectRatioCalculator;
 use Basilicom\AiImageGeneratorBundle\Model\RequestFactory;
 use Basilicom\AiImageGeneratorBundle\Service\LockManager;
 use Basilicom\AiImageGeneratorBundle\Service\RequestService;
@@ -12,6 +13,7 @@ use Pimcore\Model\Asset;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -43,6 +45,7 @@ class ApiController extends AbstractController
      *      ==> API Adapter for Midjourney
      *      ==> add button to image editable
      *      ==> add button to image object field
+     *      ==> upscaling
      *      ==> controlnet
      *               "alwayson_scripts": {
      *                  "controlnet": {
@@ -57,7 +60,7 @@ class ApiController extends AbstractController
      *               }
      */
     #[Route('', name: 'generate_image_route')]
-    public function default(): JsonResponse
+    public function default(Request $request, AspectRatioCalculator $aspectRatioCalculator): JsonResponse
     {
         if ($this->lockManager->isLocked()) {
             return new JsonResponse(
@@ -69,12 +72,16 @@ class ApiController extends AbstractController
             );
         }
 
+        $width = (int)$request->get('width');
+        $height = (int)$request->get('height');
+        $aspectRatio = $aspectRatioCalculator->getAspectRatioFromDimensions($width, $height);
+
         $statusCode = Response::HTTP_OK;
         $resultPayload = [];
         try {
             $this->lockManager->lock();
-            $request = $this->requestFactory->getRequest();
-            $generatedImage = $this->requestService->generateImage($request);
+            $serviceRequest = $this->requestFactory->getRequest($aspectRatio);
+            $generatedImage = $this->requestService->generateImage($serviceRequest);
 
             $imagePath = Asset\Service::createFolderByPath('/ai-images');
 
