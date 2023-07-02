@@ -13,7 +13,7 @@ class ConfigurationService
         $this->config = $config;
     }
 
-    public function getConfiguration(): Configuration
+    public function getConfiguration(): AbstractConfiguration
     {
         $apiService = array_key_first($this->config);
         $configurationData = reset($this->config);

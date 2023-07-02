@@ -15,6 +15,8 @@ pimcore.document.editables.image = Class.create(pimcore.document.editables.image
 
     generateAiImage: function () {
         const params = new URLSearchParams({
+            context: 'document',
+            id: window.editWindow.document.id,
             width: this.element.getWidth(),
             height: this.element.getHeight()
         });

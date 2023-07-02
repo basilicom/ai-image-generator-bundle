@@ -2,7 +2,7 @@
 
 namespace Basilicom\AiImageGeneratorBundle\Model;
 
-class Request
+class ServiceRequest
 {
     private string $uri;
     private string $method;
@@ -10,11 +10,11 @@ class Request
 
     public function __construct(string $uri, string $method, array $payload)
     {
-
         $this->uri = $uri;
         $this->method = $method;
         $this->payload = $payload;
     }
+
     public function getUri(): string
     {
         return $this->uri;

@@ -4,8 +4,13 @@ declare(strict_types=1);
 
 namespace Basilicom\AiImageGeneratorBundle\Controller;
 
+use Basilicom\AiImageGeneratorBundle\Config\AbstractConfiguration;
+use Basilicom\AiImageGeneratorBundle\Config\ConfigurationService;
 use Basilicom\AiImageGeneratorBundle\Helper\AspectRatioCalculator;
-use Basilicom\AiImageGeneratorBundle\Model\RequestFactory;
+use Basilicom\AiImageGeneratorBundle\Model\AiImage;
+use Basilicom\AiImageGeneratorBundle\Model\ServiceRequestFactory;
+use Basilicom\AiImageGeneratorBundle\Model\ServiceRequest;
+use Basilicom\AiImageGeneratorBundle\Service\PromptCreator;
 use Basilicom\AiImageGeneratorBundle\Service\LockManager;
 use Basilicom\AiImageGeneratorBundle\Service\RequestService;
 use Exception;
@@ -19,31 +24,38 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ApiController extends AbstractController
 {
-    private RequestFactory $requestFactory;
+    private ServiceRequestFactory $requestFactory;
     private RequestService $requestService;
     private LockManager $lockManager;
     private LoggerInterface $logger;
+    private PromptCreator $promptCreator;
+    private AspectRatioCalculator $aspectRatioCalculator;
+    private ConfigurationService $configurationService;
 
     public function __construct(
-        RequestFactory  $requestFactory,
-        RequestService  $requestService,
-        LockManager     $lockManager,
-        LoggerInterface $logger
+        ServiceRequestFactory $requestFactory,
+        RequestService        $requestService,
+        LockManager           $lockManager,
+        PromptCreator         $promptCreator,
+        AspectRatioCalculator $aspectRatioCalculator,
+        ConfigurationService  $configurationService,
+        LoggerInterface       $logger
     ) {
         $this->requestFactory = $requestFactory;
         $this->requestService = $requestService;
         $this->lockManager = $lockManager;
         $this->logger = $logger;
+        $this->promptCreator = $promptCreator;
+        $this->aspectRatioCalculator = $aspectRatioCalculator;
+        $this->configurationService = $configurationService;
     }
 
     /** todo
      *      ==> generate prompt and negative prompt
      *              => via ChatGPT
-     *              => create context
      *      ==> let user create negative prompts/prompts as presets
      *      ==> API Adapter for DreamStudio
      *      ==> API Adapter for Midjourney
-     *      ==> add button to image editable
      *      ==> add button to image object field
      *      ==> upscaling
      *      ==> controlnet
@@ -60,7 +72,7 @@ class ApiController extends AbstractController
      *               }
      */
     #[Route('', name: 'generate_image_route')]
-    public function default(Request $request, AspectRatioCalculator $aspectRatioCalculator): JsonResponse
+    public function default(Request $request): JsonResponse
     {
         if ($this->lockManager->isLocked()) {
             return new JsonResponse(
@@ -72,29 +84,18 @@ class ApiController extends AbstractController
             );
         }
 
-        $width = (int)$request->get('width');
-        $height = (int)$request->get('height');
-        $aspectRatio = $aspectRatioCalculator->getAspectRatioFromDimensions($width, $height);
-
         $statusCode = Response::HTTP_OK;
         $resultPayload = [];
         try {
             $this->lockManager->lock();
-            $serviceRequest = $this->requestFactory->getRequest($aspectRatio);
+
+            $config = $this->getServiceRequestConfig($request);
+            $serviceRequest = $this->requestFactory->createServiceRequest($config);
             $generatedImage = $this->requestService->generateImage($serviceRequest);
-
-            $imagePath = Asset\Service::createFolderByPath('/ai-images');
-
-            $asset = new Asset();
-            $asset->setKey(uniqid('ai-image') . '.png');
-            $asset->setType('image');
-            $asset->setData($generatedImage);
-            $asset->setParent($imagePath);
-            $asset->save();
 
             $resultPayload = [
                 'success' => true,
-                'id' => $asset->getId()
+                'id' => $this->createAsset($generatedImage, $config)->getId()
             ];
         } catch (Exception $e) {
             $this->logger->error('Error when generating AI images: ' . $e->getMessage());
@@ -108,5 +109,40 @@ class ApiController extends AbstractController
         }
 
         return new JsonResponse($resultPayload, $statusCode);
+    }
+
+    private function getServiceRequestConfig(Request $request): AbstractConfiguration
+    {
+        $context = (string)$request->get('context');
+        $id = (int)$request->get('id');
+        $width = (int)$request->get('width');
+        $height = (int)$request->get('height');
+
+        $prompt = $this->promptCreator->createPrompt($context, $id);
+        // todo
+        $negativePrompt = '(semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime:1.4), text, close up, cropped, out of frame, worst quality, low quality, jpeg artifacts, ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, dehydrated, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck';
+
+        $aspectRatio = $this->aspectRatioCalculator->getAspectRatioFromDimensions($width, $height);
+
+        $config = $this->configurationService->getConfiguration();
+        $config->setPrompt($prompt);
+        $config->setNegativePrompt($negativePrompt);
+        $config->setAspectRatio($aspectRatio);
+
+        return $config;
+    }
+
+    private function createAsset(AiImage $generatedImage, AbstractConfiguration $requestConfig): Asset
+    {
+        $asset = new Asset();
+        $asset->setParent(Asset\Service::createFolderByPath('/ai-images'));
+        $asset->setKey(uniqid('ai-image') . '.png');
+        $asset->setType('image');
+        $asset->setData($generatedImage->getData());
+
+        $asset->addMetadata('prompt', 'input', $requestConfig->getPrompt());
+        $asset->addMetadata('negative-prompt', 'input', $requestConfig->getNegativePrompt());
+
+        return $asset->save();
     }
 }

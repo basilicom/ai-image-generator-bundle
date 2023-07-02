@@ -55,7 +55,7 @@ class AspectRatioCalculator
     }
 
 
-    public static function calculateAspectRatio(string $aspectRatio): array
+    public function calculateAspectRatio(string $aspectRatio): array
     {
         list($aspectWidth, $aspectHeight) = explode(':', $aspectRatio);
 

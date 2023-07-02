@@ -1,5 +1,6 @@
 .ai-image-generator-button {
     position: relative;
+    z-index: 200;
 }
 
 .ai-image-generator-button button {

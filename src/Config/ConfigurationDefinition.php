@@ -7,20 +7,17 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 class ConfigurationDefinition implements ConfigurationInterface
 {
-    const STABLE_DIFFUSION_API = 'stable_diffusion_api';
-    const MIDJOURNEY = 'midjourney';
-    const DREAMSTUDIO = 'dream_studio';
+    public const STABLE_DIFFUSION_API = 'stable_diffusion_api';
+    public const DREAMSTUDIO = 'dream_studio';
 
-    const BASE_URL = 'baseUrl';
-    const MODEL = 'model';
-    const STEPS = 'steps';
-    const API_KEY = 'apiKey';
-    const API_SECRET = 'secret';
+    public const BASE_URL = 'baseUrl';
+    public const MODEL = 'model';
+    public const STEPS = 'steps';
+    public const API_KEY = 'apiKey';
 
     private const SUPPORTED_APIS = [
         self::STABLE_DIFFUSION_API,
         self::DREAMSTUDIO,
-        //self::MIDJOURNEY,
     ];
 
     /**
@@ -33,22 +30,22 @@ class ConfigurationDefinition implements ConfigurationInterface
 
         $rootNode
             ->validate()
-                ->ifTrue(function ($config) {
-                    return count($config) !== 1; // Only one of the keys should be present
-                })
-                ->thenInvalid('Exactly one key (' . implode(', ', self::SUPPORTED_APIS) . ') should be present.')
+            ->ifTrue(function ($config) {
+                return count($config) !== 1; // Only one of the keys should be present
+            })
+            ->thenInvalid('Exactly one key (' . implode(', ', self::SUPPORTED_APIS) . ') should be present.')
             ->end()
             ->validate()
-                ->ifTrue(function ($config) {
-                    foreach (self::SUPPORTED_APIS as $supportedApi) {
-                        if (isset($config[$supportedApi])) {
-                            return false;
-                        }
+            ->ifTrue(function ($config) {
+                foreach (self::SUPPORTED_APIS as $supportedApi) {
+                    if (isset($config[$supportedApi])) {
+                        return false;
                     }
+                }
 
-                    return true;
-                })
-                ->thenInvalid('One of the keys (' . implode(', ', self::SUPPORTED_APIS) . ') should be present.')
+                return true;
+            })
+            ->thenInvalid('One of the keys (' . implode(', ', self::SUPPORTED_APIS) . ') should be present.')
             ->end()
             ->children()
                 ->arrayNode(self::STABLE_DIFFUSION_API)
@@ -58,18 +55,12 @@ class ConfigurationDefinition implements ConfigurationInterface
                         ->integerNode(self::STEPS)->defaultValue(10)->end()
                     ->end()
                 ->end()
-
-                ->arrayNode(self::MIDJOURNEY)
-                    ->children()
-                        ->scalarNode(self::API_KEY)->end()
-                        ->scalarNode(self::API_SECRET)->end()
-                    ->end()
-                ->end()
-
                 ->arrayNode(self::DREAMSTUDIO)
                     ->children()
+                        ->scalarNode(self::BASE_URL)->end()
+                        ->scalarNode(self::MODEL)->end()
+                        ->integerNode(self::STEPS)->defaultValue(10)->end()
                         ->scalarNode(self::API_KEY)->end()
-                        ->scalarNode(self::API_SECRET)->end()
                     ->end()
                 ->end()
             ->end();

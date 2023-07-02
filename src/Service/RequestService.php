@@ -2,7 +2,8 @@
 
 namespace Basilicom\AiImageGeneratorBundle\Service;
 
-use Basilicom\AiImageGeneratorBundle\Model\Request;
+use Basilicom\AiImageGeneratorBundle\Model\AiImage;
+use Basilicom\AiImageGeneratorBundle\Model\ServiceRequest;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
@@ -11,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RequestService
 {
-    public function generateImage(Request $request): string
+    public function generateImage(ServiceRequest $request): AiImage
     {
         $body = json_encode($request->getPayload(), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
@@ -27,7 +28,9 @@ class RequestService
             $response = new Response();
             $response->headers->add(['Content-Type' => 'image/jpeg']);
 
-            return base64_decode($responseBody['images'][0]);
+            // todo ==> handle response based on service...
+
+            return new AiImage(base64_decode($responseBody['images'][0]));
         } catch (GuzzleException $exception) {
             throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
