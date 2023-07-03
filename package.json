@@ -1,0 +1,19 @@
+{
+  "name": "basilicom-ai-image-generator-bundle",
+  "version": "1.0.0",
+  "description": "Using state-of-the-art image generation SaaS in Pimcore.",
+  "main": "index.js",
+  "scripts": {
+    "watch": "encore dev --watch",
+    "build": "encore production"
+  },
+  "author": "Alexander Heidrich",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "@symfony/webpack-encore": "^1.0.0",
+    "sass": "^1.63.6",
+    "sass-loader": "^12.0.0",
+    "webpack-cli": "^4.8.0"
+  }
+}

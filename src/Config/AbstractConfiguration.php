@@ -7,8 +7,9 @@ abstract class AbstractConfiguration
     protected string $baseUrl;
     protected string $model;
     protected int $steps;
-    protected string $prompt;
-    protected string $negativePrompt;
+
+    protected array $promptParts;
+    protected array $negativePromptParts;
     protected string $aspectRatio;
 
     public function __construct(string $baseUrl, string $model, int $steps)
@@ -33,14 +34,24 @@ abstract class AbstractConfiguration
         return $this->steps;
     }
 
-    public function getPrompt(): string
+    public function getPromptParts(): array
     {
-        return $this->prompt;
+        return $this->promptParts;
     }
 
-    public function getNegativePrompt(): string
+    public function setPromptParts(array $promptParts): void
     {
-        return $this->negativePrompt;
+        $this->promptParts = $promptParts;
+    }
+
+    public function getNegativePromptParts(): array
+    {
+        return $this->negativePromptParts;
+    }
+
+    public function setNegativePromptParts(array $negativePromptParts): void
+    {
+        $this->negativePromptParts = $negativePromptParts;
     }
 
     public function getAspectRatio(): string
@@ -48,18 +59,9 @@ abstract class AbstractConfiguration
         return $this->aspectRatio;
     }
 
-    public function setPrompt(string $prompt): void
-    {
-        $this->prompt = $prompt;
-    }
-
-    public function setNegativePrompt(string $negativePrompt): void
-    {
-        $this->negativePrompt = $negativePrompt;
-    }
-
     public function setAspectRatio(string $aspectRatio): void
     {
         $this->aspectRatio = $aspectRatio;
     }
+
 }

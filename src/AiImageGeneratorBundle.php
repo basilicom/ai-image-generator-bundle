@@ -20,7 +20,7 @@ class AiImageGeneratorBundle extends AbstractPimcoreBundle
 
     public function getPath(): string
     {
-        return \dirname(__DIR__);
+        return dirname(__DIR__);
     }
 
     public function getInstaller(): ?InstallerInterface

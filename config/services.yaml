@@ -17,11 +17,13 @@ services:
 
   Basilicom\AiImageGeneratorBundle\Helper\AspectRatioCalculator: ~
 
-  Basilicom\AiImageGeneratorBundle\Model\ServiceRequestFactory: ~
-
   Basilicom\AiImageGeneratorBundle\Service\RequestService: ~
   Basilicom\AiImageGeneratorBundle\Service\LockManager: ~
   Basilicom\AiImageGeneratorBundle\Service\PromptCreator: ~
+  Basilicom\AiImageGeneratorBundle\Service\ImageGenerationService: ~
+
+  Basilicom\AiImageGeneratorBundle\Strategy\:
+    resource: '../src/Strategy/*'
 
   Basilicom\AiImageGeneratorBundle\EventSubscriber\:
     resource: '../src/EventSubscriber/*'

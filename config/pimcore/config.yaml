@@ -2,10 +2,10 @@ ai_image_generator:
   stable_diffusion_api:
     baseUrl: "http://host.docker.internal:7860" # the url to your Stable Diffusion API instance
     model: "reliberate_v10" # the model checkpoint name
-    steps: 30 # this will have impact on generation-time
+    steps: 20 # this will have impact on generation-time
 
 #  dream_studio:
 #    baseUrl: "https://api.stability.ai"
 #    model: "stable-diffusion-xl-beta-v2-2-2"
-#    steps: 30 # this will have impact on credits
-#    apiKey: "****************"
+#    steps: 10 # this will have impact on credits
+#    apiKey: "%env(DREAM_STUDIO_API_KEY)%"

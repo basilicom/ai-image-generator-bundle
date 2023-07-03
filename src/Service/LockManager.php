@@ -31,6 +31,6 @@ class LockManager
     {
         $lock = $this->lockFactory->createLock(self::LOCK_KEY);
 
-        return !$lock->acquire(false);
+        return !$lock->acquire();
     }
 }

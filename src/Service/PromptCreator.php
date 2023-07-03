@@ -2,40 +2,40 @@
 
 namespace Basilicom\AiImageGeneratorBundle\Service;
 
+use Pimcore\Model\DataObject;
 use Pimcore\Model\Document\Page;
 use Pimcore\Model\Document\Service;
 
 class PromptCreator
 {
-    public const CONTEXT_DOCUMENT = 'document';
-    public const CONTEXT_OBJECT = 'object';
-
     /**
      * @todo
      *      get mood
      *      get color scheme
      *      get context
      */
-    public function createPrompt(string $context, int $id): string
+    public function createPromptParts(Page|DataObject $element): array
     {
-        $prompt = match ($context) {
-            self::CONTEXT_DOCUMENT => $this->getPromptFromDocumentContext(Page::getById($id)),
-            // todo ==> support object context
-        };
-
-        if (empty($prompt)) {
-            $prompt = 'an inspiring market, Emotional, camcorder effect';
+        if ($element instanceof Page) {
+            $promptParts = $this->getPromptFromDocumentContext($element);
+        } elseif ($element instanceof DataObject) {
+            // todo
         }
 
-        $prompt .= ', 8k uhd, dslr, soft lighting, high quality, Fujifilm XT3';
+        if (empty($promptParts)) {
+            $promptParts = ['an inspiring market, emotional, camcorder effect'];
+        }
 
-        return $prompt;
+        return [
+            ...$promptParts,
+            '8k, uhd, dslr,soft lighting,high quality,Fujifilm XT3',
+        ];
     }
 
-    protected function getPromptFromDocumentContext(?Page $page): string
+    protected function getPromptFromDocumentContext(?Page $page): array
     {
         if (!$page) {
-            return '';
+            return [];
         }
 
         // todo ==> translate (?)
@@ -43,7 +43,11 @@ class PromptCreator
         $description = $page->getDescription();
         $texts = $this->extractImportantTexts($page);
 
-        return sprintf('((%s)), (%s), %s', $title, $description, implode(', ', $texts));
+        return [
+            '((' . $title . '))',
+            '(' . $description . ')',
+            ...$texts
+        ];
     }
 
     private function extractImportantTexts(Page $page): array

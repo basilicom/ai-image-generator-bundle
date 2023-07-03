@@ -55,11 +55,10 @@ class AspectRatioCalculator
     }
 
 
-    public function calculateAspectRatio(string $aspectRatio): array
+    public function calculateAspectRatio(string $aspectRatio, ?int $baseIncrement = null): array
     {
         list($aspectWidth, $aspectHeight) = explode(':', $aspectRatio);
 
-        /** These are optimal width and height */
         $width = 512;
         $height = 512;
 
@@ -69,9 +68,34 @@ class AspectRatioCalculator
             $height = $width * $aspectHeight / $aspectWidth;
         }
 
+        $width = floor($width);
+        $height = floor($height);
+
+        if ($baseIncrement === null) {
+            return [
+                'width' => $width,
+                'height' => $height,
+            ];
+        }
+
+        $width = $this->getClosestIncrement($width, $baseIncrement);
+        $height = $this->getClosestIncrement($height, $baseIncrement);
+
+        // Make sure the adjusted dimensions are not larger than 512
+        $width = min($width, 512);
+        $height = min($height, 512);
+
         return [
             'width' => $width,
-            'height' => $height
+            'height' => $height,
         ];
+    }
+
+    private function getClosestIncrement(int $value, int $increment): int
+    {
+        // Calculate the closest increment of a value
+        $remainder = $value % $increment;
+
+        return $remainder > $increment / 2 ? $value + $increment - $remainder : $value - $remainder;
     }
 }

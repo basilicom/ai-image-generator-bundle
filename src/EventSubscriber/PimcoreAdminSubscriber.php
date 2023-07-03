@@ -11,10 +11,10 @@ class PimcoreAdminSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            BundleManagerEvents::JS_PATHS  => 'onJsPaths',
+            BundleManagerEvents::JS_PATHS => 'onJsPaths',
             BundleManagerEvents::CSS_PATHS => 'onCssPaths',
 
-            BundleManagerEvents::EDITMODE_JS_PATHS  => 'onJsPaths',
+            BundleManagerEvents::EDITMODE_JS_PATHS => 'onJsPaths',
             BundleManagerEvents::EDITMODE_CSS_PATHS => 'onCssPaths',
         ];
     }
@@ -24,7 +24,10 @@ class PimcoreAdminSubscriber implements EventSubscriberInterface
         $event->setPaths(
             array_merge(
                 $event->getPaths(),
-                ['/bundles/aiimagegenerator/js/editable/image.js']
+                [
+                    '/bundles/aiimagegenerator/runtime.js',
+                    '/bundles/aiimagegenerator/app.js'
+                ]
             )
         );
     }
@@ -34,7 +37,9 @@ class PimcoreAdminSubscriber implements EventSubscriberInterface
         $event->setPaths(
             array_merge(
                 $event->getPaths(),
-                ['/bundles/aiimagegenerator/css/editable/image.css']
+                [
+                    '/bundles/aiimagegenerator/app.css'
+                ]
             )
         );
     }

@@ -1,0 +1,5 @@
+{
+  "ai-image-generator/app.css": "/bundles/aiimagegenerator/app.css",
+  "ai-image-generator/app.js": "/bundles/aiimagegenerator/app.js",
+  "ai-image-generator/runtime.js": "/bundles/aiimagegenerator/runtime.js"
+}

@@ -1,0 +1,13 @@
+{
+  "entrypoints": {
+    "app": {
+      "js": [
+        "/bundles/aiimagegenerator/runtime.js",
+        "/bundles/aiimagegenerator/app.js"
+      ],
+      "css": [
+        "/bundles/aiimagegenerator/app.css"
+      ]
+    }
+  }
+}
