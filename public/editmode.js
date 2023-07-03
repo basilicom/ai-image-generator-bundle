@@ -1,17 +1,16 @@
-(self["webpackChunkbasilicom_ai_image_generator_bundle"] = self["webpackChunkbasilicom_ai_image_generator_bundle"] || []).push([["app"],{
+"use strict";
+(self["webpackChunkbasilicom_ai_image_generator_bundle"] = self["webpackChunkbasilicom_ai_image_generator_bundle"] || []).push([["editmode"],{
 
-/***/ "./assets/app.js":
-/*!***********************!*\
-  !*** ./assets/app.js ***!
-  \***********************/
+/***/ "./assets/editmode.js":
+/*!****************************!*\
+  !*** ./assets/editmode.js ***!
+  \****************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _app_scss__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./app.scss */ "./assets/app.scss");
 
 __webpack_require__(/*! ./js/editable/image.js */ "./assets/js/editable/image.js");
-__webpack_require__(/*! ./js/object/tags/image.js */ "./assets/js/object/tags/image.js");
 
 /***/ }),
 
@@ -21,7 +20,6 @@ __webpack_require__(/*! ./js/object/tags/image.js */ "./assets/js/object/tags/im
   \*************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _lib_AiImageGenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../lib/AiImageGenerator */ "./assets/js/lib/AiImageGenerator.js");
 
@@ -66,7 +64,6 @@ pimcore.document.editables.image = Class.create(pimcore.document.editables.image
   \*******************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   AiImageGenerator: () => (/* binding */ AiImageGenerator),
@@ -86,6 +83,7 @@ var AiImageGenerator = /*#__PURE__*/function () {
     key: "generateAiImage",
     value: function generateAiImage(payload, onRequest, onSuccess, onError, onDone) {
       var params = new URLSearchParams(payload);
+      onRequest();
       fetch("/ai-images?" + params.toString()).then(function (response) {
         return response.json();
       }).then(function (jsonData) {
@@ -105,24 +103,12 @@ var AiImageGenerator = /*#__PURE__*/function () {
 
 /***/ }),
 
-/***/ "./assets/js/object/tags/image.js":
-/*!****************************************!*\
-  !*** ./assets/js/object/tags/image.js ***!
-  \****************************************/
-/***/ (() => {
-
-pimcore.registerNS("pimcore.object.tags.image");
-pimcore.object.tags.image = Class.create(pimcore.object.tags.image, {});
-
-/***/ }),
-
 /***/ "./assets/app.scss":
 /*!*************************!*\
   !*** ./assets/app.scss ***!
   \*************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
 // extracted by mini-css-extract-plugin
 
@@ -132,6 +118,6 @@ __webpack_require__.r(__webpack_exports__);
 },
 /******/ __webpack_require__ => { // webpackRuntimeModules
 /******/ var __webpack_exec__ = (moduleId) => (__webpack_require__(__webpack_require__.s = moduleId))
-/******/ var __webpack_exports__ = (__webpack_exec__("./assets/app.js"));
+/******/ var __webpack_exports__ = (__webpack_exec__("./assets/editmode.js"));
 /******/ }
 ]);

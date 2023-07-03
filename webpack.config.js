@@ -5,7 +5,8 @@ Encore
     .setPublicPath('/bundles/aiimagegenerator/')
     .setManifestKeyPrefix('ai-image-generator')
 
-    .addEntry('app', './assets/app.js')
+    .addEntry('editmode', './assets/editmode.js')
+    .addEntry('backend', './assets/backend.js')
 
     .enableSingleRuntimeChunk()
     .cleanupOutputBeforeBuild()

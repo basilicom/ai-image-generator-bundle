@@ -14,8 +14,8 @@ class PimcoreAdminSubscriber implements EventSubscriberInterface
             BundleManagerEvents::JS_PATHS => 'onJsPaths',
             BundleManagerEvents::CSS_PATHS => 'onCssPaths',
 
-            BundleManagerEvents::EDITMODE_JS_PATHS => 'onJsPaths',
-            BundleManagerEvents::EDITMODE_CSS_PATHS => 'onCssPaths',
+            BundleManagerEvents::EDITMODE_JS_PATHS => 'onEditmodeJsPaths',
+            BundleManagerEvents::EDITMODE_CSS_PATHS => 'onEditmodeCssPaths',
         ];
     }
 
@@ -26,7 +26,7 @@ class PimcoreAdminSubscriber implements EventSubscriberInterface
                 $event->getPaths(),
                 [
                     '/bundles/aiimagegenerator/runtime.js',
-                    '/bundles/aiimagegenerator/app.js'
+                    '/bundles/aiimagegenerator/backend.js'
                 ]
             )
         );
@@ -38,7 +38,32 @@ class PimcoreAdminSubscriber implements EventSubscriberInterface
             array_merge(
                 $event->getPaths(),
                 [
-                    '/bundles/aiimagegenerator/app.css'
+                    '/bundles/aiimagegenerator/backend.css'
+                ]
+            )
+        );
+    }
+
+    public function onEditmodeJsPaths(PathsEvent $event): void
+    {
+        $event->setPaths(
+            array_merge(
+                $event->getPaths(),
+                [
+                    '/bundles/aiimagegenerator/runtime.js',
+                    '/bundles/aiimagegenerator/editmode.js'
+                ]
+            )
+        );
+    }
+
+    public function onEditmodeCssPaths(PathsEvent $event): void
+    {
+        $event->setPaths(
+            array_merge(
+                $event->getPaths(),
+                [
+                    '/bundles/aiimagegenerator/editmode.css'
                 ]
             )
         );

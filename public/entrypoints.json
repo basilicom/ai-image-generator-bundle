@@ -1,12 +1,21 @@
 {
   "entrypoints": {
-    "app": {
+    "editmode": {
       "js": [
         "/bundles/aiimagegenerator/runtime.js",
-        "/bundles/aiimagegenerator/app.js"
+        "/bundles/aiimagegenerator/editmode.js"
       ],
       "css": [
-        "/bundles/aiimagegenerator/app.css"
+        "/bundles/aiimagegenerator/editmode.css"
+      ]
+    },
+    "backend": {
+      "js": [
+        "/bundles/aiimagegenerator/runtime.js",
+        "/bundles/aiimagegenerator/backend.js"
+      ],
+      "css": [
+        "/bundles/aiimagegenerator/backend.css"
       ]
     }
   }

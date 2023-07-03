@@ -2,6 +2,7 @@ export class AiImageGenerator {
     generateAiImage(payload, onRequest, onSuccess, onError, onDone) {
         const params = new URLSearchParams(payload);
 
+        onRequest();
         fetch("/ai-images?" + params.toString())
             .then(response => response.json())
             .then(jsonData => {

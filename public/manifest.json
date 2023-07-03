@@ -1,5 +1,7 @@
 {
-  "ai-image-generator/app.css": "/bundles/aiimagegenerator/app.css",
-  "ai-image-generator/app.js": "/bundles/aiimagegenerator/app.js",
+  "ai-image-generator/editmode.css": "/bundles/aiimagegenerator/editmode.css",
+  "ai-image-generator/editmode.js": "/bundles/aiimagegenerator/editmode.js",
+  "ai-image-generator/backend.css": "/bundles/aiimagegenerator/backend.css",
+  "ai-image-generator/backend.js": "/bundles/aiimagegenerator/backend.js",
   "ai-image-generator/runtime.js": "/bundles/aiimagegenerator/runtime.js"
 }
