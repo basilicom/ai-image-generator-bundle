@@ -23,7 +23,7 @@ services:
   Basilicom\AiImageGeneratorBundle\Service\ImageGenerationService: ~
 
   Basilicom\AiImageGeneratorBundle\Strategy\:
-    resource: '../src/Strategy/*'
+    resource: '../src/Strategy/**/*'
 
   Basilicom\AiImageGeneratorBundle\EventSubscriber\:
     resource: '../src/EventSubscriber/*'

@@ -7,6 +7,7 @@ use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
+use Pimcore\Model\Asset;
 use Symfony\Component\HttpFoundation\Request;
 
 class RequestService
@@ -14,21 +15,22 @@ class RequestService
     /**
      * @throws Exception
      */
-    public function generateImage(ServiceRequest $request): array
+    public function callApi(ServiceRequest $request): array
     {
-        $options = [];
-        $options[RequestOptions::HEADERS] = array_merge(
-            [
-                'Accept' => 'application/json',
-                'Content-Type' => 'application/json'
-            ],
-            $request->getHeaders()
-        );
+        $headers = $this->getHeaders($request);
 
-        $options[RequestOptions::VERIFY] = false;
+        $options = [
+            RequestOptions::HEADERS => $headers,
+            RequestOptions::VERIFY => false
+        ];
 
         if ($request->getMethod() === Request::METHOD_POST) {
-            $options[RequestOptions::BODY] = json_encode($request->getPayload(), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            if ($request->isMultiPart()) {
+                $options[RequestOptions::MULTIPART] = $request->getPayload();
+            } else {
+                $options[RequestOptions::HEADERS]['Content-Type'] = 'application/json';
+                $options[RequestOptions::BODY] = json_encode($request->getPayload(), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            }
         } elseif ($request->getMethod() === Request::METHOD_GET) {
             $options[RequestOptions::QUERY] = $request->getPayload();
         }
@@ -41,5 +43,17 @@ class RequestService
         } catch (GuzzleException $exception) {
             throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
+    }
+
+    private function getHeaders(ServiceRequest $request): array
+    {
+        $headers = array_merge(
+            [
+                'Accept' => 'application/json',
+            ],
+            $request->getHeaders()
+        );
+
+        return $headers;
     }
 }

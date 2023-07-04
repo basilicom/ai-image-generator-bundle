@@ -2,8 +2,8 @@
 
 namespace Basilicom\AiImageGeneratorBundle\Config\Model;
 
-use Basilicom\AiImageGeneratorBundle\Config\AbstractConfiguration;
+use Basilicom\AiImageGeneratorBundle\Config\Configuration;
 
-class StableDiffusionApiConfig extends AbstractConfiguration
+class StableDiffusionApiConfig extends Configuration
 {
 }

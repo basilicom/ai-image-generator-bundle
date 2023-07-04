@@ -8,13 +8,15 @@ class ServiceRequest
     private string $method;
     private array $payload;
     private array $headers;
+    private bool $isMultiPart;
 
-    public function __construct(string $uri, string $method, array $payload, array $headers = [])
+    public function __construct(string $uri, string $method, array $payload, array $headers = [], bool $isMultiPart = false)
     {
         $this->uri = $uri;
         $this->method = $method;
         $this->payload = $payload;
         $this->headers = $headers;
+        $this->isMultiPart = $isMultiPart;
     }
 
     public function getUri(): string
@@ -27,6 +29,11 @@ class ServiceRequest
         return $this->method;
     }
 
+    public function setPayload(array $payload): void
+    {
+        $this->payload = $payload;
+    }
+
     public function getPayload(): array
     {
         return $this->payload;
@@ -35,5 +42,10 @@ class ServiceRequest
     public function getHeaders(): array
     {
         return $this->headers;
+    }
+
+    public function isMultiPart(): bool
+    {
+        return $this->isMultiPart;
     }
 }

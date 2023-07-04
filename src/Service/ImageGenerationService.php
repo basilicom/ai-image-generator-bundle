@@ -2,7 +2,7 @@
 
 namespace Basilicom\AiImageGeneratorBundle\Service;
 
-use Basilicom\AiImageGeneratorBundle\Config\AbstractConfiguration;
+use Basilicom\AiImageGeneratorBundle\Config\Configuration;
 use Basilicom\AiImageGeneratorBundle\Config\ConfigurationService;
 use Basilicom\AiImageGeneratorBundle\Config\Model\DreamStudioApiConfig;
 use Basilicom\AiImageGeneratorBundle\Config\Model\StableDiffusionApiConfig;
@@ -15,6 +15,7 @@ use Exception;
 use Pimcore\Model\Asset;
 use Pimcore\Model\DataObject;
 use Pimcore\Model\Document\Page;
+use Pimcore\Model\Document\PageSnippet;
 use Symfony\Component\HttpFoundation\Request;
 
 class ImageGenerationService
@@ -52,13 +53,18 @@ class ImageGenerationService
             $this->strategy = $this->dreamStudioStrategy;
         }
 
-        $this->strategy->setConfig($config);
-        $aiImage = $this->strategy->requestImage();
+        $aiImage = $this->strategy->textToImage($config);
+        $asset = $this->createPimcoreAsset($aiImage);
 
-        return $this->createPimcoreAsset($aiImage);
+        if ($config->isUpscale()) {
+            $upscaledAiImage = $this->strategy->upscale($config, $aiImage);
+            $asset = $this->updatePimcoreAsset($asset, $upscaledAiImage);
+        }
+
+        return $asset;
     }
 
-    private function getServiceRequestConfig(Request $request): AbstractConfiguration
+    private function getServiceRequestConfig(Request $request): Configuration
     {
         $config = $this->configurationService->getConfiguration();
         $context = (string)$request->get('context');
@@ -67,20 +73,22 @@ class ImageGenerationService
         $height = (int)$request->get('height');
 
         $element = match ($context) {
-            'document' => Page::getById($id),
+            'document' => PageSnippet::getById($id),
             'object' => DataObject::getById($id),
         };
 
-        // todo ==> move to strategies
         $prompt = $this->promptCreator->createPromptParts($element);
-        // todo
-        $negativePrompt = ['(semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime:1.4), text, close up, cropped, out of frame, worst quality, low quality, jpeg artifacts, ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, dehydrated, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck'];
+        $negativePrompt = ['(semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime:1.4), text, close up, cropped, out of frame, worst quality, low quality, jpeg artifacts, ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, dehydrated, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck']; // todo
 
         $aspectRatio = $this->aspectRatioCalculator->getAspectRatioFromDimensions($width, $height);
 
         $config->setPromptParts($prompt);
         $config->setNegativePromptParts($negativePrompt);
         $config->setAspectRatio($aspectRatio);
+
+        if ($width > 512 || $height > 512) {
+            $config->setUpscale(true);
+        }
 
         return $config;
     }
@@ -94,7 +102,21 @@ class ImageGenerationService
         $asset->setParent(Asset\Service::createFolderByPath('/ai-images'));
         $asset->setKey(uniqid('ai-image') . '.png');
         $asset->setType('image');
-        $asset->setData($generatedImage->getData());
+        $asset->setData($generatedImage->getData(true));
+
+        foreach ($generatedImage->getAllMetadata() as $key => $value) {
+            $asset->addMetadata($key, 'input', $value);
+        }
+
+        return $asset->save();
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function updatePimcoreAsset(Asset $asset, AiImage $generatedImage): Asset
+    {
+        $asset->setData($generatedImage->getData(true));
 
         foreach ($generatedImage->getAllMetadata() as $key => $value) {
             $asset->addMetadata($key, 'input', $value);

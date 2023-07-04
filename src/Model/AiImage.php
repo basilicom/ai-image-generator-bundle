@@ -12,9 +12,9 @@ class AiImage
         $this->data = $data;
     }
 
-    public function getData(): string
+    public function getData(bool $decode = false): string
     {
-        return $this->data;
+        return $decode ? base64_decode($this->data) : $this->data;
     }
 
     public function setMetadata(string $key, mixed $value): void

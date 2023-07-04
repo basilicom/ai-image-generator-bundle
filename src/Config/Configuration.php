@@ -2,21 +2,25 @@
 
 namespace Basilicom\AiImageGeneratorBundle\Config;
 
-abstract class AbstractConfiguration
+abstract class Configuration
 {
     protected string $baseUrl;
     protected string $model;
     protected int $steps;
+    protected string $upscaler;
 
     protected array $promptParts;
     protected array $negativePromptParts;
     protected string $aspectRatio;
 
-    public function __construct(string $baseUrl, string $model, int $steps)
+    protected bool $upscale = false;
+
+    public function __construct(string $baseUrl, string $model, int $steps, string $upscaler)
     {
         $this->baseUrl = $baseUrl;
         $this->model = $model;
         $this->steps = $steps;
+        $this->upscaler = $upscaler;
     }
 
     public function getBaseUrl(): string
@@ -32,6 +36,11 @@ abstract class AbstractConfiguration
     public function getSteps(): int
     {
         return $this->steps;
+    }
+
+    public function getUpscaler(): string
+    {
+        return $this->upscaler;
     }
 
     public function getPromptParts(): array
@@ -64,4 +73,13 @@ abstract class AbstractConfiguration
         $this->aspectRatio = $aspectRatio;
     }
 
+    public function isUpscale(): bool
+    {
+        return $this->upscale;
+    }
+
+    public function setUpscale(bool $upscale): void
+    {
+        $this->upscale = $upscale;
+    }
 }

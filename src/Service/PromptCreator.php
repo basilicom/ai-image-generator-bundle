@@ -4,6 +4,7 @@ namespace Basilicom\AiImageGeneratorBundle\Service;
 
 use Pimcore\Model\DataObject;
 use Pimcore\Model\Document\Page;
+use Pimcore\Model\Document\PageSnippet;
 use Pimcore\Model\Document\Service;
 
 class PromptCreator
@@ -14,9 +15,9 @@ class PromptCreator
      *      get color scheme
      *      get context
      */
-    public function createPromptParts(Page|DataObject $element): array
+    public function createPromptParts(PageSnippet|DataObject $element): array
     {
-        if ($element instanceof Page) {
+        if ($element instanceof PageSnippet) {
             $promptParts = $this->getPromptFromDocumentContext($element);
         } elseif ($element instanceof DataObject) {
             // todo
@@ -32,38 +33,55 @@ class PromptCreator
         ];
     }
 
-    protected function getPromptFromDocumentContext(?Page $page): array
+    protected function getPromptFromDocumentContext(?PageSnippet $page): array
     {
         if (!$page) {
             return [];
         }
 
         // todo ==> translate (?)
-        $title = $page->getTitle();
-        $description = $page->getDescription();
-        $texts = $this->extractImportantTexts($page);
+        $prompts = [];
+        if ($page instanceof Page) {
+            $prompts[] = '((' . $page->getTitle() . '))';
+            $prompts[] = '(' . $page->getDescription() . ')';
+        }
 
         return [
-            '((' . $title . '))',
-            '(' . $description . ')',
-            ...$texts
+            ...$prompts,
+            ...$this->extractImportantTexts($page)
         ];
     }
 
-    private function extractImportantTexts(Page $page): array
+    private function extractImportantTexts(PageSnippet $page): array
     {
         $pageContent = Service::render($page);
 
         $contents = [];
         preg_match_all('/<h1[^>]*>(.*?)<\/h1>/i', $pageContent, $h1Matches);
-        foreach ($h1Matches[1] as $h1_content) {
-            $contents[] = strip_tags($h1_content);
+        foreach ($h1Matches[1] as $h1Content) {
+            $contents[] = strip_tags($h1Content);
         }
 
         // Match <h2> tags and extract their contents
         preg_match_all('/<h2[^>]*>(.*?)<\/h2>/i', $pageContent, $h2Matches);
-        foreach ($h2Matches[1] as $h2_content) {
-            $contents[] = strip_tags($h2_content);
+        foreach ($h2Matches[1] as $h2Content) {
+            $contents[] = strip_tags($h2Content);
+        }
+
+        if (empty($contents)) {
+            // Match <h3> tags and extract their contents
+            preg_match_all('/<h3[^>]*>(.*?)<\/h3>/i', $pageContent, $h3Matches);
+            foreach ($h3Matches[1] as $h3Content) {
+                $contents[] = strip_tags($h3Content);
+            }
+        }
+
+        if (empty($contents)) {
+            // Match <h3> tags and extract their contents
+            preg_match_all('/<h4[^>]*>(.*?)<\/h4>/i', $pageContent, $h4Matches);
+            foreach ($h4Matches[1] as $h4Content) {
+                $contents[] = strip_tags($h4Content);
+            }
         }
 
         return $contents;
