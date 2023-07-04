@@ -110,6 +110,7 @@ class PromptCreator
             'title',
             'name',
             'productName',
+            'description',
         ];
 
         foreach ($possibleFields as $field) {
