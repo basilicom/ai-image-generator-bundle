@@ -1,3 +1,4 @@
+"use strict";
 (self["webpackChunkbasilicom_ai_image_generator_bundle"] = self["webpackChunkbasilicom_ai_image_generator_bundle"] || []).push([["backend"],{
 
 /***/ "./assets/backend.js":
@@ -6,7 +7,6 @@
   \***************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _app_scss__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./app.scss */ "./assets/app.scss");
 
@@ -21,7 +21,6 @@ __webpack_require__(/*! ./js/object/tags/image.js */ "./assets/js/object/tags/im
   \*************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _lib_AiImageGenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../lib/AiImageGenerator */ "./assets/js/lib/AiImageGenerator.js");
 var _this = undefined;
@@ -56,7 +55,6 @@ document.addEventListener(pimcore.events.postOpenAsset, function (e) {
   \*******************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   AiImageGenerator: () => (/* binding */ AiImageGenerator),
@@ -173,20 +171,47 @@ var AiImageGenerator = /*#__PURE__*/function () {
 /*!****************************************!*\
   !*** ./assets/js/object/tags/image.js ***!
   \****************************************/
-/***/ (() => {
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _lib_AiImageGenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../lib/AiImageGenerator */ "./assets/js/lib/AiImageGenerator.js");
 
 pimcore.registerNS("pimcore.object.tags.image");
 pimcore.object.tags.image = Class.create(pimcore.object.tags.image, {
-  type: "image",
-  dirty: false,
-  initialize: function initialize(data, fieldConfig) {
-    if (data) {
-      this.data = data;
-    } else {
-      this.data = {};
-    }
-    this.fieldConfig = fieldConfig;
-    console.log("whuhuhU");
+  label: "Generate Image",
+  button: null,
+  getLayoutEdit: function getLayoutEdit($super) {
+    var component = $super();
+    var toolbar = component.getDockedItems('toolbar')[0];
+    this.button = new Ext.button.Button({
+      text: this.label,
+      // Button text
+      handler: this.generateAiImage.bind(this)
+    });
+    toolbar.add(this.button);
+    return component;
+  },
+  generateAiImage: function generateAiImage() {
+    var _this = this;
+    _lib_AiImageGenerator__WEBPACK_IMPORTED_MODULE_0__["default"].generateAiImage({
+      context: 'object',
+      id: this.object.id,
+      width: this.component.config.width,
+      height: this.component.config.height
+    }, function () {
+      _this.button.innerHTML = 'Loading...';
+    }, function (jsonData) {
+      _this.empty(true);
+      if (_this.data.id !== jsonData.id) {
+        _this.dirty = true;
+      }
+      _this.data.id = jsonData.id;
+      _this.updateImage();
+    }, function (jsonData) {
+      pimcore.helpers.showNotification(t("error"), jsonData.message, "error");
+    }, function () {
+      _this.button.innerHTML = _this.label;
+    });
   }
 });
 
@@ -198,7 +223,6 @@ pimcore.object.tags.image = Class.create(pimcore.object.tags.image, {
   \*************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-"use strict";
 __webpack_require__.r(__webpack_exports__);
 // extracted by mini-css-extract-plugin
 

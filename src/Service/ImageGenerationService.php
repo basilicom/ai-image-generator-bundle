@@ -53,12 +53,12 @@ class ImageGenerationService
         }
 
         $aiImage = $this->strategy->textToImage($config);
-        $asset = $this->createPimcoreAsset($aiImage);
+        $asset = $this->createPimcoreAsset($aiImage, 'generated via ' . $config->getName());
 
         if ($config->isUpscale()) {
             $upscaledAiImage = $this->strategy->upscale($config, $aiImage);
 
-            return $this->updatePimcoreAsset($asset, $upscaledAiImage);
+            return $this->updatePimcoreAsset($asset, $upscaledAiImage, 'upscaled via ' . $config->getName());
         }
 
         return $asset;
@@ -114,13 +114,13 @@ class ImageGenerationService
         $aiImage->setData(base64_encode($asset->getData()));
         $upscaledAiImage = $this->strategy->upscale($config, $aiImage);
 
-        return $this->updatePimcoreAsset($asset, $upscaledAiImage);
+        return $this->updatePimcoreAsset($asset, $upscaledAiImage, 'upscaled via ' . $config->getName());
     }
 
     /**
      * @throws Exception
      */
-    private function createPimcoreAsset(AiImage $generatedImage): Asset
+    private function createPimcoreAsset(AiImage $generatedImage, string $versionNote = ''): Asset
     {
         $asset = new Asset();
         $asset->setParent(Asset\Service::createFolderByPath('/ai-images'));
@@ -132,13 +132,13 @@ class ImageGenerationService
             $asset->addMetadata($key, 'input', $value);
         }
 
-        return $asset->save();
+        return $asset->save(['versionNote' => $versionNote]);
     }
 
     /**
      * @throws Exception
      */
-    private function updatePimcoreAsset(Asset $asset, AiImage $generatedImage): Asset
+    private function updatePimcoreAsset(Asset $asset, AiImage $generatedImage, string $versionNote = ''): Asset
     {
         $asset->setData($generatedImage->getData(true));
 
@@ -146,6 +146,6 @@ class ImageGenerationService
             $asset->addMetadata($key, 'input', $value);
         }
 
-        return $asset->save();
+        return $asset->save(['versionNote' => $versionNote]);
     }
 }

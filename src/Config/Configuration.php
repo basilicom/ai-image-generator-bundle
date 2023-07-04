@@ -4,6 +4,8 @@ namespace Basilicom\AiImageGeneratorBundle\Config;
 
 abstract class Configuration
 {
+    protected string $name = '';
+
     protected string $baseUrl;
     protected string $model;
     protected int $steps;
@@ -21,6 +23,11 @@ abstract class Configuration
         $this->model = $model;
         $this->steps = $steps;
         $this->upscaler = $upscaler;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
     }
 
     public function getBaseUrl(): string

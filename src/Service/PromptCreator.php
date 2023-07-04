@@ -14,13 +14,21 @@ class PromptCreator
      *      get mood
      *      get color scheme
      *      get context
+     *      get style
      */
     public function createPromptParts(PageSnippet|DataObject $element): array
     {
+        $promptParts = [];
         if ($element instanceof PageSnippet) {
-            $promptParts = $this->getPromptFromDocumentContext($element);
+            $promptParts = [
+                ...$promptParts,
+                ...$this->getPromptFromDocumentContext($element),
+            ];
         } elseif ($element instanceof DataObject) {
-            // todo
+            $promptParts = [
+                ...$promptParts,
+                ...$this->getPromptFromDataObjectContext($element)
+            ];
         }
 
         if (empty($promptParts)) {
@@ -29,7 +37,7 @@ class PromptCreator
 
         return [
             ...$promptParts,
-            '8k, uhd, dslr,soft lighting,high quality,Fujifilm XT3',
+            '8k, uhd, soft lighting, high quality',
         ];
     }
 
@@ -42,8 +50,15 @@ class PromptCreator
         // todo ==> translate (?)
         $prompts = [];
         if ($page instanceof Page) {
-            $prompts[] = '((' . $page->getTitle() . '))';
-            $prompts[] = '(' . $page->getDescription() . ')';
+            $title = $page->getTitle();
+            if (!empty($title)) {
+                $prompts[] = '((' . $title . '))';
+            }
+
+            $description = $page->getDescription();
+            if (!empty($description)) {
+                $prompts[] = '(' . $description . ')';
+            }
         }
 
         return [
@@ -84,6 +99,26 @@ class PromptCreator
             }
         }
 
-        return $contents;
+        return array_filter($contents);
+    }
+
+    private function getPromptFromDataObjectContext(DataObject $object): array
+    {
+        $contents = [];
+
+        $possibleFields = [
+            'title',
+            'name',
+            'productName',
+        ];
+
+        foreach ($possibleFields as $field) {
+            $method = 'get' . ucfirst($field);
+            if (method_exists($object, $method)) {
+                $contents[] = strip_tags($object->$method());
+            }
+        }
+
+        return array_filter($contents);
     }
 }

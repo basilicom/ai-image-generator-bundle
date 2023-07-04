@@ -6,6 +6,7 @@ use Basilicom\AiImageGeneratorBundle\Config\Configuration;
 
 class DreamStudioApiConfig extends Configuration
 {
+    protected string $name = 'DreamStudio';
     private string $apiKey;
 
     public function __construct(string $baseUrl, string $model, int $steps, string $upscaler, string $apiKey)
