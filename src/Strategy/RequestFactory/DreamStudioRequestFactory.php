@@ -79,25 +79,35 @@ class DreamStudioRequestFactory implements RequestFactory
 
     public function createUpscaleRequest(Configuration $configuration, AiImage $baseImage): ServiceRequest
     {
-        $aspectRatio = $configuration->getAspectRatio();
-        $getRelativeAspectRatio = $this->aspectRatioCalculator->calculateAspectRatio($aspectRatio, 64);
-
         $uri = sprintf('%s/v1/generation/%s/image-to-image/upscale', $configuration->getBaseUrl(), $configuration->getUpscaler());
         $method = Request::METHOD_POST;
 
         $tmpFilePath = sys_get_temp_dir() . '/ai-image-generator.png';
         file_put_contents($tmpFilePath, $baseImage->getData(true));
 
+        $imageSize = getimagesize($tmpFilePath);
+        $width = $imageSize[0];
+        $height = $imageSize[1];
+
+        // todo => set 2k if esgran, use 4k to latent upscale but with prompt.
         $payload = [
             [
                 'name' => 'image',
                 'contents' => fopen($tmpFilePath, 'rb')
-            ],
-            [
-                'name' => 'width',
-                'contents' => $getRelativeAspectRatio['width'] * 2, // todo => set 2k if esgran, use 4k to latent upscale but with prompt.
             ]
         ];
+
+        if ($width > $height) {
+            $payload[] = [
+                'name' => 'width',
+                'contents' => $width * 2
+            ];
+        } else {
+            $payload[] = [
+                'name' => 'height',
+                'contents' => $height * 2
+            ];
+        }
 
         unlink($tmpFilePath);
 

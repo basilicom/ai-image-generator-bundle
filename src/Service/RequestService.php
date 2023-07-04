@@ -7,7 +7,6 @@ use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
-use Pimcore\Model\Asset;
 use Symfony\Component\HttpFoundation\Request;
 
 class RequestService

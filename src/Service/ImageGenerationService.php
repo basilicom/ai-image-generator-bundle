@@ -14,7 +14,6 @@ use Basilicom\AiImageGeneratorBundle\Strategy\Strategy;
 use Exception;
 use Pimcore\Model\Asset;
 use Pimcore\Model\DataObject;
-use Pimcore\Model\Document\Page;
 use Pimcore\Model\Document\PageSnippet;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -46,7 +45,7 @@ class ImageGenerationService
      */
     public function generateImage(Request $request): Asset
     {
-        $config = $this->getServiceRequestConfig($request);
+        $config = $this->getTxt2ImageApiConfig($request);
         if ($config instanceof StableDiffusionApiConfig) {
             $this->strategy = $this->stableDiffusionStrategy;
         } elseif ($config instanceof DreamStudioApiConfig) {
@@ -58,13 +57,14 @@ class ImageGenerationService
 
         if ($config->isUpscale()) {
             $upscaledAiImage = $this->strategy->upscale($config, $aiImage);
-            $asset = $this->updatePimcoreAsset($asset, $upscaledAiImage);
+
+            return $this->updatePimcoreAsset($asset, $upscaledAiImage);
         }
 
         return $asset;
     }
 
-    private function getServiceRequestConfig(Request $request): Configuration
+    private function getTxt2ImageApiConfig(Request $request): Configuration
     {
         $config = $this->configurationService->getConfiguration();
         $context = (string)$request->get('context');
@@ -91,6 +91,30 @@ class ImageGenerationService
         }
 
         return $config;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function upscaleImage(Request $request): Asset
+    {
+        $config = $this->configurationService->getConfiguration();
+        $config->setUpscale(true);
+
+        if ($config instanceof StableDiffusionApiConfig) {
+            $this->strategy = $this->stableDiffusionStrategy;
+        } elseif ($config instanceof DreamStudioApiConfig) {
+            $this->strategy = $this->dreamStudioStrategy;
+        }
+
+        $requestPayload = json_decode($request->getContent(), true);
+        $asset = Asset::getById($requestPayload['id']);
+
+        $aiImage = new AiImage();
+        $aiImage->setData(base64_encode($asset->getData()));
+        $upscaledAiImage = $this->strategy->upscale($config, $aiImage);
+
+        return $this->updatePimcoreAsset($asset, $upscaledAiImage);
     }
 
     /**

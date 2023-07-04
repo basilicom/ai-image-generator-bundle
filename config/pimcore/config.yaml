@@ -4,10 +4,12 @@ ai_image_generator:
 #    model: "reliberate_v10" # the model checkpoint name
 #    steps: 20 # this will have impact on generation-time
 #    upscaler: "ESRGAN_4x" # this will have impact on generation-time
-#
+
 #  dream_studio:
 #    baseUrl: "https://api.stability.ai"
 #    model: "stable-diffusion-xl-beta-v2-2-2"
 #    steps: 10 # this will have impact on credits
 #    apiKey: "%env(DREAM_STUDIO_API_KEY)%"
 #    upscaler: "esrgan-v1-x2plus"
+#
+# todo ==> configure which features are enabled (e.g. upscale or generate or ...)

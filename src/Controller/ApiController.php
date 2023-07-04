@@ -37,7 +37,6 @@ class ApiController extends AbstractController
      *      ==> regenerate image based on meta data directly in Asset-preview and store as new version
      *      ==> API Adapter for Midjourney
      *      ==> add button to image object field
-     *      ==> upscaling
      *      ==> controlnet
      *               "alwayson_scripts": {
      *                  "controlnet": {
@@ -52,7 +51,7 @@ class ApiController extends AbstractController
      *               }
      * @throws Exception
      */
-    #[Route('', name: 'generate_image_route')]
+    #[Route('/generate', name: 'generate_image_route', methods: ['GET'])]
     public function default(Request $request): JsonResponse
     {
         if ($this->lockManager->isLocked()) {
@@ -70,6 +69,38 @@ class ApiController extends AbstractController
                 [
                     'success' => true,
                     'id' => $generatedImage->getId()
+                ],
+                Response::HTTP_OK
+            );
+        } catch (Exception $e) {
+            $this->logger->error('Error when generating AI images: ' . $e->getMessage());
+            $this->lockManager->unlock();
+            if ($_ENV['APP_ENV'] !== 'prod') {
+                return $this->returnError($e->getMessage());
+            } else {
+                return $this->returnError('Unable to generate AI image.');
+            }
+        }
+    }
+
+    #[Route('/upscale', name: 'upscale_image_route', methods: ['POST'])]
+    public function upscale(Request $request): JsonResponse
+    {
+        if ($this->lockManager->isLocked()) {
+            return $this->returnError('Currently generating image, please wait.', Response::HTTP_FORBIDDEN);
+        }
+
+        try {
+            $this->lockManager->lock();
+
+            $upscaledImage = $this->imageGenerationService->upscaleImage($request);
+
+            $this->lockManager->unlock();
+
+            return new JsonResponse(
+                [
+                    'success' => true,
+                    'id' => $upscaledImage->getId()
                 ],
                 Response::HTTP_OK
             );
