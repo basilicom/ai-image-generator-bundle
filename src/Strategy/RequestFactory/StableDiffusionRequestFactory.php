@@ -12,7 +12,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 class StableDiffusionRequestFactory implements RequestFactory
 {
-
     private AspectRatioCalculator $aspectRatioCalculator;
 
     public function __construct(AspectRatioCalculator $aspectRatioCalculator)
@@ -96,6 +95,8 @@ class StableDiffusionRequestFactory implements RequestFactory
             'sampler_name' => 'Euler a',
             'cfg_scale' => 7,
         ];
+
+        // todo ==>  use ControlNet Tiling to Upscale
 
         return new ServiceRequest($uri, $method, $payload);
     }

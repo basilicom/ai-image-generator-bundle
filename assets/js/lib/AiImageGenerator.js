@@ -13,8 +13,9 @@ const POST = async function (url = '', data = {}) {
 
 export class AiImageGenerator {
     generateAiImage(payload, onRequest, onSuccess, onError, onDone) {
+        const url = Routing.generate('ai_image_by_element_context', payload);
         onRequest();
-        GET('/ai-images/generate', payload)
+        GET(url, payload)
             .then(jsonData => {
                 if (jsonData.success === true) {
                     onSuccess(jsonData);
@@ -28,8 +29,9 @@ export class AiImageGenerator {
     }
 
     upscaleImage(payload, onRequest, onSuccess, onError, onDone) {
+        const url = Routing.generate('ai_image_upscale', payload);
         onRequest();
-        POST('/ai-images/upscale', payload)
+        POST(url, payload)
             .then(jsonData => {
                 if (jsonData.success === true) {
                     onSuccess(jsonData);

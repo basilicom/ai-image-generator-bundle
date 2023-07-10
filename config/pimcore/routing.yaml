@@ -2,3 +2,5 @@ basilicom_ai_image_generator:
   resource: "../../src/Controller/"
   type: annotation
   prefix: /ai-images
+  options:
+    expose: true

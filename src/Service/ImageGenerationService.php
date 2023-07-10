@@ -68,13 +68,13 @@ class ImageGenerationService
     {
         $config = $this->configurationService->getConfiguration();
         $context = (string)$request->get('context');
-        $id = (int)$request->get('id');
+        $contextElementId = (int)$request->get('id');
         $width = (int)$request->get('width');
         $height = (int)$request->get('height');
 
         $element = match ($context) {
-            'document' => PageSnippet::getById($id),
-            'object' => DataObject::getById($id),
+            'document' => PageSnippet::getById($contextElementId),
+            'object' => DataObject::getById($contextElementId),
         };
 
         $prompt = $this->promptCreator->createPromptParts($element);
@@ -96,7 +96,7 @@ class ImageGenerationService
     /**
      * @throws Exception
      */
-    public function upscaleImage(Request $request): Asset
+    public function upscaleImage(int $assetId): Asset
     {
         $config = $this->configurationService->getConfiguration();
         $config->setUpscale(true);
@@ -107,8 +107,7 @@ class ImageGenerationService
             $this->strategy = $this->dreamStudioStrategy;
         }
 
-        $requestPayload = json_decode($request->getContent(), true);
-        $asset = Asset::getById($requestPayload['id']);
+        $asset = Asset::getById($assetId);
 
         $aiImage = new AiImage();
         $aiImage->setData(base64_encode($asset->getData()));

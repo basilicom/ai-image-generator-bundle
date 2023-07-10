@@ -51,8 +51,22 @@ class ApiController extends AbstractController
      *               }
      * @throws Exception
      */
-    #[Route('/generate', name: 'generate_image_route', methods: ['GET'])]
-    public function default(Request $request): JsonResponse
+    #[Route(
+        '/generate/{context}/{id}',
+        name: 'ai_image_by_element_context',
+        requirements: [
+            'context' => '.+',
+            'id' => '\d+',
+            'width' => '\d+',
+            'height' => '\d+'
+        ],
+        defaults: [
+            'width' => 512,
+            'height' => 512
+        ],
+        methods: ['GET']
+    )]
+    public function generateByElementContext(Request $request): JsonResponse
     {
         if ($this->lockManager->isLocked()) {
             return $this->returnError('Currently generating image, please wait.', Response::HTTP_FORBIDDEN);
@@ -83,7 +97,7 @@ class ApiController extends AbstractController
         }
     }
 
-    #[Route('/upscale', name: 'upscale_image_route', methods: ['POST'])]
+    #[Route('/upscale/{id}', name: 'ai_image_upscale', methods: ['POST'])]
     public function upscale(Request $request): JsonResponse
     {
         if ($this->lockManager->isLocked()) {
@@ -93,7 +107,7 @@ class ApiController extends AbstractController
         try {
             $this->lockManager->lock();
 
-            $upscaledImage = $this->imageGenerationService->upscaleImage($request);
+            $upscaledImage = $this->imageGenerationService->upscaleImage((int)$request->get('id'));
 
             $this->lockManager->unlock();
 

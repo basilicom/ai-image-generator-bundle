@@ -4,7 +4,7 @@
   "description": "Using state-of-the-art image generation SaaS in Pimcore.",
   "main": "index.js",
   "scripts": {
-    "watch": "encore dev --watch",
+    "watch": "encore production --watch",
     "build": "encore production"
   },
   "author": "Alexander Heidrich",
