@@ -26,7 +26,7 @@ abstract class Strategy
         $request = $this->requestFactory->createTxt2ImgRequest($config);
         $response = $this->requestService->callApi($request);
 
-        return $this->createAiImageFromResponse($response);
+        return $this->createAiImageFromResponse($config, $response);
     }
 
     /**
@@ -37,7 +37,7 @@ abstract class Strategy
         $request = $this->requestFactory->createImg2ImgRequest($config, $image);
         $response = $this->requestService->callApi($request);
 
-        return $this->createAiImageFromResponse($response);
+        return $this->createAiImageFromResponse($config, $response);
     }
 
     /**
@@ -48,8 +48,8 @@ abstract class Strategy
         $request = $this->requestFactory->createUpscaleRequest($config, $image);
         $response = $this->requestService->callApi($request);
 
-        return $this->createAiImageFromResponse($response);
+        return $this->createAiImageFromResponse($config, $response);
     }
 
-    abstract protected function createAiImageFromResponse(array $response): AiImage;
+    abstract protected function createAiImageFromResponse(Configuration $config, array $response): AiImage;
 }

@@ -6,6 +6,7 @@ use Basilicom\AiImageGeneratorBundle\Config\Configuration;
 use Basilicom\AiImageGeneratorBundle\Config\Model\DreamStudioApiConfig;
 use Basilicom\AiImageGeneratorBundle\Config\Model\StableDiffusionApiConfig;
 use Basilicom\AiImageGeneratorBundle\Model\AiImage;
+use Basilicom\AiImageGeneratorBundle\Model\MetaDataEnum;
 use Basilicom\AiImageGeneratorBundle\Strategy\DreamStudioStrategy;
 use Basilicom\AiImageGeneratorBundle\Strategy\StableDiffusionStrategy;
 use Basilicom\AiImageGeneratorBundle\Strategy\Strategy;
@@ -61,6 +62,12 @@ class ImageGenerationService
         }
 
         $asset = Asset::getById($assetId);
+        if ($prompt = $asset->getMetadata(MetaDataEnum::PROMPT)) {
+            $config->setPromptParts([$prompt]);
+        }
+        if ($negativePrompt = $asset->getMetadata(MetaDataEnum::NEGATIVE_PROMPT)) {
+            $config->setPromptParts([$negativePrompt]);
+        }
 
         $aiImage = new AiImage();
         $aiImage->setData(base64_encode($asset->getData()));

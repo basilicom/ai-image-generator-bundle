@@ -11,11 +11,10 @@ abstract class Configuration
     protected int $steps;
     protected string $upscaler;
 
-    protected array $promptParts;
-    protected array $negativePromptParts;
+    protected array $promptParts = [];
+    protected array $negativePromptParts = [];
     protected string $aspectRatio;
     protected int $seed = -1;
-
     protected bool $upscale = false;
 
     public function __construct(string $baseUrl, string $model, int $steps, string $upscaler)
