@@ -2,6 +2,8 @@
 
 namespace Basilicom\AiImageGeneratorBundle\Helper;
 
+use Basilicom\AiImageGeneratorBundle\Model\AspectRatio;
+
 class AspectRatioCalculator
 {
     public function getAspectRatioFromDimensions(int $width, int $height): string
@@ -54,13 +56,12 @@ class AspectRatioCalculator
         return abs($a);
     }
 
-
-    public function calculateAspectRatio(string $aspectRatio, ?int $baseIncrement = null): array
+    public function calculateAspectRatio(string $aspectRatio, int $modelBaseSize = 512, ?int $baseIncrement = null): AspectRatio
     {
         list($aspectWidth, $aspectHeight) = explode(':', $aspectRatio);
 
-        $width = 512;
-        $height = 512;
+        $width = $modelBaseSize;
+        $height = $modelBaseSize;
 
         if ($width * $aspectHeight > $height * $aspectWidth) {
             $width = $height * $aspectWidth / $aspectHeight;
@@ -72,28 +73,21 @@ class AspectRatioCalculator
         $height = floor($height);
 
         if ($baseIncrement === null) {
-            return [
-                'width' => $width,
-                'height' => $height,
-            ];
+            return new AspectRatio($aspectRatio, $width, $height);
         }
 
-        $width = $this->getClosestIncrement($width, $baseIncrement);
-        $height = $this->getClosestIncrement($height, $baseIncrement);
+        $width = $this->calculateClosestIncrementOfValue($width, $baseIncrement);
+        $height = $this->calculateClosestIncrementOfValue($height, $baseIncrement);
 
         // Make sure the adjusted dimensions are not larger than 512
-        $width = min($width, 512);
-        $height = min($height, 512);
+        $width = min($width, $modelBaseSize);
+        $height = min($height, $modelBaseSize);
 
-        return [
-            'width' => $width,
-            'height' => $height,
-        ];
+        return new AspectRatio($aspectRatio, $width, $height);
     }
 
-    private function getClosestIncrement(int $value, int $increment): int
+    private function calculateClosestIncrementOfValue(int $value, int $increment): int
     {
-        // Calculate the closest increment of a value
         $remainder = $value % $increment;
 
         return $remainder > $increment / 2 ? $value + $increment - $remainder : $value - $remainder;

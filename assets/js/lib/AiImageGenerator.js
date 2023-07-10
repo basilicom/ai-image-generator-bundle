@@ -15,7 +15,7 @@ export class AiImageGenerator {
     generateAiImage(payload, onRequest, onSuccess, onError, onDone) {
         const url = Routing.generate('ai_image_by_element_context', payload);
         onRequest();
-        GET(url, payload)
+        POST(url, payload)
             .then(jsonData => {
                 if (jsonData.success === true) {
                     onSuccess(jsonData);

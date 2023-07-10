@@ -3,49 +3,34 @@
 namespace Basilicom\AiImageGeneratorBundle\Service;
 
 use Basilicom\AiImageGeneratorBundle\Config\Configuration;
-use Basilicom\AiImageGeneratorBundle\Config\ConfigurationService;
 use Basilicom\AiImageGeneratorBundle\Config\Model\DreamStudioApiConfig;
 use Basilicom\AiImageGeneratorBundle\Config\Model\StableDiffusionApiConfig;
-use Basilicom\AiImageGeneratorBundle\Helper\AspectRatioCalculator;
 use Basilicom\AiImageGeneratorBundle\Model\AiImage;
 use Basilicom\AiImageGeneratorBundle\Strategy\DreamStudioStrategy;
 use Basilicom\AiImageGeneratorBundle\Strategy\StableDiffusionStrategy;
 use Basilicom\AiImageGeneratorBundle\Strategy\Strategy;
 use Exception;
 use Pimcore\Model\Asset;
-use Pimcore\Model\DataObject;
-use Pimcore\Model\Document\PageSnippet;
-use Symfony\Component\HttpFoundation\Request;
 
 class ImageGenerationService
 {
     private Strategy $strategy;
-    private ConfigurationService $configurationService;
     private StableDiffusionStrategy $stableDiffusionStrategy;
     private DreamStudioStrategy $dreamStudioStrategy;
-    private PromptCreator $promptCreator;
-    private AspectRatioCalculator $aspectRatioCalculator;
 
     public function __construct(
-        ConfigurationService    $configurationService,
         StableDiffusionStrategy $stableDiffusionStrategy,
-        DreamStudioStrategy     $dreamStudioStrategy,
-        PromptCreator           $promptCreator,
-        AspectRatioCalculator   $aspectRatioCalculator
+        DreamStudioStrategy     $dreamStudioStrategy
     ) {
-        $this->configurationService = $configurationService;
         $this->stableDiffusionStrategy = $stableDiffusionStrategy;
         $this->dreamStudioStrategy = $dreamStudioStrategy;
-        $this->promptCreator = $promptCreator;
-        $this->aspectRatioCalculator = $aspectRatioCalculator;
     }
 
     /**
      * @throws Exception
      */
-    public function generateImage(Request $request): Asset
+    public function generateImage(Configuration $config): Asset
     {
-        $config = $this->getTxt2ImageApiConfig($request);
         if ($config instanceof StableDiffusionApiConfig) {
             $this->strategy = $this->stableDiffusionStrategy;
         } elseif ($config instanceof DreamStudioApiConfig) {
@@ -64,43 +49,11 @@ class ImageGenerationService
         return $asset;
     }
 
-    private function getTxt2ImageApiConfig(Request $request): Configuration
-    {
-        $config = $this->configurationService->getConfiguration();
-        $context = (string)$request->get('context');
-        $contextElementId = (int)$request->get('id');
-        $width = (int)$request->get('width');
-        $height = (int)$request->get('height');
-
-        $element = match ($context) {
-            'document' => PageSnippet::getById($contextElementId),
-            'object' => DataObject::getById($contextElementId),
-        };
-
-        $prompt = $this->promptCreator->createPromptParts($element);
-        $negativePrompt = ['(semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime:1.4), text, close up, cropped, out of frame, worst quality, low quality, jpeg artifacts, ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, dehydrated, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck']; // todo
-
-        $aspectRatio = $this->aspectRatioCalculator->getAspectRatioFromDimensions($width, $height);
-
-        $config->setPromptParts($prompt);
-        $config->setNegativePromptParts($negativePrompt);
-        $config->setAspectRatio($aspectRatio);
-
-        if ($width > 512 || $height > 512) {
-            $config->setUpscale(true);
-        }
-
-        return $config;
-    }
-
     /**
      * @throws Exception
      */
-    public function upscaleImage(int $assetId): Asset
+    public function upscaleImage(Configuration $config, int $assetId): Asset
     {
-        $config = $this->configurationService->getConfiguration();
-        $config->setUpscale(true);
-
         if ($config instanceof StableDiffusionApiConfig) {
             $this->strategy = $this->stableDiffusionStrategy;
         } elseif ($config instanceof DreamStudioApiConfig) {

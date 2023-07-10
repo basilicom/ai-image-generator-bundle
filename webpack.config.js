@@ -12,6 +12,17 @@ Encore
     .cleanupOutputBeforeBuild()
     .enableSourceMaps(false)
     .enableVersioning(false)
+    .configureTerserPlugin((options) => {
+        options.terserOptions = {
+            output: {
+                comments: false,
+            },
+            keep_fnames: true,
+            mangle: {
+                reserved: ['pimcore', '$super']
+            }
+        }
+    })
     .enableSassLoader();
 
 module.exports = Encore.getWebpackConfig();

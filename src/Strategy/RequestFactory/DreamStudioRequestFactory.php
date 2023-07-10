@@ -7,8 +7,6 @@ use Basilicom\AiImageGeneratorBundle\Helper\AspectRatioCalculator;
 use Basilicom\AiImageGeneratorBundle\Model\AiImage;
 use Basilicom\AiImageGeneratorBundle\Model\ServiceRequest;
 use Basilicom\AiImageGeneratorBundle\Strategy\RequestFactory;
-use GuzzleHttp\Client;
-use Pimcore\Model\Asset;
 use Symfony\Component\HttpFoundation\Request;
 
 class DreamStudioRequestFactory implements RequestFactory
@@ -23,25 +21,22 @@ class DreamStudioRequestFactory implements RequestFactory
     public function createTxt2ImgRequest(Configuration $configuration): ServiceRequest
     {
         $aspectRatio = $configuration->getAspectRatio();
-        $getRelativeAspectRatio = $this->aspectRatioCalculator->calculateAspectRatio($aspectRatio, 64);
+        $getRelativeAspectRatio = $this->aspectRatioCalculator->calculateAspectRatio($aspectRatio, 512, 64);
 
         $uri = sprintf('%s/v1/generation/%s/text-to-image', $configuration->getBaseUrl(), $configuration->getModel());
         $method = Request::METHOD_POST;
 
         $payload = [
             'steps' => $configuration->getSteps(),
-            'width' => $getRelativeAspectRatio['width'], // increment of 64
-            'height' => $getRelativeAspectRatio['height'], // increment of 64
+            'width' => $getRelativeAspectRatio->getWidth(),
+            'height' => $getRelativeAspectRatio->getHeight(),
 
             // todo => different weight based on h1, h2. also set max 10 prompts..
             'text_prompts' => [
                 ['text' => implode(',', $configuration->getPromptParts()), 'weight' => 1.0]
             ],
 
-            // todo => not supported?
-            //'negative_prompt' => $config->getNegativePrompt(),
-
-            'seed' => 0, // [0 .. 4294967295]
+            'seed' => max($configuration->getSeed(), 0), // [0 .. 4294967295]
 
             'sampler' => 'K_EULER_ANCESTRAL', // DDIM DDPM K_DPMPP_2M K_DPMPP_2S_ANCESTRAL K_DPM_2 K_DPM_2_ANCESTRAL K_EULER K_EULER_ANCESTRAL K_HEUN K_LMS
             'cfg_scale' => 7, // [ 0 .. 35 ]
@@ -61,7 +56,7 @@ class DreamStudioRequestFactory implements RequestFactory
             'image_strength' => 0.9,
 
             'steps' => $configuration->getSteps(),
-            'seed' => 0, // [0 .. 4294967295]
+            'seed' => max($configuration->getSeed(), 0), // [0 .. 4294967295]
 
             'sampler' => 'K_EULER_ANCESTRAL', // DDIM DDPM K_DPMPP_2M K_DPMPP_2S_ANCESTRAL K_DPM_2 K_DPM_2_ANCESTRAL K_EULER K_EULER_ANCESTRAL K_HEUN K_LMS
             'cfg_scale' => 7, // [ 0 .. 35 ]

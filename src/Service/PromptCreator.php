@@ -9,6 +9,8 @@ use Pimcore\Model\Document\Service;
 
 class PromptCreator
 {
+    public const DEFAULT_NEGATIVE_PROMPT = '(semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime:1.4), text, close up, cropped, out of frame, worst quality, low quality, jpeg artifacts, ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, dehydrated, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck';
+
     /**
      * @todo
      *      get mood
@@ -16,7 +18,7 @@ class PromptCreator
      *      get context
      *      get style
      */
-    public function createPromptParts(PageSnippet|DataObject $element): array
+    public function createPromptFromPimcoreElement(PageSnippet|DataObject $element): array
     {
         $promptParts = [];
         if ($element instanceof PageSnippet) {
@@ -41,7 +43,7 @@ class PromptCreator
         ];
     }
 
-    protected function getPromptFromDocumentContext(?PageSnippet $page): array
+    private function getPromptFromDocumentContext(?PageSnippet $page): array
     {
         if (!$page) {
             return [];

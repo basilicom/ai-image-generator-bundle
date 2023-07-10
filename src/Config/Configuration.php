@@ -14,6 +14,7 @@ abstract class Configuration
     protected array $promptParts;
     protected array $negativePromptParts;
     protected string $aspectRatio;
+    protected int $seed = -1;
 
     protected bool $upscale = false;
 
@@ -88,5 +89,15 @@ abstract class Configuration
     public function setUpscale(bool $upscale): void
     {
         $this->upscale = $upscale;
+    }
+
+    public function getSeed(): int
+    {
+        return $this->seed;
+    }
+
+    public function setSeed(int $seed): void
+    {
+        $this->seed = $seed;
     }
 }

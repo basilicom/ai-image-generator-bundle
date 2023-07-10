@@ -21,23 +21,19 @@ class StableDiffusionRequestFactory implements RequestFactory
 
     public function createTxt2ImgRequest(Configuration $configuration): ServiceRequest
     {
-        $prompt = implode(',', $configuration->getPromptParts());
-        $negativePrompt = implode(',', $configuration->getNegativePromptParts());
-        $getRelativeAspectRatio = $this->aspectRatioCalculator->calculateAspectRatio($configuration->getAspectRatio());
-
+        $getRelativeAspectRatio = $this->aspectRatioCalculator->calculateAspectRatio($configuration->getAspectRatio(), 512);
         $uri = sprintf('%s/sdapi/v1/txt2img', $configuration->getBaseUrl());
         $method = Request::METHOD_POST;
         $payload = [
             'steps' => $configuration->getSteps(),
             'sd_model_checkpoint' => $configuration->getModel(),
 
-            'prompt' => $prompt,
-            'negative_prompt' => $negativePrompt,
-            'width' => $getRelativeAspectRatio['width'],
-            'height' => $getRelativeAspectRatio['height'],
+            'prompt' => implode(',', $configuration->getPromptParts()),
+            'negative_prompt' => implode(',', $configuration->getNegativePromptParts()),
+            'seed' => $configuration->getSeed(),
+            'width' => $getRelativeAspectRatio->getWidth(),
+            'height' => $getRelativeAspectRatio->getHeight(),
 
-            // todo => make configurable
-            'seed' => -1,
             'batch_size' => 1,
             'sampler_name' => 'Euler a',
             'cfg_scale' => 7,
@@ -48,9 +44,6 @@ class StableDiffusionRequestFactory implements RequestFactory
 
     public function createImg2ImgRequest(Configuration $configuration, AiImage $baseImage): ServiceRequest
     {
-        $prompt = implode(',', $configuration->getPromptParts());
-        $negativePrompt = implode(',', $configuration->getNegativePromptParts());
-
         $uri = sprintf('%s/sdapi/v1/img2img', $configuration->getBaseUrl());
         $method = Request::METHOD_POST;
         $payload = [
@@ -59,11 +52,10 @@ class StableDiffusionRequestFactory implements RequestFactory
             'steps' => $configuration->getSteps(),
             'sd_model_checkpoint' => $configuration->getModel(),
 
-            'prompt' => $prompt,
-            'negative_prompt' => $negativePrompt,
+            'prompt' => implode(',', $configuration->getPromptParts()),
+            'negative_prompt' => implode(',', $configuration->getNegativePromptParts()),
+            'seed' => $configuration->getSeed(),
 
-            // todo => make configurable
-            'seed' => -1,
             'batch_size' => 1,
             'sampler_name' => 'Euler a',
             'cfg_scale' => 7,
@@ -78,25 +70,38 @@ class StableDiffusionRequestFactory implements RequestFactory
         $method = Request::METHOD_POST;
         $payload = [
             'init_images' => [$baseImage->getData()],
-            'denoising_strength' => 0, // not additional rendering of new features
+            'denoising_strength' => 0.1, // no/nearly no additional rendering of new features
 
             'steps' => $configuration->getSteps(),
             'sd_model_checkpoint' => $configuration->getModel(),
 
-            'prompt' => '',
-            'negative_prompt' => '',
+            'prompt' => implode(',', $configuration->getPromptParts()),
+            'negative_prompt' => implode(',', $configuration->getNegativePromptParts()),
+            'seed' => $configuration->getSeed(),
 
             'script_name' => 'sd upscale',
             'script_args' => ['', 64, $configuration->getUpscaler(), 2], // unknown, tileOverlap, upscaler, factor
 
-            // todo => make configurable
-            'seed' => -1,
             'batch_size' => 1,
             'sampler_name' => 'Euler a',
             'cfg_scale' => 7,
         ];
 
-        // todo ==>  use ControlNet Tiling to Upscale
+        /**
+         *  todo ==>  use ControlNet Tiling to Upscale
+         *      ==> controlnet
+         *               "alwayson_scripts": {
+         *                  "controlnet": {
+         *                  "args": [
+         *                      {
+         *                          "input_image": $encodedImage, // source image to be get preprocessed image to be applied on source
+         *                          "module": "depth",
+         *                          "model": "diff_control_sd15_depth_fp16 [978ef0a1]"
+         *                      }
+         *                  ]
+         *                  }
+         *               }
+         */
 
         return new ServiceRequest($uri, $method, $payload);
     }
