@@ -20,7 +20,7 @@ class PromptCreator
      */
     public function createPromptFromPimcoreElement(PageSnippet|DataObject $element): array
     {
-        $promptParts = [];
+        $promptParts = ['(best quality, masterpiece)'];
         if ($element instanceof PageSnippet) {
             $promptParts = [
                 ...$promptParts,

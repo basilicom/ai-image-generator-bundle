@@ -67,13 +67,11 @@ class ApiController extends AbstractController
     )]
     public function generateByPrompt(Request $request): Response
     {
-        $requestData = (array) json_decode($request->getContent(), true);
-
-        $prompt = (array)$requestData['prompt'];
-        $negativePrompt = (array)($requestData['negativePrompt'] ?? PromptCreator::DEFAULT_NEGATIVE_PROMPT);
-        $width = (int)($requestData['width'] ?? 512);
-        $height = (int)($requestData['height'] ?? 512);
-        $seed = (int)($requestData['seed'] ?? -1);
+        $prompt = (array)$request->request->get('prompt');
+        $negativePrompt = (array)$request->request->get('negativePrompt', PromptCreator::DEFAULT_NEGATIVE_PROMPT);
+        $width = (int)$request->request->get('width', 512);
+        $height = (int)$request->request->get('height', 512);
+        $seed = (int)$request->request->get('seed', -1);
         $aspectRatio = $this->aspectRatioCalculator->getAspectRatioFromDimensions($width, $height);
 
         $config = $this->configurationService->getConfiguration();
@@ -99,12 +97,10 @@ class ApiController extends AbstractController
     )]
     public function generateByElementContext(Request $request): Response
     {
-        $requestData = (array) json_decode($request->getContent(), true);
-
         $context = (string)$request->get('context');
         $contextElementId = (int)$request->get('id');
-        $width = (int)($requestData['width'] ?? 512);
-        $height = (int)($requestData['height'] ?? 512);
+        $width = (int)$request->request->get('width', 512);
+        $height = (int)$request->request->get('height', 512);
 
         $element = match ($context) {
             'document' => PageSnippet::getById($contextElementId),
