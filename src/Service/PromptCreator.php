@@ -53,6 +53,7 @@ class PromptCreator
             return [];
         }
 
+        // todo ==> sanitize
         // todo ==> translate (?)
         $prompts = [];
         if ($page instanceof Page) {

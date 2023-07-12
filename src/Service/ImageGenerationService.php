@@ -32,11 +32,7 @@ class ImageGenerationService
      */
     public function generateImage(Configuration $config): Asset
     {
-        if ($config instanceof StableDiffusionApiConfig) {
-            $this->strategy = $this->stableDiffusionStrategy;
-        } elseif ($config instanceof DreamStudioApiConfig) {
-            $this->strategy = $this->dreamStudioStrategy;
-        }
+        $this->setStrategy($config);
 
         $aiImage = $this->strategy->textToImage($config);
         $asset = $this->createPimcoreAsset($aiImage, 'generated via ' . $config->getName());
@@ -53,13 +49,21 @@ class ImageGenerationService
     /**
      * @throws Exception
      */
+    public function varyImage(Configuration $config, Asset $asset): Asset
+    {
+        $this->setStrategy($config);
+
+        $aiImage = $this->strategy->textToImage($config);
+
+        return $this->updatePimcoreAsset($asset, $aiImage, 'created variation via ' . $config->getName());
+    }
+
+    /**
+     * @throws Exception
+     */
     public function upscaleImage(Configuration $config, int $assetId): Asset
     {
-        if ($config instanceof StableDiffusionApiConfig) {
-            $this->strategy = $this->stableDiffusionStrategy;
-        } elseif ($config instanceof DreamStudioApiConfig) {
-            $this->strategy = $this->dreamStudioStrategy;
-        }
+        $this->setStrategy($config);
 
         $asset = Asset::getById($assetId);
         if ($prompt = $asset->getMetadata(MetaDataEnum::PROMPT)) {
@@ -76,6 +80,15 @@ class ImageGenerationService
         return $this->updatePimcoreAsset($asset, $upscaledAiImage, 'upscaled via ' . $config->getName());
     }
 
+    private function setStrategy(Configuration $config): void
+    {
+        if ($config instanceof StableDiffusionApiConfig) {
+            $this->strategy = $this->stableDiffusionStrategy;
+        } elseif ($config instanceof DreamStudioApiConfig) {
+            $this->strategy = $this->dreamStudioStrategy;
+        }
+    }
+
     /**
      * @throws Exception
      */
@@ -83,7 +96,7 @@ class ImageGenerationService
     {
         $asset = new Asset();
         $asset->setParent(Asset\Service::createFolderByPath('/ai-images'));
-        $asset->setKey(uniqid('ai-image') . '.png');
+        $asset->setKey(uniqid('ai-image-') . '.png');
         $asset->setType('image');
         $asset->setData($generatedImage->getData(true));
 

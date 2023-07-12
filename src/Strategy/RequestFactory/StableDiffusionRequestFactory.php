@@ -24,6 +24,7 @@ class StableDiffusionRequestFactory implements RequestFactory
         $getRelativeAspectRatio = $this->aspectRatioCalculator->calculateAspectRatio($configuration->getAspectRatio(), 512);
         $uri = sprintf('%s/sdapi/v1/txt2img', $configuration->getBaseUrl());
         $method = Request::METHOD_POST;
+
         $payload = [
             'steps' => $configuration->getSteps(),
             'sd_model_checkpoint' => $configuration->getModel(),

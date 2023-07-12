@@ -1,15 +1,15 @@
-import AiImageGenerator from "../../lib/AiImageGenerator";
+import AiImageGenerator from '../../lib/AiImageGenerator';
 
-pimcore.registerNS("pimcore.object.tags.image");
+pimcore.registerNS('pimcore.object.tags.image');
 pimcore.object.tags.hotspotimage = Class.create(pimcore.object.tags.hotspotimage, {
-    label: "Generate Image",
+    label: 'Generate Image',
     button: null,
 
     getLayoutEdit: function ($super) {
         const component = $super();
         const toolbar = component.getDockedItems('toolbar')[0];
         this.button = new Ext.button.Button({
-            text: this.label, // Button text
+            text: t(this.label),
             handler: this.generateAiImage.bind(this)
         });
         toolbar.add(this.button);
@@ -28,7 +28,7 @@ pimcore.object.tags.hotspotimage = Class.create(pimcore.object.tags.hotspotimage
             },
             () => {
                 container.classList.add('ai-image-loader');
-                this.button.innerHTML = 'Loading...';
+                this.button.innerHTML = t('Loading...');
             },
             (jsonData) => {
                 this.empty(true);
@@ -41,11 +41,11 @@ pimcore.object.tags.hotspotimage = Class.create(pimcore.object.tags.hotspotimage
                 this.updateImage();
             },
             (jsonData) => {
-                pimcore.helpers.showNotification(t("error"), jsonData.message, "error");
+                pimcore.helpers.showNotification(t('error'), jsonData.message, 'error');
             },
             () => {
                 container.classList.remove('ai-image-loader');
-                this.button.innerHTML = this.label;
+                this.button.innerHTML = t(this.label);
             }
         );
     }

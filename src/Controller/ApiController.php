@@ -6,6 +6,7 @@ namespace Basilicom\AiImageGeneratorBundle\Controller;
 
 use Basilicom\AiImageGeneratorBundle\Config\ConfigurationService;
 use Basilicom\AiImageGeneratorBundle\Helper\AspectRatioCalculator;
+use Basilicom\AiImageGeneratorBundle\Model\MetaDataEnum;
 use Basilicom\AiImageGeneratorBundle\Service\ImageGenerationService;
 use Basilicom\AiImageGeneratorBundle\Service\LockManager;
 use Basilicom\AiImageGeneratorBundle\Service\PromptCreator;
@@ -133,6 +134,37 @@ class ApiController extends AbstractController
         return $this->generateImage(
             $request,
             fn () => $this->imageGenerationService->upscaleImage($config, (int)$request->get('id'))
+        );
+    }
+
+    #[Route('/vary/{id}', name: 'ai_image_vary', methods: ['POST'])]
+    public function vary(Request $request): Response
+    {
+        $assetId = (int)$request->get('id');
+        $asset = Asset\Image::getById($assetId);
+        if (!$asset) {
+            return $this->respond($request, null, Response::HTTP_NOT_FOUND, 'No such asset');
+        }
+
+        $prompt = (string)$asset->getMetadata(MetaDataEnum::PROMPT);
+        $negativePrompt = (string)$asset->getMetadata(MetaDataEnum::NEGATIVE_PROMPT);
+        $seed = (int)$asset->getMetadata(MetaDataEnum::SEED);
+
+        $height = $asset->getHeight();
+        $width = $asset->getWidth();
+
+        $aspectRatio = $this->aspectRatioCalculator->getAspectRatioFromDimensions($width, $height);
+
+        $config = $this->configurationService->getConfiguration();
+        $config->setPromptParts([$prompt]);
+        $config->setNegativePromptParts([$negativePrompt]);
+        $config->setAspectRatio($aspectRatio);
+        $config->setSeed($seed);
+        $config->setUpscale($width > 512 || $height > 512); // todo => base sizes should be configurable/dependent by model
+
+        return $this->generateImage(
+            $request,
+            fn () => $this->imageGenerationService->varyImage($config, $asset)
         );
     }
 

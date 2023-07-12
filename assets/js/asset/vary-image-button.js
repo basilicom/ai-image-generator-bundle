@@ -3,13 +3,13 @@ import AiImageGenerator from '../lib/AiImageGenerator';
 document.addEventListener(pimcore.events.postOpenAsset, (e) => {
     const asset = e.detail.asset
 
-    const label = t('Upscale');
-    const progressLabel = t('Upscaling in progress ...');
+    const label = t('Vary image');
+    const progressLabel = t('Generating in progress ...');
     asset.toolbar.insert(3, {
         text: label,
         scale: 'medium',
         handler: function (asset, button) {
-            AiImageGenerator.upscaleImage(
+            AiImageGenerator.varyImage(
                 {
                     id: asset.id
                 },

@@ -24,7 +24,7 @@ pimcore.document.editables.image = Class.create(pimcore.document.editables.image
                 height: this.element.getHeight()
             },
             () => {
-                this.button.innerHTML = 'Loading...';
+                this.button.innerHTML = t('Loading...');
             },
             (jsonData) => {
                 this.resetData();
@@ -37,7 +37,7 @@ pimcore.document.editables.image = Class.create(pimcore.document.editables.image
                 pimcore.helpers.showNotification(t("error"), jsonData.message, "error");
             },
             () => {
-                this.button.innerHTML = this.label;
+                this.button.innerHTML = t(this.label);
             }
         );
     }
