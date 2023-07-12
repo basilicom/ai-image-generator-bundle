@@ -1,7 +1,7 @@
 import AiImageGenerator from "../../lib/AiImageGenerator";
 
 pimcore.registerNS("pimcore.object.tags.image");
-pimcore.object.tags.image = Class.create(pimcore.object.tags.image, {
+pimcore.object.tags.hotspotimage = Class.create(pimcore.object.tags.hotspotimage, {
     label: "Generate Image",
     button: null,
 
@@ -18,14 +18,16 @@ pimcore.object.tags.image = Class.create(pimcore.object.tags.image, {
     },
 
     generateAiImage: function () {
+        const container = this.component.body.dom;
         AiImageGenerator.generateAiImage(
             {
                 context: 'object',
-                id: this.object.id,
+                id: this.context.objectId,
                 width: this.component.config.width,
                 height: this.component.config.height
             },
             () => {
+                container.classList.add('ai-image-loader');
                 this.button.innerHTML = 'Loading...';
             },
             (jsonData) => {
@@ -42,6 +44,7 @@ pimcore.object.tags.image = Class.create(pimcore.object.tags.image, {
                 pimcore.helpers.showNotification(t("error"), jsonData.message, "error");
             },
             () => {
+                container.classList.remove('ai-image-loader');
                 this.button.innerHTML = this.label;
             }
         );

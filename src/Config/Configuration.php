@@ -62,7 +62,9 @@ abstract class Configuration
 
     public function getNegativePromptParts(): array
     {
-        return $this->negativePromptParts;
+        $negativePromptParts = $this->negativePromptParts;
+
+        return [$negativePromptParts, 'nsfw', 'nude', 'naked'];
     }
 
     public function setNegativePromptParts(array $negativePromptParts): void

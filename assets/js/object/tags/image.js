@@ -12,12 +12,14 @@ pimcore.object.tags.image = Class.create(pimcore.object.tags.image, {
             text: this.label, // Button text
             handler: this.generateAiImage.bind(this)
         });
+
         toolbar.add(this.button);
 
         return component;
     },
 
     generateAiImage: function () {
+        const container = this.component.body.dom;
         AiImageGenerator.generateAiImage(
             {
                 context: 'object',
@@ -26,6 +28,7 @@ pimcore.object.tags.image = Class.create(pimcore.object.tags.image, {
                 height: this.component.config.height
             },
             () => {
+                container.classList.add('ai-image-loader');
                 this.button.innerHTML = 'Loading...';
             },
             (jsonData) => {
@@ -42,6 +45,7 @@ pimcore.object.tags.image = Class.create(pimcore.object.tags.image, {
                 pimcore.helpers.showNotification(t("error"), jsonData.message, "error");
             },
             () => {
+                container.classList.remove('ai-image-loader');
                 this.button.innerHTML = this.label;
             }
         );

@@ -6,10 +6,11 @@ use Pimcore\Model\DataObject;
 use Pimcore\Model\Document\Page;
 use Pimcore\Model\Document\PageSnippet;
 use Pimcore\Model\Document\Service;
+use ReflectionClass;
 
 class PromptCreator
 {
-    public const DEFAULT_NEGATIVE_PROMPT = '(semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime:1.4), text, close up, cropped, out of frame, worst quality, low quality, jpeg artifacts, ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, dehydrated, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck';
+    public const DEFAULT_NEGATIVE_PROMPT = '(((nsfw, nude, naked))), (semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime:1.4), text, close up, cropped, out of frame, worst quality, low quality, jpeg artifacts, ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, dehydrated, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck';
 
     /**
      * @todo
@@ -20,7 +21,7 @@ class PromptCreator
      */
     public function createPromptFromPimcoreElement(PageSnippet|DataObject $element): array
     {
-        $promptParts = ['(best quality, masterpiece)'];
+        $promptParts = [];
         if ($element instanceof PageSnippet) {
             $promptParts = [
                 ...$promptParts,
@@ -29,6 +30,7 @@ class PromptCreator
         } elseif ($element instanceof DataObject) {
             $promptParts = [
                 ...$promptParts,
+                (new ReflectionClass($element))->getShortName(),
                 ...$this->getPromptFromDataObjectContext($element)
             ];
         }
@@ -36,6 +38,8 @@ class PromptCreator
         if (empty($promptParts)) {
             $promptParts = ['an inspiring market, emotional, camcorder effect'];
         }
+
+        $promptParts[] = '(best quality, masterpiece)';
 
         return [
             ...$promptParts,

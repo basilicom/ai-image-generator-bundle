@@ -1,0 +1,47 @@
+.ai-image-loader {
+  position: relative;
+
+  &:before {
+    background: transparentize(black, .7);
+    content: '';
+    display: block;
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 1;
+  }
+
+  &:after {
+    animation: loading 4s 0s infinite linear;
+    color: white;
+    content: 'Loading';
+    display: block;
+    font-weight: bold;
+    position: absolute;
+    text-align: center;
+    top: 50%;
+    transform: translate(0, -50%);
+    width: 100%;
+    z-index: 2;
+  }
+}
+
+@keyframes loading {
+  0% {
+    content: "Loading .";
+  }
+  25% {
+    content: "Loading ..";
+  }
+  50% {
+    content: "Loading ...";
+  }
+  75% {
+    content: "Loading ....";
+  }
+  100% {
+    content: "Loading .";
+  }
+}

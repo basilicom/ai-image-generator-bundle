@@ -26,7 +26,7 @@ class PimcoreAdminSubscriber implements EventSubscriberInterface
                 $event->getPaths(),
                 [
                     '/bundles/aiimagegenerator/runtime.js',
-                    '/bundles/aiimagegenerator/backend.js'
+                    '/bundles/aiimagegenerator/backend.js',
                 ]
             )
         );
@@ -38,7 +38,7 @@ class PimcoreAdminSubscriber implements EventSubscriberInterface
             array_merge(
                 $event->getPaths(),
                 [
-                    '/bundles/aiimagegenerator/backend.css'
+                    '/bundles/aiimagegenerator/backend.css',
                 ]
             )
         );
@@ -51,7 +51,7 @@ class PimcoreAdminSubscriber implements EventSubscriberInterface
                 $event->getPaths(),
                 [
                     '/bundles/aiimagegenerator/runtime.js',
-                    '/bundles/aiimagegenerator/editmode.js'
+                    '/bundles/aiimagegenerator/editmode.js',
                 ]
             )
         );
@@ -63,7 +63,7 @@ class PimcoreAdminSubscriber implements EventSubscriberInterface
             array_merge(
                 $event->getPaths(),
                 [
-                    '/bundles/aiimagegenerator/editmode.css'
+                    '/bundles/aiimagegenerator/editmode.css',
                 ]
             )
         );
