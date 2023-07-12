@@ -46,8 +46,6 @@ class ApiController extends AbstractController
         $this->promptCreator = $promptCreator;
     }
 
-    // todo ==> based on "accept" header, return image or json!
-
     #[Route(
         '/generate',
         name: 'ai_image_by_prompt',
@@ -68,16 +66,18 @@ class ApiController extends AbstractController
     )]
     public function generateByPrompt(Request $request): Response
     {
-        $prompt = (array)$request->request->get('prompt');
-        $negativePrompt = (array)$request->request->get('negativePrompt', PromptCreator::DEFAULT_NEGATIVE_PROMPT);
-        $width = (int)$request->request->get('width', 512);
-        $height = (int)$request->request->get('height', 512);
-        $seed = (int)$request->request->get('seed', -1);
+        $payload = json_decode($request->getContent(), true);
+
+        $prompt = $payload['prompt'] ?? '';
+        $negativePrompt = $payload['negativePrompt'] ?? PromptCreator::DEFAULT_NEGATIVE_PROMPT;
+        $width = (int)($payload['width'] ?? 512);
+        $height = (int)($payload['height'] ?? 512);
+        $seed = (int)($payload['seed'] ?? -1);
         $aspectRatio = $this->aspectRatioCalculator->getAspectRatioFromDimensions($width, $height);
 
         $config = $this->configurationService->getConfiguration();
-        $config->setPromptParts($prompt);
-        $config->setNegativePromptParts($negativePrompt);
+        $config->setPromptParts([$prompt]);
+        $config->setNegativePromptParts([$negativePrompt]);
         $config->setAspectRatio($aspectRatio);
         $config->setSeed($seed);
         $config->setUpscale($width > 512 || $height > 512); // todo => base sizes should be configurable/dependent by model
@@ -98,10 +98,12 @@ class ApiController extends AbstractController
     )]
     public function generateByElementContext(Request $request): Response
     {
+        $payload = json_decode($request->getContent(), true);
+
         $context = (string)$request->get('context');
         $contextElementId = (int)$request->get('id');
-        $width = (int)$request->request->get('width', 512);
-        $height = (int)$request->request->get('height', 512);
+        $width = (int)($payload['width'] ?? 512);
+        $height = (int)($payload['height'] ?? 512);
 
         $element = match ($context) {
             'document' => PageSnippet::getById($contextElementId),
@@ -137,18 +139,28 @@ class ApiController extends AbstractController
         );
     }
 
-    #[Route('/vary/{id}', name: 'ai_image_vary', methods: ['POST'])]
+    #[Route(
+        '/vary/{id}',
+        name: 'ai_image_vary',
+        requirements: [
+            'prompt' => '.+',
+            'seed' => '\d+'
+        ],
+        methods: ['POST']
+    )]
     public function vary(Request $request): Response
     {
+        $payload = json_decode($request->getContent(), true);
+
         $assetId = (int)$request->get('id');
         $asset = Asset\Image::getById($assetId);
         if (!$asset) {
             return $this->respond($request, null, Response::HTTP_NOT_FOUND, 'No such asset');
         }
 
-        $prompt = (string)$asset->getMetadata(MetaDataEnum::PROMPT);
+        $prompt = (string)($payload['prompt'] ?? $asset->getMetadata(MetaDataEnum::PROMPT));
         $negativePrompt = (string)$asset->getMetadata(MetaDataEnum::NEGATIVE_PROMPT);
-        $seed = (int)$asset->getMetadata(MetaDataEnum::SEED);
+        $seed = (int)($payload['seed'] ?? $asset->getMetadata(MetaDataEnum::SEED));
 
         $height = $asset->getHeight();
         $width = $asset->getWidth();
