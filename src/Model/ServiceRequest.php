@@ -29,11 +29,6 @@ class ServiceRequest
         return $this->method;
     }
 
-    public function setPayload(array $payload): void
-    {
-        $this->payload = $payload;
-    }
-
     public function getPayload(): array
     {
         return $this->payload;

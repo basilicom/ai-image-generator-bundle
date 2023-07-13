@@ -82,7 +82,7 @@ class ApiController extends AbstractController
         $config->setSeed($seed);
         $config->setUpscale($width > 512 || $height > 512); // todo => base sizes should be configurable/dependent by model
 
-        return $this->generateImage($request, fn () => $this->imageGenerationService->generateImage($config));
+        return $this->process($request, fn () => $this->imageGenerationService->generateImage($config));
     }
 
     #[Route(
@@ -121,7 +121,7 @@ class ApiController extends AbstractController
         $config->setAspectRatio($aspectRatio);
         $config->setUpscale($width > 512 || $height > 512); // todo => base sizes should be configurable/dependent by model
 
-        return $this->generateImage(
+        return $this->process(
             $request,
             fn () => $this->imageGenerationService->generateImage($config)
         );
@@ -133,7 +133,7 @@ class ApiController extends AbstractController
         $config = $this->configurationService->getConfiguration();
         $config->setUpscale(true);
 
-        return $this->generateImage(
+        return $this->process(
             $request,
             fn () => $this->imageGenerationService->upscaleImage($config, (int)$request->get('id'))
         );
@@ -174,13 +174,13 @@ class ApiController extends AbstractController
         $config->setSeed($seed);
         $config->setUpscale($width > 512 || $height > 512); // todo => base sizes should be configurable/dependent by model
 
-        return $this->generateImage(
+        return $this->process(
             $request,
             fn () => $this->imageGenerationService->varyImage($config, $asset)
         );
     }
 
-    private function generateImage(Request $request, callable $imageGenerationMethod): Response
+    private function process(Request $request, callable $imageGenerationMethod): Response
     {
         if ($this->lockManager->isLocked()) {
             return $this->respond($request, null, Response::HTTP_FORBIDDEN, 'Currently generating image, please wait.');
