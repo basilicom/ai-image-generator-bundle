@@ -1,4 +1,4 @@
-# AI Image Generator Bundle (PoC)
+# AI Image Generator Bundle
 
 This is currently a Proof Of Concept for Image Generation in the Pimcore Backend.
 Key features will be:
@@ -24,12 +24,13 @@ Make sure to also install the bundle via `BundleSetupSubscriber` or console.
 ## Configuration
 
 ```
-basilicom_ai_images:
+ai_image_generator:
 
-  stable-diffusion-api:
-    baseUrl: "http://host.docker.internal:7860"
-    model: "realisticVisionV20_v20"
-    steps: 10
+  stable_diffusion_api:
+    baseUrl: "http://host.docker.internal:7860" # the url to your Stable Diffusion API instance
+    model: "reliberate_v10" # the model checkpoint name
+    steps: 30 # this will have impact on generation-time
+    upscaler: "ESRGAN_4x" # this will have impact on generation-time
 
   dream_studio:
     baseUrl: "https://api.stability.ai"
