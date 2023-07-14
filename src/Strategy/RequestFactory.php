@@ -10,7 +10,7 @@ interface RequestFactory
 {
     public function createTxt2ImgRequest(Configuration $configuration): ServiceRequest;
 
-    public function createImg2ImgRequest(Configuration $configuration, AiImage $baseImage): ServiceRequest;
+    public function createImgVariationsRequest(Configuration $configuration, AiImage $baseImage): ServiceRequest;
 
     public function createUpscaleRequest(Configuration $configuration, AiImage $baseImage): ServiceRequest;
 }

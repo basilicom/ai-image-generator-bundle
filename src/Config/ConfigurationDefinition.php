@@ -9,6 +9,7 @@ class ConfigurationDefinition implements ConfigurationInterface
 {
     public const STABLE_DIFFUSION_API = 'stable_diffusion_api';
     public const DREAMSTUDIO = 'dream_studio';
+    public const OPEN_AI = 'open_ai';
 
     public const BASE_URL = 'baseUrl';
     public const MODEL = 'model';
@@ -19,6 +20,7 @@ class ConfigurationDefinition implements ConfigurationInterface
     private const SUPPORTED_APIS = [
         self::STABLE_DIFFUSION_API,
         self::DREAMSTUDIO,
+        self::OPEN_AI,
     ];
 
     /**
@@ -63,6 +65,12 @@ class ConfigurationDefinition implements ConfigurationInterface
                         ->scalarNode(self::MODEL)->end()
                         ->scalarNode(self::UPSCALER)->end()
                         ->integerNode(self::STEPS)->defaultValue(10)->end()
+                        ->scalarNode(self::API_KEY)->end()
+                    ->end()
+                ->end()
+                ->arrayNode(self::OPEN_AI)
+                    ->children()
+                        ->scalarNode(self::BASE_URL)->end()
                         ->scalarNode(self::API_KEY)->end()
                     ->end()
                 ->end()

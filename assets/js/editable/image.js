@@ -21,7 +21,8 @@ pimcore.document.editables.image = Class.create(pimcore.document.editables.image
                 context: 'document',
                 id: window.editWindow.document.id,
                 width: this.element.getWidth(),
-                height: this.element.getHeight()
+                height: this.element.getHeight(),
+                prompt: this.datax.alt,
             },
             () => {
                 this.button.innerHTML = t('Loading...');

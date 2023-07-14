@@ -2,6 +2,8 @@
 
 namespace Basilicom\AiImageGeneratorBundle\Model;
 
+use Pimcore\Model\Asset;
+
 class AiImage
 {
     private string $data;
@@ -30,5 +32,16 @@ class AiImage
     public function getAllMetadata(): array
     {
         return $this->metadata;
+    }
+
+    public static function fromAsset(Asset\Image $asset): self
+    {
+        $instance = new self();
+        $instance->setData(base64_encode($asset->getData()));
+        foreach ((array)$asset->getMetadata() as $metadata) {
+            $instance->setMetadata($metadata['name'], $metadata['data']);
+        }
+
+        return $instance;
     }
 }

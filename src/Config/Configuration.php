@@ -17,7 +17,7 @@ abstract class Configuration
     protected int $seed = -1;
     protected bool $upscale = false;
 
-    public function __construct(string $baseUrl, string $model, int $steps, string $upscaler)
+    public function __construct(string $baseUrl, string $model = '', int $steps = 1, string $upscaler = '')
     {
         $this->baseUrl = $baseUrl;
         $this->model = $model;

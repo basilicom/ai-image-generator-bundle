@@ -32,9 +32,9 @@ abstract class Strategy
     /**
      * @throws Exception
      */
-    public function imageToImage(Configuration $config, AiImage $image): AiImage
+    public function imageVariations(Configuration $config, AiImage $image): AiImage
     {
-        $request = $this->requestFactory->createImg2ImgRequest($config, $image);
+        $request = $this->requestFactory->createImgVariationsRequest($config, $image);
         $response = $this->requestService->callApi($request);
 
         return $this->createAiImageFromResponse($config, $response);

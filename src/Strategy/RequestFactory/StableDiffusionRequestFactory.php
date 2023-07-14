@@ -22,7 +22,7 @@ class StableDiffusionRequestFactory implements RequestFactory
     public function createTxt2ImgRequest(Configuration $configuration): ServiceRequest
     {
         $getRelativeAspectRatio = $this->aspectRatioCalculator->calculateAspectRatio($configuration->getAspectRatio(), 512);
-        $uri = sprintf('%s/sdapi/v1/txt2img', $configuration->getBaseUrl());
+        $uri = rtrim($configuration->getBaseUrl(), '/') . '/txt2img';
         $method = Request::METHOD_POST;
 
         $payload = [
@@ -43,31 +43,14 @@ class StableDiffusionRequestFactory implements RequestFactory
         return new ServiceRequest($uri, $method, $payload);
     }
 
-    public function createImg2ImgRequest(Configuration $configuration, AiImage $baseImage): ServiceRequest
+    public function createImgVariationsRequest(Configuration $configuration, AiImage $baseImage): ServiceRequest
     {
-        $uri = sprintf('%s/sdapi/v1/img2img', $configuration->getBaseUrl());
-        $method = Request::METHOD_POST;
-        $payload = [
-            'init_images' => [$baseImage->getData()],
-
-            'steps' => $configuration->getSteps(),
-            'sd_model_checkpoint' => $configuration->getModel(),
-
-            'prompt' => implode(',', $configuration->getPromptParts()),
-            'negative_prompt' => implode(',', $configuration->getNegativePromptParts()),
-            'seed' => $configuration->getSeed(),
-
-            'batch_size' => 1,
-            'sampler_name' => 'Euler a',
-            'cfg_scale' => 7,
-        ];
-
-        return new ServiceRequest($uri, $method, $payload);
+        return $this->createTxt2ImgRequest($configuration);
     }
 
     public function createUpscaleRequest(Configuration|StableDiffusionApiConfig $configuration, AiImage $baseImage): ServiceRequest
     {
-        $uri = sprintf('%s/sdapi/v1/img2img', $configuration->getBaseUrl());
+        $uri = rtrim($configuration->getBaseUrl(), '/') . '/img2img';
         $method = Request::METHOD_POST;
         $payload = [
             'init_images' => [$baseImage->getData()],
