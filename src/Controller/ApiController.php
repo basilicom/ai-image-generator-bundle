@@ -111,9 +111,6 @@ class ApiController extends AbstractController
         };
 
         $prompt = $this->promptCreator->createPromptFromPimcoreElement($element);
-        if (!empty($payload['prompt'])) {
-            $prompt = [$payload['prompt'], ...$prompt];
-        }
         $negativePrompt = PromptCreator::DEFAULT_NEGATIVE_PROMPT;
 
         $aspectRatio = $this->aspectRatioCalculator->getAspectRatioFromDimensions($width, $height);

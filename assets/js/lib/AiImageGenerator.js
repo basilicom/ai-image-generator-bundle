@@ -12,7 +12,23 @@ const POST = async function (url = '', data = {}) {
 }
 
 export class AiImageGenerator {
-    generateAiImage(payload, onRequest, onSuccess, onError, onDone) {
+    generateAiImageByPrompt(payload, onRequest, onSuccess, onError, onDone) {
+        const url = Routing.generate('ai_image_by_prompt', payload);
+        onRequest();
+        POST(url, payload)
+            .then(jsonData => {
+                if (jsonData.success === true) {
+                    onSuccess(jsonData);
+                } else {
+                    onError(jsonData);
+                }
+            })
+            .finally(() => {
+                onDone();
+            });
+    }
+
+    generateAiImageByContext(payload, onRequest, onSuccess, onError, onDone) {
         const url = Routing.generate('ai_image_by_element_context', payload);
         onRequest();
         POST(url, payload)

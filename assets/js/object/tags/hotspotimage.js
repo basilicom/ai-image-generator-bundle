@@ -19,7 +19,7 @@ pimcore.object.tags.hotspotimage = Class.create(pimcore.object.tags.hotspotimage
 
     generateAiImage: function () {
         const container = this.component.body.dom;
-        AiImageGenerator.generateAiImage(
+        AiImageGenerator.generateAiImageByContext(
             {
                 context: 'object',
                 id: this.context.objectId,

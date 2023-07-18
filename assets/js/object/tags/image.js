@@ -20,7 +20,7 @@ pimcore.object.tags.image = Class.create(pimcore.object.tags.image, {
 
     generateAiImage: function () {
         const container = this.component.body.dom;
-        AiImageGenerator.generateAiImage(
+        AiImageGenerator.generateAiImageByContext(
             {
                 context: 'object',
                 id: this.object.id,
