@@ -71,22 +71,6 @@ class StableDiffusionRequestFactory implements RequestFactory
             'cfg_scale' => 7,
         ];
 
-        /**
-         *  todo ==>  use ControlNet Tiling to Upscale
-         *      ==> controlnet
-         *               "alwayson_scripts": {
-         *                  "controlnet": {
-         *                  "args": [
-         *                      {
-         *                          "input_image": $encodedImage, // source image to be get preprocessed image to be applied on source
-         *                          "module": "depth",
-         *                          "model": "diff_control_sd15_depth_fp16 [978ef0a1]"
-         *                      }
-         *                  ]
-         *                  }
-         *               }
-         */
-
         return new ServiceRequest($uri, $method, $payload);
     }
 }

@@ -12,5 +12,8 @@ interface RequestFactory
 
     public function createImgVariationsRequest(Configuration $configuration, AiImage $baseImage): ServiceRequest;
 
+    /**
+     * @throws NotSupportedException
+     */
     public function createUpscaleRequest(Configuration $configuration, AiImage $baseImage): ServiceRequest;
 }

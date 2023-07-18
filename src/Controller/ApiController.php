@@ -80,7 +80,7 @@ class ApiController extends AbstractController
         $config->setNegativePromptParts([$negativePrompt]);
         $config->setAspectRatio($aspectRatio);
         $config->setSeed($seed);
-        $config->setUpscale($width > 512 || $height > 512); // todo => base sizes should be configurable/dependent by model
+        $config->setUpscale($width > 512 || $height > 512);
 
         return $this->process($request, fn () => $this->imageGenerationService->generateImage($config));
     }
@@ -122,7 +122,7 @@ class ApiController extends AbstractController
         $config->setPromptParts($prompt);
         $config->setNegativePromptParts([$negativePrompt]);
         $config->setAspectRatio($aspectRatio);
-        $config->setUpscale($width > 512 || $height > 512); // todo => base sizes should be configurable/dependent by model
+        $config->setUpscale($width > 512 || $height > 512);
 
         return $this->process(
             $request,
@@ -175,7 +175,7 @@ class ApiController extends AbstractController
         $config->setNegativePromptParts([$negativePrompt]);
         $config->setAspectRatio($aspectRatio);
         $config->setSeed($seed);
-        $config->setUpscale($width > 512 || $height > 512); // todo => base sizes should be configurable/dependent by model
+        $config->setUpscale($width > 512 || $height > 512);
 
         return $this->process(
             $request,

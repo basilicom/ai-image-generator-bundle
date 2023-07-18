@@ -38,11 +38,16 @@ ai_image_generator:
     steps: 10 
     apiKey: "%env(DREAM_STUDIO_API_KEY)%"
     upscaler: "esrgan-v1-x2plus"
+    
+  open_ai:
+    baseUrl: "https://api.openai.com/v1"
+    apiKey: "%env(OPEN_AI_API_KEY)%"
+
 ```
 
 ## API
 
-#### `(POST) /ai-images/generate`
+#### `(POST) /admin/ai-images/generate`
 
 | Parameter      | Type   | Example             |
 |----------------|--------|---------------------|
@@ -52,7 +57,7 @@ ai_image_generator:
 | height         | int    | 512                 |
 | width          | int    | 512                 |
 
-#### `(POST) /ai-images/generate/{context}-{id}`
+#### `(POST) /admin/ai-images/generate/{context}-{id}`
 
 | Parameter   | Type   | Example         |
 |-------------|--------|-----------------|
@@ -61,16 +66,26 @@ ai_image_generator:
 | height      | int    | 512             |
 | width       | int    | 512             |
 
-#### `(POST) /ai-images/upscale/{id}`
+#### `(POST) /admin/ai-images/upscale/{id}`
 
 | Parameter | Type | Default | Example |
 |-----------|------|---------|---------|
-| **id**    | int  | 123     |
+| **id**    | int  | 123     |         |
 
-### Reponses
+#### `(POST) /admin/ai-images/vary/{id}`
+
+| Parameter | Type   | Default | Example |
+|-----------|--------|---------|---------|
+| **id**    | int    | 123     |         |
+| prompt    | string |         | a towel |
+| seed      | int    | 123     |         |
+
+### Responses
+
 Based on the `Accept`-header, you can say if you want to have a JSON-response or the image itself.
 
 #### `Accept: application/json`
+
 ```
 {
   success: true,
@@ -78,6 +93,7 @@ Based on the `Accept`-header, you can say if you want to have a JSON-response or
   image: "base64-decoded Image",   
 }
 ```
+
 ```
 {
   success: false,
@@ -86,10 +102,10 @@ Based on the `Accept`-header, you can say if you want to have a JSON-response or
 ```
 
 #### `Accept: image/jpeg`
+
 ```
 // the base64 decoded image
 ```
-
 
 ## Using Automatic1111's Stable Diffusion API
 

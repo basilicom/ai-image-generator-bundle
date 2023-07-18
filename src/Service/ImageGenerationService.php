@@ -9,6 +9,7 @@ use Basilicom\AiImageGeneratorBundle\Config\Model\StableDiffusionApiConfig;
 use Basilicom\AiImageGeneratorBundle\Model\AiImage;
 use Basilicom\AiImageGeneratorBundle\Model\MetaDataEnum;
 use Basilicom\AiImageGeneratorBundle\Strategy\DreamStudioStrategy;
+use Basilicom\AiImageGeneratorBundle\Strategy\NotSupportedException;
 use Basilicom\AiImageGeneratorBundle\Strategy\OpenAiStrategy;
 use Basilicom\AiImageGeneratorBundle\Strategy\StableDiffusionStrategy;
 use Basilicom\AiImageGeneratorBundle\Strategy\Strategy;
@@ -54,9 +55,12 @@ class ImageGenerationService
         $asset = $this->createPimcoreAsset($aiImage, 'generated via ' . $config->getName());
 
         if ($config->isUpscale()) {
-            $upscaledAiImage = $this->strategy->upscale($config, $aiImage);
+            try {
+                $aiImage = $this->strategy->upscale($config, $aiImage);
 
-            return $this->updatePimcoreAsset($asset, $upscaledAiImage, 'upscaled via ' . $config->getName());
+                return $this->updatePimcoreAsset($asset, $aiImage, 'upscaled via ' . $config->getName());
+            } catch (NotSupportedException) {
+            }
         }
 
         return $asset;

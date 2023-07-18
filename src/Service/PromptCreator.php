@@ -12,13 +12,6 @@ class PromptCreator
 {
     public const DEFAULT_NEGATIVE_PROMPT = '(((nsfw, nude, naked))), (semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime:1.4), text, close up, cropped, out of frame, worst quality, low quality, jpeg artifacts, ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, dehydrated, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck';
 
-    /**
-     * @todo
-     *      get mood
-     *      get color scheme
-     *      get context
-     *      get style
-     */
     public function createPromptFromPimcoreElement(PageSnippet|DataObject $element): array
     {
         $promptParts = [];
@@ -53,8 +46,6 @@ class PromptCreator
             return [];
         }
 
-        // todo ==> sanitize
-        // todo ==> translate (?)
         $prompts = [];
         if ($page instanceof Page) {
             $title = $page->getTitle();

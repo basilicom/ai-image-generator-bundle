@@ -1,10 +1,9 @@
-# todo ==> configure which features are enabled (e.g. upscale or generate or ...)
 ai_image_generator:
-  stable_diffusion_api:
-    baseUrl: "http://host.docker.internal:7860/sdapi/v1" # the url to your Stable Diffusion API instance
-    model: "reliberate_v10" # the model checkpoint name
-    steps: 30 # this will have impact on generation-time
-    upscaler: "ESRGAN_4x" # this will have impact on generation-time
+#  stable_diffusion_api:
+#    baseUrl: "http://host.docker.internal:7860/sdapi/v1" # the url to your Stable Diffusion API instance
+#    model: "reliberate_v10" # the model checkpoint name
+#    steps: 30 # this will have impact on generation-time
+#    upscaler: "ESRGAN_4x" # this will have impact on generation-time
 
 #  dream_studio:
 #    baseUrl: "https://api.stability.ai/v1"

@@ -32,7 +32,6 @@ class DreamStudioRequestFactory implements RequestFactory
             'width' => $getRelativeAspectRatio->getWidth(),
             'height' => $getRelativeAspectRatio->getHeight(),
 
-            // todo => different weight based on h1, h2. also set max 10 prompts..
             'text_prompts' => [
                 ['text' => implode(',', $configuration->getPromptParts()), 'weight' => 1.0]
             ],
@@ -68,7 +67,6 @@ class DreamStudioRequestFactory implements RequestFactory
         $width = $imageSize[0];
         $height = $imageSize[1];
 
-        // todo => set 2k if esgran, use 4k to latent upscale but with prompt.
         $payload = [
             [
                 'name' => 'image',
