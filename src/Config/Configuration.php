@@ -8,6 +8,7 @@ abstract class Configuration
 
     protected string $baseUrl;
     protected string $model;
+    protected string $inpaintModel;
     protected int $steps;
     protected string $upscaler;
 
@@ -17,10 +18,11 @@ abstract class Configuration
     protected int $seed = -1;
     protected bool $upscale = false;
 
-    public function __construct(string $baseUrl, string $model = '', int $steps = 1, string $upscaler = '')
+    public function __construct(string $baseUrl, string $model, string $inpaintModel, int $steps, string $upscaler)
     {
         $this->baseUrl = $baseUrl;
         $this->model = $model;
+        $this->inpaintModel = $inpaintModel;
         $this->steps = $steps;
         $this->upscaler = $upscaler;
     }
@@ -38,6 +40,11 @@ abstract class Configuration
     public function getModel(): string
     {
         return $this->model;
+    }
+
+    public function getInpaintModel(): string
+    {
+        return $this->inpaintModel;
     }
 
     public function getSteps(): int

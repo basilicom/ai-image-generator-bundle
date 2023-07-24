@@ -90,4 +90,36 @@ class DreamStudioRequestFactory implements RequestFactory
 
         return new ServiceRequest($uri, $method, $payload, ['Authorization' => $configuration->getApiKey()], true);
     }
+
+    public function createInpaintBackgroundRequest(Configuration $configuration, AiImage $baseImage): ServiceRequest
+    {
+        $uri = sprintf('%s/generation/%s/image-to-image/masking', rtrim($configuration->getBaseUrl(), '/'), $configuration->getInpaintModel());
+        $method = Request::METHOD_POST;
+
+        $tmpImageFilePath = sys_get_temp_dir() . '/ai-image-generator--dream-studio--inpaint.png';
+        file_put_contents($tmpImageFilePath, $baseImage->getData(true));
+
+        // we could also use "mask_source=INIT_IMAGE_ALPHA" but i want to use the mask image also for other services
+        $tmpMaskFilePath = sys_get_temp_dir() . '/ai-image-generator--dream-studio--mask.png';
+        file_put_contents($tmpMaskFilePath, $baseImage->getMask(true));
+
+        $payload = [
+            ['name' => 'text_prompts[0][text]', 'contents' => implode(',', $configuration->getPromptParts())],
+            ['name' => 'text_prompts[0][weight]', 'contents' => 1.0],
+
+            ['name' => 'init_image', 'contents' => fopen($tmpImageFilePath, 'rb')],
+            ['name' => 'mask_image', 'contents' => fopen($tmpMaskFilePath, 'rb')],
+            ['name' => 'mask_source', 'contents' => 'MASK_IMAGE_BLACK'],
+
+            ['name' => 'steps', 'contents' => $configuration->getSteps()],
+            ['name' => 'sampler', 'contents' => 'K_EULER_ANCESTRAL'], // DDIM DDPM K_DPMPP_2M K_DPMPP_2S_ANCESTRAL K_DPM_2 K_DPM_2_ANCESTRAL K_EULER K_EULER_ANCESTRAL K_HEUN K_LMS
+            ['name' => 'cfg_scale', 'contents' => 7],
+            ['name' => 'samples', 'contents' => 1],
+        ];
+
+        unlink($tmpImageFilePath);
+        unlink($tmpMaskFilePath);
+
+        return new ServiceRequest($uri, $method, $payload, ['Authorization' => $configuration->getApiKey()], true);
+    }
 }

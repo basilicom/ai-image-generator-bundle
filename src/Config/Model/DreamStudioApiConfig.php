@@ -10,9 +10,15 @@ class DreamStudioApiConfig extends Configuration
     protected int $seed = 0;
     protected string $apiKey;
 
-    public function __construct(string $baseUrl, string $model, int $steps, string $upscaler, string $apiKey)
+    public function __construct(string $baseUrl, string $model, string $inpaintModel, int $steps, string $upscaler, string $apiKey)
     {
-        parent::__construct($baseUrl, $model, $steps, $upscaler);
+        parent::__construct(
+            baseUrl: $baseUrl,
+            model: $model,
+            inpaintModel: $inpaintModel,
+            steps: $steps,
+            upscaler: $upscaler
+        );
         $this->apiKey = $apiKey;
     }
 

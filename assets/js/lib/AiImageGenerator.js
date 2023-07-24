@@ -75,6 +75,22 @@ export class AiImageGenerator {
                 onDone();
             });
     }
+
+    inpaintBackground(payload, onRequest, onSuccess, onError, onDone) {
+        const url = Routing.generate('ai_image_inpaint_background', payload);
+        onRequest();
+        POST(url, payload)
+            .then(jsonData => {
+                if (jsonData.success === true) {
+                    onSuccess(jsonData);
+                } else {
+                    onError(jsonData);
+                }
+            })
+            .finally(() => {
+                onDone();
+            });
+    }
 }
 
 export default new AiImageGenerator();

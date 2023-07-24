@@ -4,9 +4,9 @@ namespace Basilicom\AiImageGeneratorBundle\Config\Model;
 
 use Basilicom\AiImageGeneratorBundle\Config\Configuration;
 
-class OpenAiApiConfig extends Configuration
+class ClipDropApiConfig extends Configuration
 {
-    protected string $name = 'OpenAi';
+    protected string $name = 'ClipDrop';
     protected string $apiKey;
 
     public function __construct(string $baseUrl, string $apiKey)

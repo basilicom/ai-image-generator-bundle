@@ -1,6 +1,13 @@
 import AiImageGenerator from '../lib/AiImageGenerator';
+import AdapterEnum from "../lib/AdapterEnum";
+import ConfigStorage from "../lib/ConfigStorage";
 
 document.addEventListener(pimcore.events.postOpenAsset, (e) => {
+    const adapter = ConfigStorage.get('adapter', null);
+    if (adapter === AdapterEnum.OpenAi) {
+        return;
+    }
+
     const asset = e.detail.asset
 
     const label = t('Upscale');

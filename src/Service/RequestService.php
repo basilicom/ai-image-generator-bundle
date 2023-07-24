@@ -7,6 +7,7 @@ use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
+use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 class RequestService
@@ -14,7 +15,7 @@ class RequestService
     /**
      * @throws Exception
      */
-    public function callApi(ServiceRequest $request): array
+    public function callApi(ServiceRequest $request): ResponseInterface
     {
         $headers = $this->getHeaders($request);
 
@@ -35,10 +36,7 @@ class RequestService
         }
 
         try {
-            $client = new Client();
-            $apiResponse = $client->request($request->getMethod(), $request->getUri(), $options);
-
-            return json_decode($apiResponse->getBody()->getContents(), true);
+            return (new Client())->request($request->getMethod(), $request->getUri(), $options);
         } catch (GuzzleException $exception) {
             throw new Exception($exception->getMessage(), $exception->getCode(), $exception);
         }
@@ -46,13 +44,11 @@ class RequestService
 
     private function getHeaders(ServiceRequest $request): array
     {
-        $headers = array_merge(
+        return array_merge(
             [
                 'Accept' => 'application/json',
             ],
             $request->getHeaders()
         );
-
-        return $headers;
     }
 }

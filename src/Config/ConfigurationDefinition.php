@@ -10,9 +10,11 @@ class ConfigurationDefinition implements ConfigurationInterface
     public const STABLE_DIFFUSION_API = 'stable_diffusion_api';
     public const DREAMSTUDIO = 'dream_studio';
     public const OPEN_AI = 'open_ai';
+    public const CLIP_DROP = 'clip_drop';
 
     public const BASE_URL = 'baseUrl';
     public const MODEL = 'model';
+    public const INPAINT_MODEL = 'inpaint_model';
     public const STEPS = 'steps';
     public const API_KEY = 'apiKey';
     public const UPSCALER = 'upscaler';
@@ -21,6 +23,7 @@ class ConfigurationDefinition implements ConfigurationInterface
         self::STABLE_DIFFUSION_API,
         self::DREAMSTUDIO,
         self::OPEN_AI,
+        self::CLIP_DROP,
     ];
 
     /**
@@ -55,6 +58,7 @@ class ConfigurationDefinition implements ConfigurationInterface
                     ->children()
                         ->scalarNode(self::BASE_URL)->end()
                         ->scalarNode(self::MODEL)->end()
+                        ->scalarNode(self::INPAINT_MODEL)->end()
                         ->scalarNode(self::UPSCALER)->end()
                         ->integerNode(self::STEPS)->defaultValue(10)->end()
                     ->end()
@@ -63,12 +67,19 @@ class ConfigurationDefinition implements ConfigurationInterface
                     ->children()
                         ->scalarNode(self::BASE_URL)->end()
                         ->scalarNode(self::MODEL)->end()
+                        ->scalarNode(self::INPAINT_MODEL)->end()
                         ->scalarNode(self::UPSCALER)->end()
                         ->integerNode(self::STEPS)->defaultValue(10)->end()
                         ->scalarNode(self::API_KEY)->end()
                     ->end()
                 ->end()
                 ->arrayNode(self::OPEN_AI)
+                    ->children()
+                        ->scalarNode(self::BASE_URL)->end()
+                        ->scalarNode(self::API_KEY)->end()
+                    ->end()
+                ->end()
+                ->arrayNode(self::CLIP_DROP)
                     ->children()
                         ->scalarNode(self::BASE_URL)->end()
                         ->scalarNode(self::API_KEY)->end()

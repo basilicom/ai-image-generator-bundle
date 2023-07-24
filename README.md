@@ -107,6 +107,15 @@ Based on the `Accept`-header, you can say if you want to have a JSON-response or
 // the base64 decoded image
 ```
 
+## Features per Adapter
+
+| Parameter   | Text-To-Image | Variations | Upscaling | Background Inpainting |
+|-------------|:-------------:|:----------:|:---------:|:---------------------:|
+| ClipDrop    |       X       |     X      |     X     |           X           | 
+| A1111       |       X       |     X      |     X     |           X           | 
+| DreamStudio |       X       |     X      |     X     |           ~           | 
+| Dall-E      |       X       |     X      |     -     |           -           | 
+
 ## Using Automatic1111's Stable Diffusion API
 
 When running Automatic1111 locally, you can define `http://host.docker.internal:7860` as your local API-url.
@@ -120,6 +129,15 @@ Additionally, make sure you started Automatic1111 with `--api`:
 
 If you want to know which models you have, call the [Models-Endpoint](http://localhost:7860/sdapi/v1/sd-models ) and
 copy the name of a model of your choice.
+
+### Plugins used
+
+* ControlNet with `canny` and `ip2p`
+* _SD Upscaler_ Script
+
+## Known issues
+
+* the Dreamstudio REST API does currently not support variations, I'll look forward to use the gRPC API
 
 ### Authors
 
