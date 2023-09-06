@@ -180,6 +180,42 @@ class ApiController extends AbstractController
         );
     }
 
+    #[Route(
+        '/inpaint/background/{id}',
+        name: 'ai_image_inpaint_background',
+        requirements: [
+            'prompt' => '.+'
+        ],
+        methods: ['POST']
+    )]
+    public function inpaintBackground(Request $request): Response
+    {
+        $payload = json_decode($request->getContent(), true);
+
+        $assetId = (int)$request->get('id');
+        $asset = Asset\Image::getById($assetId);
+        if (!$asset) {
+            return $this->respond($request, null, Response::HTTP_NOT_FOUND, 'No such asset');
+        }
+
+        $prompt = (string)($payload['prompt'] ?? $asset->getMetadata(MetaDataEnum::PROMPT));
+
+        $height = $asset->getHeight();
+        $width = $asset->getWidth();
+
+        $aspectRatio = $this->aspectRatioCalculator->getAspectRatioFromDimensions($width, $height);
+
+        $config = $this->configurationService->getConfiguration();
+        $config->setPromptParts([$prompt]);
+        $config->setAspectRatio($aspectRatio);
+        $config->setUpscale($width > 512 || $height > 512);
+
+        return $this->process(
+            $request,
+            fn () => $this->imageGenerationService->inpaintBackground($config, (int)$request->get('id'))
+        );
+    }
+
     private function process(Request $request, callable $imageGenerationMethod): Response
     {
         if ($this->lockManager->isLocked()) {

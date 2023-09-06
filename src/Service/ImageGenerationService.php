@@ -3,11 +3,13 @@
 namespace Basilicom\AiImageGeneratorBundle\Service;
 
 use Basilicom\AiImageGeneratorBundle\Config\Configuration;
+use Basilicom\AiImageGeneratorBundle\Config\Model\ClipDropApiConfig;
 use Basilicom\AiImageGeneratorBundle\Config\Model\DreamStudioApiConfig;
 use Basilicom\AiImageGeneratorBundle\Config\Model\OpenAiApiConfig;
 use Basilicom\AiImageGeneratorBundle\Config\Model\StableDiffusionApiConfig;
 use Basilicom\AiImageGeneratorBundle\Model\AiImage;
 use Basilicom\AiImageGeneratorBundle\Model\MetaDataEnum;
+use Basilicom\AiImageGeneratorBundle\Strategy\ClipDropStrategy;
 use Basilicom\AiImageGeneratorBundle\Strategy\DreamStudioStrategy;
 use Basilicom\AiImageGeneratorBundle\Strategy\NotSupportedException;
 use Basilicom\AiImageGeneratorBundle\Strategy\OpenAiStrategy;
@@ -15,32 +17,28 @@ use Basilicom\AiImageGeneratorBundle\Strategy\StableDiffusionStrategy;
 use Basilicom\AiImageGeneratorBundle\Strategy\Strategy;
 use Exception;
 use Pimcore\Model\Asset;
+use Psr\Container\ContainerInterface;
 
 class ImageGenerationService
 {
     private Strategy $strategy;
-    private StableDiffusionStrategy $stableDiffusionStrategy;
-    private DreamStudioStrategy $dreamStudioStrategy;
-    private OpenAiStrategy $openAiStrategy;
+    private ContainerInterface $container;
 
-    public function __construct(
-        StableDiffusionStrategy $stableDiffusionStrategy,
-        DreamStudioStrategy     $dreamStudioStrategy,
-        OpenAiStrategy          $openAiStrategy,
-    ) {
-        $this->stableDiffusionStrategy = $stableDiffusionStrategy;
-        $this->dreamStudioStrategy = $dreamStudioStrategy;
-        $this->openAiStrategy = $openAiStrategy;
+    public function __construct(ContainerInterface $container)
+    {
+        $this->container = $container;
     }
 
     private function setStrategy(Configuration $config): void
     {
         if ($config instanceof StableDiffusionApiConfig) {
-            $this->strategy = $this->stableDiffusionStrategy;
+            $this->strategy = $this->container->get(StableDiffusionStrategy::class);
         } elseif ($config instanceof DreamStudioApiConfig) {
-            $this->strategy = $this->dreamStudioStrategy;
+            $this->strategy = $this->container->get(DreamStudioStrategy::class);
         } elseif ($config instanceof OpenAiApiConfig) {
-            $this->strategy = $this->openAiStrategy;
+            $this->strategy = $this->container->get(OpenAiStrategy::class);
+        } elseif ($config instanceof ClipDropApiConfig) {
+            $this->strategy = $this->container->get(ClipDropStrategy::class);
         }
     }
 
@@ -96,6 +94,24 @@ class ImageGenerationService
         $upscaledAiImage = $this->strategy->upscale($config, AiImage::fromAsset($asset));
 
         return $this->updatePimcoreAsset($asset, $upscaledAiImage, 'upscaled via ' . $config->getName());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function inpaintBackground(Configuration $config, int $assetId): Asset\Image
+    {
+        $this->setStrategy($config);
+
+        $asset = Asset\Image::getById($assetId);
+
+        $versions = $asset->getVersions();
+        $firstVersion = $versions[0]->getData();
+
+        $inpaintedImage = $this->strategy->inpaintBackground($config, AiImage::fromAsset($firstVersion, true));
+        $inpaintedImage = $this->strategy->upscale($config, $inpaintedImage);
+
+        return $this->updatePimcoreAsset($asset, $inpaintedImage, 'created background inpaint via ' . $config->getName());
     }
 
     /**

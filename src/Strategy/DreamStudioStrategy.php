@@ -7,6 +7,7 @@ use Basilicom\AiImageGeneratorBundle\Model\AiImage;
 use Basilicom\AiImageGeneratorBundle\Model\MetaDataEnum;
 use Basilicom\AiImageGeneratorBundle\Service\RequestService;
 use Basilicom\AiImageGeneratorBundle\Strategy\RequestFactory\DreamStudioRequestFactory;
+use Psr\Http\Message\ResponseInterface;
 
 class DreamStudioStrategy extends Strategy
 {
@@ -15,10 +16,12 @@ class DreamStudioStrategy extends Strategy
         parent::__construct($requestService, $requestFactory);
     }
 
-    protected function createAiImageFromResponse(Configuration $config, array $response): AiImage
+    protected function createAiImageFromResponse(Configuration $config, ResponseInterface $response): AiImage
     {
-        $imageData = $response['artifacts'][0]['base64'];
-        $seed = $response['artifacts'][0]['seed'];
+        $response = json_decode($response->getBody()->getContents(), true);
+
+        $imageData = (string)$response['artifacts'][0]['base64'];
+        $seed = (int)$response['artifacts'][0]['seed'];
 
         $aiImage = new AiImage();
         $aiImage->setData($imageData);

@@ -6,6 +6,7 @@ use Basilicom\AiImageGeneratorBundle\Config\Configuration;
 use Basilicom\AiImageGeneratorBundle\Model\AiImage;
 use Basilicom\AiImageGeneratorBundle\Service\RequestService;
 use Exception;
+use Psr\Http\Message\ResponseInterface;
 
 abstract class Strategy
 {
@@ -51,5 +52,16 @@ abstract class Strategy
         return $this->createAiImageFromResponse($config, $response);
     }
 
-    abstract protected function createAiImageFromResponse(Configuration $config, array $response): AiImage;
+    /**
+     * @throws Exception
+     */
+    public function inpaintBackground(Configuration $config, AiImage $image): AiImage
+    {
+        $request = $this->requestFactory->createInpaintBackgroundRequest($config, $image);
+        $response = $this->requestService->callApi($request);
+
+        return $this->createAiImageFromResponse($config, $response);
+    }
+
+    abstract protected function createAiImageFromResponse(Configuration $config, ResponseInterface $response): AiImage;
 }

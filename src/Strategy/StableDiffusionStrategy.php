@@ -7,6 +7,7 @@ use Basilicom\AiImageGeneratorBundle\Model\AiImage;
 use Basilicom\AiImageGeneratorBundle\Model\MetaDataEnum;
 use Basilicom\AiImageGeneratorBundle\Service\RequestService;
 use Basilicom\AiImageGeneratorBundle\Strategy\RequestFactory\StableDiffusionRequestFactory;
+use Psr\Http\Message\ResponseInterface;
 
 class StableDiffusionStrategy extends Strategy
 {
@@ -15,10 +16,12 @@ class StableDiffusionStrategy extends Strategy
         parent::__construct($requestService, $requestFactory);
     }
 
-    protected function createAiImageFromResponse(Configuration $config, array $response): AiImage
+    protected function createAiImageFromResponse(Configuration $config, ResponseInterface $response): AiImage
     {
-        $imageData = $response['images'][0];
-        $info = json_decode($response['info'], true);
+        $response = json_decode($response->getBody()->getContents(), true);
+
+        $imageData = (string)$response['images'][0];
+        $info = json_decode((string)$response['info'], true);
         $seed = $info['seed'] ?? 0;
         $subSeed = $info['subseed'] ?? 0;
 

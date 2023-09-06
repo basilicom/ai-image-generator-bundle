@@ -9,7 +9,8 @@ services:
     arguments:
       $bundle: "@=service('kernel').getBundle('AiImageGeneratorBundle')"
 
-  Basilicom\AiImageGeneratorBundle\Controller\ApiController:
+  Basilicom\AiImageGeneratorBundle\Controller\:
+    resource: '../src/Controller/**/*'
     tags: [ 'controller.service_arguments' ]
 
   Basilicom\AiImageGeneratorBundle\Config\ConfigurationService: ~
@@ -20,10 +21,13 @@ services:
   Basilicom\AiImageGeneratorBundle\Service\RequestService: ~
   Basilicom\AiImageGeneratorBundle\Service\LockManager: ~
   Basilicom\AiImageGeneratorBundle\Service\PromptCreator: ~
-  Basilicom\AiImageGeneratorBundle\Service\ImageGenerationService: ~
+  Basilicom\AiImageGeneratorBundle\Service\ImageGenerationService:
+    arguments:
+      - "@service_container"
 
   Basilicom\AiImageGeneratorBundle\Strategy\:
     resource: '../src/Strategy/**/*'
+    public: true
 
   Basilicom\AiImageGeneratorBundle\EventSubscriber\:
     resource: '../src/EventSubscriber/*'
