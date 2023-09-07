@@ -21,6 +21,8 @@ class StableDiffusionRequestFactory implements RequestFactory
 
     public function createTxt2ImgRequest(Configuration $configuration): ServiceRequest
     {
+        $configuration->setUpscale(true);
+
         $getRelativeAspectRatio = $this->aspectRatioCalculator->calculateAspectRatio($configuration->getAspectRatio(), 512);
         $uri = rtrim($configuration->getBaseUrl(), '/') . '/txt2img';
         $method = Request::METHOD_POST;
@@ -45,11 +47,15 @@ class StableDiffusionRequestFactory implements RequestFactory
 
     public function createImgVariationsRequest(Configuration $configuration, AiImage $baseImage): ServiceRequest
     {
+        $configuration->setUpscale(true);
+
         return $this->createTxt2ImgRequest($configuration);
     }
 
     public function createUpscaleRequest(Configuration|StableDiffusionApiConfig $configuration, AiImage $baseImage): ServiceRequest
     {
+        $configuration->setUpscale(true);
+
         $uri = rtrim($configuration->getBaseUrl(), '/') . '/img2img';
         $method = Request::METHOD_POST;
         $payload = [
@@ -78,6 +84,8 @@ class StableDiffusionRequestFactory implements RequestFactory
         Configuration|StableDiffusionApiConfig $configuration,
         AiImage                                $baseImage
     ): ServiceRequest {
+        $configuration->setUpscale(true);
+
         $resizedImage = $baseImage->getResizedImage($baseImage->getData(true), 512, 512);
         $resizedMaskImage = $baseImage->getResizedImage($baseImage->getMask(true), 512, 512);
 

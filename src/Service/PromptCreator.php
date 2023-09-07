@@ -105,6 +105,7 @@ class PromptCreator
         $contents = [];
 
         $possibleFields = [
+            'key',
             'title',
             'name',
             'productName',

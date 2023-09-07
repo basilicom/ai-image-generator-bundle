@@ -21,6 +21,15 @@ composer update basilicom/ai-image-generator-bundle
 
 Make sure to also install the bundle via `BundleSetupSubscriber` or console.
 
+## Support
+
+| Parameter   | Text-To-Image | Variations | Upscaling | Background Inpainting |
+|-------------|:-------------:|:----------:|:---------:|:---------------------:|
+| ClipDrop    |       X       |     X      |     X     |           X           | 
+| A1111       |       X       |     X      |     X     |           X           | 
+| DreamStudio |       X       |     X      |     X     |           ~           | 
+| Dall-E      |       X       |     X      |     -     |           -           | 
+
 ## Configuration
 
 ```
@@ -42,8 +51,34 @@ ai_image_generator:
   open_ai:
     baseUrl: "https://api.openai.com/v1"
     apiKey: "%env(OPEN_AI_API_KEY)%"
+    
+  clip_drop:
+    baseUrl: "https://clipdrop-api.co"
+    apiKey: "%env(CLIP_DROP_API_KEY)%"
 
 ```
+
+## Usage
+
+### Generating images in documents
+If no prompt is given, the prompt will be generated (and not translated!) from 
+* document SEO title
+* document SEO description
+* h1-Elements
+* h2-Elements
+* h3- and h4-elements if the previous mentioned sources are empty
+
+![Image editables will get a button to generate an image](./docs/img/ai-image-in-documents.png)
+
+### Generating images in DataObjects
+If no prompt is given, the prompt will be generated (and not translated!) by trying to access the following properties:
+* key
+* title
+* name
+* productName
+* description
+
+![Image and ImageGallery fields will get a context-menu-item to generate an image](./docs/img/ai-image-in-objects.png)
 
 ## API
 
@@ -107,14 +142,6 @@ Based on the `Accept`-header, you can say if you want to have a JSON-response or
 // the base64 decoded image
 ```
 
-## Features per Adapter
-
-| Parameter   | Text-To-Image | Variations | Upscaling | Background Inpainting |
-|-------------|:-------------:|:----------:|:---------:|:---------------------:|
-| ClipDrop    |       X       |     X      |     X     |           X           | 
-| A1111       |       X       |     X      |     X     |           X           | 
-| DreamStudio |       X       |     X      |     X     |           ~           | 
-| Dall-E      |       X       |     X      |     -     |           -           | 
 
 ## Using Automatic1111's Stable Diffusion API
 
