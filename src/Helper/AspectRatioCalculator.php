@@ -6,6 +6,21 @@ use Basilicom\AiImageGeneratorBundle\Model\AspectRatio;
 
 class AspectRatioCalculator
 {
+    public const DEFAULT_ASPECT_RATIO = '16:9';
+
+    public function isValidAspectRatio(string $aspectRatio): bool
+    {
+        return in_array($aspectRatio, [
+            '16:9',
+            '4:3',
+            '3:2',
+            '16:10',
+            '5:4',
+            '1:1',
+            '21:9',
+        ]);
+    }
+
     public function getAspectRatioFromDimensions(int $width, int $height): string
     {
         if ($width <= 0 || $height <= 0) {

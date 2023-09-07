@@ -47,79 +47,43 @@ class ApiController extends AbstractController
     }
 
     #[Route(
-        '/generate',
-        name: 'ai_image_by_prompt',
-        requirements: [
-            'prompt' => '.+',
-            'negativePrompt' => '.+',
-            'seed' => '\d+',
-            'width' => '\d+',
-            'height' => '\d+'
-        ],
-        defaults: [
-            'negativePrompt' => PromptCreator::DEFAULT_NEGATIVE_PROMPT,
-            'seed' => -1,
-            'width' => 512,
-            'height' => 512
-        ],
-        methods: ['POST']
-    )]
-    public function generateByPrompt(Request $request): Response
-    {
-        $payload = json_decode($request->getContent(), true);
-
-        $prompt = $payload['prompt'] ?? '';
-        $negativePrompt = $payload['negativePrompt'] ?? PromptCreator::DEFAULT_NEGATIVE_PROMPT;
-        $width = (int)($payload['width'] ?? 512);
-        $height = (int)($payload['height'] ?? 512);
-        $seed = (int)($payload['seed'] ?? -1);
-        $aspectRatio = $this->aspectRatioCalculator->getAspectRatioFromDimensions($width, $height);
-
-        $config = $this->configurationService->getConfiguration();
-        $config->setPromptParts([$prompt]);
-        $config->setNegativePromptParts([$negativePrompt]);
-        $config->setAspectRatio($aspectRatio);
-        $config->setSeed($seed);
-        $config->setUpscale($width > 512 || $height > 512);
-
-        return $this->process($request, fn () => $this->imageGenerationService->generateImage($config));
-    }
-
-    #[Route(
         '/generate/{context}-{id}',
         name: 'ai_image_by_element_context',
         requirements: [
+            'prompt' => '.+',
             'context' => '.+',
             'id' => '\d+',
-            'width' => '\d+',
-            'height' => '\d+'
+            'aspectRatio' => '\d+\:\d+',
         ],
         methods: ['POST']
     )]
     public function generateByElementContext(Request $request): Response
     {
+        // create a regex for 16:9
+        preg_match_all('/(\d+)x(\d+)/', $request->get('aspectRatio'), $matches);
         $payload = json_decode($request->getContent(), true);
 
         $context = (string)$request->get('context');
         $contextElementId = (int)$request->get('id');
-        $width = (int)($payload['width'] ?? 512);
-        $height = (int)($payload['height'] ?? 512);
+        $aspectRatio = $this->aspectRatioCalculator->isValidAspectRatio((string)$payload['aspectRatio'])
+            ? ((string)$payload['aspectRatio'])
+            : AspectRatioCalculator::DEFAULT_ASPECT_RATIO;
 
         $element = match ($context) {
             'document' => PageSnippet::getById($contextElementId),
             'object' => DataObject::getById($contextElementId),
         };
 
-        $prompt = $this->promptCreator->createPromptFromPimcoreElement($element);
-        $negativePrompt = PromptCreator::DEFAULT_NEGATIVE_PROMPT;
+        $payload = json_decode($request->getContent(), true);
 
-        $aspectRatio = $this->aspectRatioCalculator->getAspectRatioFromDimensions($width, $height);
+        $prompt = $payload['prompt'] ?? '';
+        $prompt = empty($prompt) ? $this->promptCreator->createPromptFromPimcoreElement($element) : [$prompt];
+        $negativePrompt = PromptCreator::DEFAULT_NEGATIVE_PROMPT;
 
         $config = $this->configurationService->getConfiguration();
         $config->setPromptParts($prompt);
         $config->setNegativePromptParts([$negativePrompt]);
         $config->setAspectRatio($aspectRatio);
-        $config->setUpscale($width > 512 || $height > 512);
 
         return $this->process(
             $request,
@@ -161,18 +125,13 @@ class ApiController extends AbstractController
         $prompt = (string)($payload['prompt'] ?? $asset->getMetadata(MetaDataEnum::PROMPT));
         $negativePrompt = (string)$asset->getMetadata(MetaDataEnum::NEGATIVE_PROMPT);
         $seed = (int)($payload['seed'] ?? $asset->getMetadata(MetaDataEnum::SEED));
-
-        $height = $asset->getHeight();
-        $width = $asset->getWidth();
-
-        $aspectRatio = $this->aspectRatioCalculator->getAspectRatioFromDimensions($width, $height);
+        $aspectRatio = $this->aspectRatioCalculator->getAspectRatioFromDimensions($asset->getWidth(), $asset->getHeight());
 
         $config = $this->configurationService->getConfiguration();
         $config->setPromptParts([$prompt]);
         $config->setNegativePromptParts([$negativePrompt]);
         $config->setAspectRatio($aspectRatio);
         $config->setSeed($seed);
-        $config->setUpscale($width > 512 || $height > 512);
 
         return $this->process(
             $request,
@@ -199,16 +158,11 @@ class ApiController extends AbstractController
         }
 
         $prompt = (string)($payload['prompt'] ?? $asset->getMetadata(MetaDataEnum::PROMPT));
-
-        $height = $asset->getHeight();
-        $width = $asset->getWidth();
-
-        $aspectRatio = $this->aspectRatioCalculator->getAspectRatioFromDimensions($width, $height);
+        $aspectRatio = $this->aspectRatioCalculator->getAspectRatioFromDimensions($asset->getWidth(), $asset->getHeight());
 
         $config = $this->configurationService->getConfiguration();
         $config->setPromptParts([$prompt]);
         $config->setAspectRatio($aspectRatio);
-        $config->setUpscale($width > 512 || $height > 512);
 
         return $this->process(
             $request,

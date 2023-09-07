@@ -1,6 +1,6 @@
-import AiImageGenerator from '../../lib/AiImageGenerator';
+import SimpleText2ImageWindow from "../../lib/ExtJs/SimpleText2ImageWindow";
 
-pimcore.registerNS('pimcore.object.tags.image');
+pimcore.registerNS('pimcore.object.tags.hotspotimage');
 pimcore.object.tags.hotspotimage = Class.create(pimcore.object.tags.hotspotimage, {
     label: 'Generate Image',
     button: null,
@@ -19,34 +19,32 @@ pimcore.object.tags.hotspotimage = Class.create(pimcore.object.tags.hotspotimage
 
     generateAiImage: function () {
         const container = this.component.body.dom;
-        AiImageGenerator.generateAiImageByContext(
-            {
-                context: 'object',
-                id: this.context.objectId,
-                width: this.component.config.width,
-                height: this.component.config.height
-            },
-            () => {
-                container.classList.add('ai-image-loader');
-                this.button.innerHTML = t('Loading...');
-            },
-            (jsonData) => {
-                this.empty(true);
-
-                if (this.data.id !== jsonData.id) {
-                    this.dirty = true;
-                }
-                this.data.id = jsonData.id;
-
-                this.updateImage();
-            },
-            (jsonData) => {
-                pimcore.helpers.showNotification(t('error'), jsonData.message, 'error');
-            },
-            () => {
-                container.classList.remove('ai-image-loader');
-                this.button.innerHTML = t(this.label);
-            }
+        const simpleText2ImageWindow = new SimpleText2ImageWindow(
+            this.context.objectId,
+            'object'
         );
+
+        simpleText2ImageWindow
+            .getWindow(
+                () => {
+                    container.classList.add('ai-image-loader');
+                    this.button.innerHTML = t('Loading...');
+                },
+                (jsonData) => {
+                    this.empty(true);
+
+                    if (this.data.id !== jsonData.id) {
+                        this.dirty = true;
+                    }
+                    this.data.id = jsonData.id;
+
+                    this.updateImage();
+                },
+                () => {
+                    container.classList.remove('ai-image-loader');
+                    this.button.innerHTML = t(this.label);
+                },
+            )
+            .show();
     }
 });

@@ -23,6 +23,7 @@ class ClipDropStrategy extends Strategy
         $aiImage = new AiImage();
         $aiImage->setData(base64_encode($body));
         $aiImage->setMetadata(MetaDataEnum::PROMPT, implode(', ', $config->getPromptParts()));
+        $aiImage->setMetadata(MetaDataEnum::ASPECT_RATIO, $config->getAspectRatio());
 
         return $aiImage;
     }
