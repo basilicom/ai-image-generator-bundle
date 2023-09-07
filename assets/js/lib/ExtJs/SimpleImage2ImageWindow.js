@@ -1,37 +1,25 @@
-import {aspectRatioStore, aspectRatioStoreDefault} from "./AspectRatioStore";
 import AiImageGenerator from "../AiImageGenerator";
-import ConfigStorage from "../ConfigStorage";
 import AdapterEnum from "../AdapterEnum";
+import ConfigStorage from "../ConfigStorage";
 
-export default class SimpleText2ImageWindow {
-    id
+export const IMAGE_VARIATIONS = 'image_variations';
+export const IMAGE_BACKGROUND_GENERATION = 'image_background_generation';
+
+export default class SimpleImage2ImageWindow {
+    asset
     context
 
-    constructor(id, context) {
-        this.id = id;
+    constructor(asset, context) {
+        this.asset = asset;
         this.context = context;
     }
 
     getWindow(onRequest, onSuccess, onDone) {
-        const prompt = window.localStorage.getItem('prompt') ?? '';
-        const seed = window.localStorage.getItem('seed') ?? -1;
-        const aspectRatio = window.localStorage.getItem('aspectRatio') ?? aspectRatioStoreDefault;
-        aspectRatioStore.load();
+        const previousPrompt = window.localStorage.getItem('prompt') ?? '';
+        const prompt = this.asset.data.metadata.hasOwnProperty('prompt~') ? this.asset.data.metadata['prompt~'].data : previousPrompt;
+        const seed = this.asset.data.metadata.hasOwnProperty('seed~') ? this.asset.data.metadata['seed~'].data : -1;
 
         let items = [
-            {
-                xtype: 'combobox',
-                itemId: 'aspectRatio',
-                name: 'aspectRatio',
-                triggerAction: 'all',
-                selectOnFocus: true,
-                fieldLabel: t('Aspect Ratio'),
-                store: aspectRatioStore,
-                value: aspectRatio,
-                displayField: 'key',
-                valueField: 'value',
-                width: '100%',
-            },
             {
                 xtype: 'textareafield',
                 itemId: 'prompt',
@@ -87,34 +75,30 @@ export default class SimpleText2ImageWindow {
                     iconCls: 'pimcore_icon_apply',
                     handler: function () {
                         const prompt = settingsWindow.getComponent("prompt").getValue();
-                        const aspectRatio = settingsWindow.getComponent("aspectRatio").getValue();
                         const seed = settingsWindow.getComponent("seed") ? settingsWindow.getComponent("seed").getValue() : -1;
                         window.localStorage.setItem('prompt', prompt);
-                        window.localStorage.setItem('aspectRatio', aspectRatio);
                         window.localStorage.setItem('seed', seed);
 
-                        AiImageGenerator.generateAiImageByContext(
-                            {
-                                context: this.context,
-                                id: this.id,
-                                prompt: prompt,
-                                aspectRatio: aspectRatio,
-                                seed: seed
-                            },
-                            () => {
-                                onRequest();
-                                settingsWindow.close();
-                            },
-                            (jsonData) => {
-                                onSuccess(jsonData);
-                            },
-                            (jsonData) => {
-                                pimcore.helpers.showNotification(t('error'), jsonData.message, 'error');
-                            },
-                            () => {
-                                onDone();
-                            }
-                        );
+                        const payload = {
+                            id: this.asset.id,
+                            prompt: prompt,
+                            seed: seed
+                        };
+
+                        const extendedOnRequest = () => {
+                            onRequest();
+                            settingsWindow.close();
+                        };
+
+                        const onError = (jsonData) => {
+                            pimcore.helpers.showNotification(t('error'), jsonData.message, 'error');
+                        };
+
+                        if (this.context === IMAGE_VARIATIONS) {
+                            AiImageGenerator.varyImage(payload, extendedOnRequest, onSuccess, onError, onDone);
+                        } else if (this.context === IMAGE_BACKGROUND_GENERATION) {
+                            AiImageGenerator.inpaintBackground(payload, extendedOnRequest, onSuccess, onError, onDone);
+                        }
                     }.bind(this)
                 }]
         });

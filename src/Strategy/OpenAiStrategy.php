@@ -25,6 +25,7 @@ class OpenAiStrategy extends Strategy
         $aiImage = new AiImage();
         $aiImage->setData($imageData);
         $aiImage->setMetadata(MetaDataEnum::PROMPT, implode(', ', $config->getPromptParts()));
+        $aiImage->setMetadata(MetaDataEnum::ASPECT_RATIO, $config->getAspectRatio());
 
         return $aiImage;
     }

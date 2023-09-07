@@ -1,17 +1,6 @@
 # AI Image Generator Bundle
 
-This is currently a Proof Of Concept for Image Generation in the Pimcore Backend.
-Key features will be:
-
-* generate images in image-editables and asset-fields directly in the backend
-* be able to use a local Automatic1111, DreamStudio or other APIs to generate images
-* context aware image creation
-    * use aspect ratio created by width and height of image-container
-    * based on document/object
-    * based on homepage itself
-    * based on user prompts
-    * configuration of context to use when generating prompts
-    * (use LLMs for prompt generation)
+This is bundle utalizes common APIs for generative image AIs to generate images in the Pimcore Backend.
 
 ## Installation
 
@@ -61,7 +50,9 @@ ai_image_generator:
 ## Usage
 
 ### Generating images in documents
-If no prompt is given, the prompt will be generated (and not translated!) from 
+
+If no prompt is given, the prompt will be generated (and not translated!) from
+
 * document SEO title
 * document SEO description
 * h1-Elements
@@ -71,7 +62,9 @@ If no prompt is given, the prompt will be generated (and not translated!) from
 ![Image editables will get a button to generate an image](./docs/img/ai-image-in-documents.png)
 
 ### Generating images in DataObjects
+
 If no prompt is given, the prompt will be generated (and not translated!) by trying to access the following properties:
+
 * key
 * title
 * name
@@ -82,26 +75,20 @@ If no prompt is given, the prompt will be generated (and not translated!) by try
 
 ## API
 
-#### `(POST) /admin/ai-images/generate`
-
-| Parameter      | Type   | Example             |
-|----------------|--------|---------------------|
-| **prompt**     | string | a whale             |
-| negativePrompt | string | blurry, unrealistic |
-| seed           | int    | -1                  |
-| height         | int    | 512                 |
-| width          | int    | 512                 |
-
 #### `(POST) /admin/ai-images/generate/{context}-{id}`
+
+Generate an image based on a document or object context. If the prompt is empty, the budle-logic for prompting will take effect.
 
 | Parameter   | Type   | Example         |
 |-------------|--------|-----------------|
 | **context** | string | document/object |
 | **id**      | int    | 123             |
-| height      | int    | 512             |
-| width       | int    | 512             |
+| prompt      | string | a towel         |
+| aspectRatio | string | 16:9            |
 
 #### `(POST) /admin/ai-images/upscale/{id}`
+
+Upscale image, while the target upscaling size is AI-Service specific
 
 | Parameter | Type | Default | Example |
 |-----------|------|---------|---------|
@@ -109,11 +96,12 @@ If no prompt is given, the prompt will be generated (and not translated!) by try
 
 #### `(POST) /admin/ai-images/vary/{id}`
 
+Inpaint backgrounds where the background logic differ for provided AI-Services.
+
 | Parameter | Type   | Default | Example |
 |-----------|--------|---------|---------|
 | **id**    | int    | 123     |         |
 | prompt    | string |         | a towel |
-| seed      | int    | 123     |         |
 
 ### Responses
 
@@ -142,7 +130,6 @@ Based on the `Accept`-header, you can say if you want to have a JSON-response or
 // the base64 decoded image
 ```
 
-
 ## Using Automatic1111's Stable Diffusion API
 
 When running Automatic1111 locally, you can define `http://host.docker.internal:7860` as your local API-url.
@@ -160,7 +147,7 @@ copy the name of a model of your choice.
 ### Plugins used
 
 * ControlNet with `canny` and `ip2p`
-* _SD Upscaler_ Script
+* _SD Upscaler_ Post Processor Script
 
 ## Known issues
 

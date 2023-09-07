@@ -50,6 +50,7 @@ class ApiController extends AbstractController
         '/generate/{context}-{id}',
         name: 'ai_image_by_element_context',
         requirements: [
+            'prompt' => '.+',
             'context' => '.+',
             'id' => '\d+',
             'aspectRatio' => '\d+\:\d+',

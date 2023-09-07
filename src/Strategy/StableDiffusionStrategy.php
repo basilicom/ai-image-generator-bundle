@@ -33,6 +33,7 @@ class StableDiffusionStrategy extends Strategy
         $aiImage->setMetadata(MetaDataEnum::NEGATIVE_PROMPT, implode(', ', $config->getNegativePromptParts()));
         $aiImage->setMetadata(MetaDataEnum::SEED, $seed);
         $aiImage->setMetadata(MetaDataEnum::SUBSEED, $subSeed);
+        $aiImage->setMetadata(MetaDataEnum::ASPECT_RATIO, $config->getAspectRatio());
 
         return $aiImage;
     }

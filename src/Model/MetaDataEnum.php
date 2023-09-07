@@ -10,4 +10,5 @@ final class MetaDataEnum
     public const NEGATIVE_PROMPT = 'negativePrompt';
     public const SEED = 'seed';
     public const SUBSEED = 'subseed';
+    public const ASPECT_RATIO = 'aspectRatio';
 }
