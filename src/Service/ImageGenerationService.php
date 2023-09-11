@@ -105,6 +105,19 @@ class ImageGenerationService
         return $this->upscaleIfPossible($asset, $aiImage, $config);
     }
 
+    /**
+     * @throws Exception
+     */
+    public function inpaint(ServiceConfiguration $config, int $assetId, bool $save = true): Asset\Image
+    {
+        $this->setStrategy($config);
+
+        $asset = Asset\Image::getById($assetId);
+        $aiImage = $this->strategy->inpaint($config, AiImage::fromAsset($asset, true));
+
+        return $this->updatePimcoreAsset($asset, $aiImage, 'created inpaint via ' . $config->getName(), $save);
+    }
+
     private function upscaleIfPossible(Asset\Image $asset, AiImage $aiImage, ServiceConfiguration $config): Asset\Image
     {
         return $asset->getWidth() < 4096 && $asset->getHeight() < 4096
@@ -133,7 +146,7 @@ class ImageGenerationService
     /**
      * @throws Exception
      */
-    private function updatePimcoreAsset(Asset\Image $asset, AiImage $generatedImage, string $versionNote = ''): Asset\Image
+    private function updatePimcoreAsset(Asset\Image $asset, AiImage $generatedImage, string $versionNote = '', bool $save = true): Asset\Image
     {
         $asset->setData($generatedImage->getData(true));
 
@@ -141,6 +154,6 @@ class ImageGenerationService
             $asset->addMetadata($key, 'input', $value);
         }
 
-        return $asset->save(['versionNote' => $versionNote]);
+        return $save ? $asset->save(['versionNote' => $versionNote]) : $asset;
     }
 }

@@ -25,13 +25,25 @@ class AiImage
     /**
      * @throws ImagickException
      */
-    public function getResizedImage(string $assetData, int $maxWidth = 1024, int $maxHeight = 1024): string
+    public function getResizedImage(int $maxWidth, int $maxHeight, bool $decode = false, bool $bestFit = true): string
     {
         $newImage = new Imagick();
-        $newImage->readImageBlob($assetData);
-        $newImage->resizeimage($maxWidth, $maxHeight, Imagick::FILTER_UNDEFINED, 1, true);
+        $newImage->readImageBlob($this->getData(true));
+        $newImage->resizeimage($maxWidth, $maxHeight, Imagick::FILTER_UNDEFINED, 1, $bestFit);
 
-        return base64_encode($newImage->getImageBlob());
+        return $decode ? $newImage->getImageBlob() : base64_encode($newImage->getImageBlob());
+    }
+
+    /**
+     * @throws ImagickException
+     */
+    public function getResizedMask(int $maxWidth, int $maxHeight, bool $decode = false, bool $bestFit = true): string
+    {
+        $newImage = new Imagick();
+        $newImage->readImageBlob($this->getMask(true));
+        $newImage->resizeimage($maxWidth, $maxHeight, Imagick::FILTER_UNDEFINED, 1, $bestFit);
+
+        return $decode ? $newImage->getImageBlob() : base64_encode($newImage->getImageBlob());
     }
 
     public function setMask(string $data): void

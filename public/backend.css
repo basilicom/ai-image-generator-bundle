@@ -1,1 +1,59 @@
-.ai-image-loader{position:relative}.ai-image-loader:before{background:rgba(0,0,0,.3);content:"";display:block;height:100%;left:0;position:absolute;top:0;width:100%;z-index:1}.ai-image-loader:after{animation:loading 4s linear 0s infinite;color:#fff;content:"Loading";display:block;font-weight:700;position:absolute;text-align:center;top:50%;transform:translateY(-50%);width:100%;z-index:2}@keyframes loading{0%{content:"Loading ."}25%{content:"Loading .."}50%{content:"Loading ..."}75%{content:"Loading ...."}to{content:"Loading ."}}.ai-image-generator-button{position:relative;z-index:200}.ai-image-generator-button button{appearance:none;background:#fff;border:1px solid gray;display:block;left:0;padding:2px 10px;position:absolute;top:0}
+.ai-image-loader {
+  position: relative;
+}
+.ai-image-loader:before {
+  background: rgba(0, 0, 0, 0.3);
+  content: "";
+  display: block;
+  height: 100%;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  z-index: 1;
+}
+.ai-image-loader:after {
+  animation: loading 4s 0s infinite linear;
+  color: white;
+  content: "Loading";
+  display: block;
+  font-weight: bold;
+  position: absolute;
+  text-align: center;
+  top: 50%;
+  transform: translate(0, -50%);
+  width: 100%;
+  z-index: 2;
+}
+
+@keyframes loading {
+  0% {
+    content: "Loading .";
+  }
+  25% {
+    content: "Loading ..";
+  }
+  50% {
+    content: "Loading ...";
+  }
+  75% {
+    content: "Loading ....";
+  }
+  100% {
+    content: "Loading .";
+  }
+}
+.ai-image-generator-button {
+  position: relative;
+  z-index: 200;
+}
+.ai-image-generator-button button {
+  appearance: none;
+  background: white;
+  border: 1px solid gray;
+  display: block;
+  left: 0;
+  padding: 2px 10px;
+  position: absolute;
+  top: 0;
+}

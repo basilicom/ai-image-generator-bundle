@@ -27,4 +27,9 @@ interface RequestFactory
      * @throws NotSupportedException
      */
     public function createInpaintBackgroundRequest(ServiceConfiguration $configuration, AiImage $baseImage): ServiceRequest;
+
+    /**
+     * @throws NotSupportedException
+     */
+    public function createInpaintRequest(ServiceConfiguration $configuration, AiImage $baseImage): ServiceRequest;
 }

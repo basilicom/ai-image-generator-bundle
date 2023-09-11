@@ -38,6 +38,7 @@ class ConfigurationDefinition implements ConfigurationInterface
                     ->children()
                         ->scalarNode(FeatureEnum::TXT_2_IMG)->isRequired()->end()
                         ->scalarNode(FeatureEnum::UPSCALE)->isRequired()->end()
+                        ->scalarNode(FeatureEnum::INPAINT)->isRequired()->end()
                         ->scalarNode(FeatureEnum::INPAINT_BACKGROUND)->isRequired()->end()
                         ->scalarNode(FeatureEnum::IMAGE_VARIATIONS)->isRequired()->end()
                     ->end()

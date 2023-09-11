@@ -12,17 +12,23 @@ Make sure to also install the bundle via `BundleSetupSubscriber` or console.
 
 ## Support
 
-| Parameter   | Text-To-Image | Variations | Upscaling | Background Inpainting |
-|-------------|:-------------:|:----------:|:---------:|:---------------------:|
-| ClipDrop    |       X       |     X      |     X     |           X           | 
-| A1111       |       X       |     X      |     X     |           X           | 
-| DreamStudio |       X       |     X      |     X     |           ~           | 
-| Dall-E      |       X       |     X      |     -     |           -           | 
+| Parameter   | Text-To-Image | Variations | Upscaling | Inpainting | Background Inpainting |
+|-------------|:-------------:|:----------:|:---------:|:----------:|:---------------------:|
+| ClipDrop    |       X       |     X      |     X     |     -      |           X           | 
+| A1111       |       X       |     X      |     X     |     X      |           X           | 
+| DreamStudio |       X       |     X      |     X     |     X      |           ~           | 
+| Dall-E      |       X       |     X      |     -     |     -      |           -           | 
 
 ## Configuration
 
 ```
 ai_image_generator:
+  feature_services:
+    txt2img: ~
+    upscale: ~
+    inpaint: ~
+    inpaint_background: ~
+    image_variations: ~
 
   stable_diffusion_api:
     baseUrl: "http://host.docker.internal:7860" # the url to your Stable Diffusion API instance

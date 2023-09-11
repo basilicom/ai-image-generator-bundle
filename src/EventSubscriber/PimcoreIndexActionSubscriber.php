@@ -31,6 +31,7 @@ class PimcoreIndexActionSubscriber implements EventSubscriberInterface
                     FeatureEnum::TXT_2_IMG => $this->configurationService->getServiceConfiguration(FeatureEnum::TXT_2_IMG)->getName(),
                     FeatureEnum::UPSCALE => $this->configurationService->getServiceConfiguration(FeatureEnum::UPSCALE)->getName(),
                     FeatureEnum::IMAGE_VARIATIONS => $this->configurationService->getServiceConfiguration(FeatureEnum::IMAGE_VARIATIONS)->getName(),
+                    FeatureEnum::INPAINT => $this->configurationService->getServiceConfiguration(FeatureEnum::INPAINT)->getName(),
                     FeatureEnum::INPAINT_BACKGROUND => $this->configurationService->getServiceConfiguration(FeatureEnum::INPAINT_BACKGROUND)->getName(),
                 ]
             ]

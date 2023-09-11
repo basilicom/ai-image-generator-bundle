@@ -63,5 +63,16 @@ abstract class Strategy
         return $this->createAiImageFromResponse($config, $response);
     }
 
+    /**
+     * @throws Exception
+     */
+    public function inpaint(ServiceConfiguration $config, AiImage $image): AiImage
+    {
+        $request = $this->requestFactory->createInpaintRequest($config, $image);
+        $response = $this->requestService->callApi($request);
+
+        return $this->createAiImageFromResponse($config, $response);
+    }
+
     abstract protected function createAiImageFromResponse(ServiceConfiguration $config, ResponseInterface $response): AiImage;
 }
