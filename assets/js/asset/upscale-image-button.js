@@ -1,10 +1,9 @@
 import AiImageGenerator from '../lib/AiImageGenerator';
-import AdapterEnum from "../lib/AdapterEnum";
-import ConfigStorage from "../lib/ConfigStorage";
+import FeatureEnum from "../lib/FeatureEnum";
+import FeatureHelper from "../lib/FeatureHelper";
 
 document.addEventListener(pimcore.events.postOpenAsset, (e) => {
-    const adapter = ConfigStorage.get('adapter', null);
-    if (adapter === AdapterEnum.OpenAi) {
+    if(!FeatureHelper.isFeatureEnabled(FeatureEnum.UPSCALE)) {
         return;
     }
 

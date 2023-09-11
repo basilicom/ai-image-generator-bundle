@@ -6,6 +6,7 @@ namespace Basilicom\AiImageGeneratorBundle\Controller;
 
 use Basilicom\AiImageGeneratorBundle\Config\ConfigurationService;
 use Basilicom\AiImageGeneratorBundle\Helper\AspectRatioCalculator;
+use Basilicom\AiImageGeneratorBundle\Model\FeatureEnum;
 use Basilicom\AiImageGeneratorBundle\Model\MetaDataEnum;
 use Basilicom\AiImageGeneratorBundle\Service\ImageGenerationService;
 use Basilicom\AiImageGeneratorBundle\Service\LockManager;
@@ -80,7 +81,7 @@ class ApiController extends AbstractController
         $prompt = empty($prompt) ? $this->promptCreator->createPromptFromPimcoreElement($element) : [$prompt];
         $negativePrompt = PromptCreator::DEFAULT_NEGATIVE_PROMPT;
 
-        $config = $this->configurationService->getConfiguration();
+        $config = $this->configurationService->getServiceConfiguration(FeatureEnum::TXT_2_IMG);
         $config->setPromptParts($prompt);
         $config->setNegativePromptParts([$negativePrompt]);
         $config->setAspectRatio($aspectRatio);
@@ -94,7 +95,7 @@ class ApiController extends AbstractController
     #[Route('/upscale/{id}', name: 'ai_image_upscale', methods: ['POST'])]
     public function upscale(Request $request): Response
     {
-        $config = $this->configurationService->getConfiguration();
+        $config = $this->configurationService->getServiceConfiguration(FeatureEnum::UPSCALE);
 
         return $this->process(
             $request,
@@ -126,7 +127,7 @@ class ApiController extends AbstractController
         $seed = (int)($payload['seed'] ?? $asset->getMetadata(MetaDataEnum::SEED));
         $aspectRatio = $this->aspectRatioCalculator->getAspectRatioFromDimensions($asset->getWidth(), $asset->getHeight());
 
-        $config = $this->configurationService->getConfiguration();
+        $config = $this->configurationService->getServiceConfiguration(FeatureEnum::IMAGE_VARIATIONS);
         $config->setPromptParts([$prompt]);
         $config->setNegativePromptParts([$negativePrompt]);
         $config->setAspectRatio($aspectRatio);
@@ -159,7 +160,7 @@ class ApiController extends AbstractController
         $prompt = (string)($payload['prompt'] ?? $asset->getMetadata(MetaDataEnum::PROMPT));
         $aspectRatio = $this->aspectRatioCalculator->getAspectRatioFromDimensions($asset->getWidth(), $asset->getHeight());
 
-        $config = $this->configurationService->getConfiguration();
+        $config = $this->configurationService->getServiceConfiguration(FeatureEnum::INPAINT_BACKGROUND);
         $config->setPromptParts([$prompt]);
         $config->setAspectRatio($aspectRatio);
 

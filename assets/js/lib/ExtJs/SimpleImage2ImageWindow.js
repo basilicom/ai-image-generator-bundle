@@ -1,9 +1,6 @@
 import AiImageGenerator from "../AiImageGenerator";
-import AdapterEnum from "../AdapterEnum";
-import ConfigStorage from "../ConfigStorage";
-
-export const IMAGE_VARIATIONS = 'image_variations';
-export const IMAGE_BACKGROUND_GENERATION = 'image_background_generation';
+import FeatureEnum from "../FeatureEnum";
+import FeatureHelper from "../FeatureHelper";
 
 export default class SimpleImage2ImageWindow {
     asset
@@ -40,8 +37,7 @@ export default class SimpleImage2ImageWindow {
             }
         ];
 
-        const adapter = ConfigStorage.get('adapter', null);
-        if (adapter === AdapterEnum.Automatic1111 || adapter === AdapterEnum.DreamStudio) {
+        if (FeatureHelper.isSeedingSupported(this.context)) {
             items = [
                 ...items,
                 {
@@ -94,9 +90,9 @@ export default class SimpleImage2ImageWindow {
                             pimcore.helpers.showNotification(t('error'), jsonData.message, 'error');
                         };
 
-                        if (this.context === IMAGE_VARIATIONS) {
+                        if (this.context === FeatureEnum.IMAGE_VARIATIONS) {
                             AiImageGenerator.varyImage(payload, extendedOnRequest, onSuccess, onError, onDone);
-                        } else if (this.context === IMAGE_BACKGROUND_GENERATION) {
+                        } else if (this.context === FeatureEnum.INPAINT_BACKGROUND) {
                             AiImageGenerator.inpaintBackground(payload, extendedOnRequest, onSuccess, onError, onDone);
                         }
                     }.bind(this)

@@ -2,11 +2,11 @@
 
 namespace Basilicom\AiImageGeneratorBundle\Config\Model;
 
-use Basilicom\AiImageGeneratorBundle\Config\Configuration;
+use Basilicom\AiImageGeneratorBundle\Config\ServiceConfiguration;
 
-class DreamStudioApiConfig extends Configuration
+class DreamStudioApiConfig extends ServiceConfiguration
 {
-    protected string $name = 'DreamStudio';
+    protected ?string $name = 'DreamStudio';
     protected int $seed = 0;
     protected string $apiKey;
 

@@ -2,9 +2,9 @@
 
 namespace Basilicom\AiImageGeneratorBundle\Config\Model;
 
-use Basilicom\AiImageGeneratorBundle\Config\Configuration;
+use Basilicom\AiImageGeneratorBundle\Config\ServiceConfiguration;
 
-class StableDiffusionApiConfig extends Configuration
+class StableDiffusionApiConfig extends ServiceConfiguration
 {
-    protected string $name = 'Automatic1111';
+    protected ?string $name = 'StableDiffusion';
 }

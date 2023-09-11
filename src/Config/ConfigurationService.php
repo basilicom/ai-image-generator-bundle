@@ -4,20 +4,17 @@ namespace Basilicom\AiImageGeneratorBundle\Config;
 
 class ConfigurationService
 {
-    private ConfigurationFactory $configFactory;
-    private array $config;
+    private BundleConfiguration $config;
 
-    public function __construct(ConfigurationFactory $customLayoutConfigFactory, array $config)
+    public function __construct(ConfigurationFactory $factory, array $configData)
     {
-        $this->configFactory = $customLayoutConfigFactory;
-        $this->config = $config;
+        $this->config = $factory->createBundleConfiguration($configData);
     }
 
-    public function getConfiguration(): Configuration
+    public function getServiceConfiguration(string $feature): ?ServiceConfiguration
     {
-        $apiService = array_key_first($this->config);
-        $configurationData = reset($this->config);
+        $usedService = $this->config->getUsedServiceForFeature($feature);
 
-        return $this->configFactory->create($apiService, $configurationData);
+        return $this->config->getServiceConfiguration($usedService);
     }
 }

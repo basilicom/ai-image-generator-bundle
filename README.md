@@ -130,7 +130,7 @@ Based on the `Accept`-header, you can say if you want to have a JSON-response or
 // the base64 decoded image
 ```
 
-## Using Automatic1111's Stable Diffusion API
+## Using Stable Diffusion API
 
 When running Automatic1111 locally, you can define `http://host.docker.internal:7860` as your local API-url.
 
@@ -149,20 +149,20 @@ copy the name of a model of your choice.
 * ControlNet with `canny` and `ip2p`
 * _SD Upscaler_ Post Processor Script
 
-## Known issues
-
-* the Dreamstudio REST API does currently not support variations, I'll look forward to use the gRPC API
+## Limitations
+* the DreamStudio REST API does currently not support variations, I'll look forward to use the gRPC API
+* [ClipDrops text-to-image API can only create 1:1 images](https://clipdrop.co/apis/docs/text-to-image#text-to-image-api)
 
 ## Upcoming 
-* disable buttons if assets are > 4058 pixels to avoid upscaling
-* allow configurations of all services and configure target service per feature
-* included Docker-Setup with A1111
 * Inpainting
 * Outpainting
-* (CLIP interrogate in order to optimize prompting) 
-* better background filling
 * creation of 2 or 4 images incl. voting (Discord Style)
-* ComfyUI + InvokeAI
+* warnings and fallbacks if credits exceeded
+* CLIP interrogate in order to optimize prompting
+* better background filling
+* ComfyUI
+* InvokeAI
+* Docker-Setup with A1111/ComfyUI/InvokeAI
 
 ### Authors
 

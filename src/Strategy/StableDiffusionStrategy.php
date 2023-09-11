@@ -2,7 +2,7 @@
 
 namespace Basilicom\AiImageGeneratorBundle\Strategy;
 
-use Basilicom\AiImageGeneratorBundle\Config\Configuration;
+use Basilicom\AiImageGeneratorBundle\Config\ServiceConfiguration;
 use Basilicom\AiImageGeneratorBundle\Model\AiImage;
 use Basilicom\AiImageGeneratorBundle\Model\MetaDataEnum;
 use Basilicom\AiImageGeneratorBundle\Service\RequestService;
@@ -16,7 +16,7 @@ class StableDiffusionStrategy extends Strategy
         parent::__construct($requestService, $requestFactory);
     }
 
-    protected function createAiImageFromResponse(Configuration $config, ResponseInterface $response): AiImage
+    protected function createAiImageFromResponse(ServiceConfiguration $config, ResponseInterface $response): AiImage
     {
         $response = json_decode($response->getBody()->getContents(), true);
 

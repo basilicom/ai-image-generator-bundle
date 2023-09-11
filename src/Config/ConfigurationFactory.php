@@ -9,7 +9,22 @@ use Basilicom\AiImageGeneratorBundle\Config\Model\StableDiffusionApiConfig;
 
 class ConfigurationFactory
 {
-    public function create(string $apiService, array $configurationData): Configuration
+    public function createBundleConfiguration(array $configData): BundleConfiguration
+    {
+        $serviceConfigurationData = $configData[ConfigurationDefinition::SERVICES];
+
+        $serviceConfigurations = [];
+        foreach($serviceConfigurationData as $serviceKey => $data) {
+            $serviceConfigurations[$serviceKey] = $this->createServiceConfiguration($serviceKey, $data);
+        }
+
+        return new BundleConfiguration(
+            $configData[ConfigurationDefinition::FEATURE_SERVICES],
+            $serviceConfigurations
+        );
+    }
+
+    private function createServiceConfiguration(string $apiService, array $configurationData): ServiceConfiguration
     {
         $baseUrl = $configurationData[ConfigurationDefinition::BASE_URL];
         $apiKey = $configurationData[ConfigurationDefinition::API_KEY] ?? '';
@@ -22,7 +37,7 @@ class ConfigurationFactory
 
         return match ($apiService) {
             ConfigurationDefinition::STABLE_DIFFUSION_API => new StableDiffusionApiConfig($baseUrl, $model, $inpaintModel, $steps, $upscaler),
-            ConfigurationDefinition::DREAMSTUDIO => new DreamStudioApiConfig($baseUrl, $model, $inpaintModel, $steps, $upscaler, $apiKey),
+            ConfigurationDefinition::DREAM_STUDIO => new DreamStudioApiConfig($baseUrl, $model, $inpaintModel, $steps, $upscaler, $apiKey),
             ConfigurationDefinition::OPEN_AI => new OpenAiApiConfig($baseUrl, $apiKey),
             ConfigurationDefinition::CLIP_DROP => new ClipDropApiConfig($baseUrl, $apiKey),
         };

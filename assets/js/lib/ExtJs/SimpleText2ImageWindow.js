@@ -1,7 +1,7 @@
 import {aspectRatioStore, aspectRatioStoreDefault} from "./AspectRatioStore";
 import AiImageGenerator from "../AiImageGenerator";
-import ConfigStorage from "../ConfigStorage";
-import AdapterEnum from "../AdapterEnum";
+import FeatureHelper from "../FeatureHelper";
+import FeatureEnum from "../FeatureEnum";
 
 export default class SimpleText2ImageWindow {
     id
@@ -14,24 +14,8 @@ export default class SimpleText2ImageWindow {
 
     getWindow(onRequest, onSuccess, onDone) {
         const prompt = window.localStorage.getItem('prompt') ?? '';
-        const seed = window.localStorage.getItem('seed') ?? -1;
-        const aspectRatio = window.localStorage.getItem('aspectRatio') ?? aspectRatioStoreDefault;
-        aspectRatioStore.load();
 
         let items = [
-            {
-                xtype: 'combobox',
-                itemId: 'aspectRatio',
-                name: 'aspectRatio',
-                triggerAction: 'all',
-                selectOnFocus: true,
-                fieldLabel: t('Aspect Ratio'),
-                store: aspectRatioStore,
-                value: aspectRatio,
-                displayField: 'key',
-                valueField: 'value',
-                width: '100%',
-            },
             {
                 xtype: 'textareafield',
                 itemId: 'prompt',
@@ -52,8 +36,29 @@ export default class SimpleText2ImageWindow {
             }
         ];
 
-        const adapter = ConfigStorage.get('adapter', null);
-        if (adapter === AdapterEnum.Automatic1111 || adapter === AdapterEnum.DreamStudio) {
+        if (FeatureHelper.isAspectRatioSupported(FeatureEnum.TXT2IMG)) {
+            aspectRatioStore.load();
+            const aspectRatio = window.localStorage.getItem('aspectRatio') ?? aspectRatioStoreDefault;
+            items = [
+                {
+                    xtype: 'combobox',
+                    itemId: 'aspectRatio',
+                    name: 'aspectRatio',
+                    triggerAction: 'all',
+                    selectOnFocus: true,
+                    fieldLabel: t('Aspect Ratio'),
+                    store: aspectRatioStore,
+                    value: aspectRatio,
+                    displayField: 'key',
+                    valueField: 'value',
+                    width: '100%',
+                },
+                ...items,
+            ];
+        }
+
+        if (FeatureHelper.isSeedingSupported(FeatureEnum.TXT2IMG)) {
+            const seed = window.localStorage.getItem('seed') ?? -1;
             items = [
                 ...items,
                 {
@@ -87,20 +92,30 @@ export default class SimpleText2ImageWindow {
                     iconCls: 'pimcore_icon_apply',
                     handler: function () {
                         const prompt = settingsWindow.getComponent("prompt").getValue();
-                        const aspectRatio = settingsWindow.getComponent("aspectRatio").getValue();
-                        const seed = settingsWindow.getComponent("seed") ? settingsWindow.getComponent("seed").getValue() : -1;
                         window.localStorage.setItem('prompt', prompt);
-                        window.localStorage.setItem('aspectRatio', aspectRatio);
-                        window.localStorage.setItem('seed', seed);
+
+                        let payload = {
+                            context: this.context,
+                            id: this.id,
+                            prompt: prompt
+                        };
+
+
+                        if (FeatureHelper.isAspectRatioSupported(FeatureEnum.TXT2IMG)) {
+                            const aspectRatio = settingsWindow.getComponent("aspectRatio").getValue();
+                            window.localStorage.setItem('aspectRatio', aspectRatio);
+
+                            payload.aspectRatio = aspectRatio;
+                        }
+                        if (FeatureHelper.isSeedingSupported(FeatureEnum.TXT2IMG)) {
+                            const seed = settingsWindow.getComponent("seed") ? settingsWindow.getComponent("seed").getValue() : -1;
+                            window.localStorage.setItem('seed', seed);
+
+                            payload.seed = seed;
+                        }
 
                         AiImageGenerator.generateAiImageByContext(
-                            {
-                                context: this.context,
-                                id: this.id,
-                                prompt: prompt,
-                                aspectRatio: aspectRatio,
-                                seed: seed
-                            },
+                            payload,
                             () => {
                                 onRequest();
                                 settingsWindow.close();

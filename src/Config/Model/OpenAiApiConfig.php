@@ -2,11 +2,11 @@
 
 namespace Basilicom\AiImageGeneratorBundle\Config\Model;
 
-use Basilicom\AiImageGeneratorBundle\Config\Configuration;
+use Basilicom\AiImageGeneratorBundle\Config\ServiceConfiguration;
 
-class OpenAiApiConfig extends Configuration
+class OpenAiApiConfig extends ServiceConfiguration
 {
-    protected string $name = 'OpenAi';
+    protected ?string $name = 'OpenAi';
     protected string $apiKey;
 
     public function __construct(string $baseUrl, string $apiKey)

@@ -26,6 +26,6 @@ final class AiImageGeneratorExtension extends Extension
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../../config'));
         $loader->load('services.yaml');
 
-        $container->getDefinition(ConfigurationService::class)->setArgument('$config', $config);
+        $container->getDefinition(ConfigurationService::class)->setArgument('$configData', $config);
     }
 }

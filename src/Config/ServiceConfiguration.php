@@ -4,9 +4,9 @@ namespace Basilicom\AiImageGeneratorBundle\Config;
 
 use Basilicom\AiImageGeneratorBundle\Helper\AspectRatioCalculator;
 
-abstract class Configuration
+abstract class ServiceConfiguration
 {
-    protected string $name = '';
+    protected ?string $name = null;
 
     protected string $baseUrl;
     protected string $model;
@@ -28,7 +28,7 @@ abstract class Configuration
         $this->upscaler = $upscaler;
     }
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }

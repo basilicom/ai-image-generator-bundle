@@ -1,4 +1,6 @@
 import SimpleText2ImageWindow from "../../lib/ExtJs/SimpleText2ImageWindow";
+import FeatureEnum from "../../lib/FeatureEnum";
+import FeatureHelper from "../../lib/FeatureHelper";
 
 pimcore.registerNS('pimcore.object.tags.image');
 pimcore.object.tags.image = Class.create(pimcore.object.tags.image, {
@@ -7,6 +9,11 @@ pimcore.object.tags.image = Class.create(pimcore.object.tags.image, {
 
     getLayoutEdit: function ($super) {
         const component = $super();
+
+        if(!FeatureHelper.isFeatureEnabled(FeatureEnum.TXT2IMG)) {
+            return component;
+        }
+
         const toolbar = component.getDockedItems('toolbar')[0];
         this.button = new Ext.button.Button({
             text: t(this.label),

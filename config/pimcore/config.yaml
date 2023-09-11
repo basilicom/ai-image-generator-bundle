@@ -1,23 +1,30 @@
 ai_image_generator:
-#  stable_diffusion_api:
-#    baseUrl: "http://host.docker.internal:7860/sdapi/v1" # the url to your Stable Diffusion API instance
-#    model: "photon_v1" # the model checkpoint name
-#    inpaint_model: "photon_v1" # the model checkpoint name
-#    steps: 20 # this will have impact on generation-time
-#    upscaler: "ESRGAN_4x" # this will have impact on generation-time
+  feature_services:
+    txt2img: stable_diffusion_api
+    upscale: stable_diffusion_api
+    inpaint_background: stable_diffusion_api
+    image_variations: stable_diffusion_api
 
-#  dream_studio:
-#    baseUrl: "https://api.stability.ai/v1"
-#    apiKey: "%env(DREAM_STUDIO_API_KEY)%"
-#    model: "stable-diffusion-xl-1024-v1-0"
-#    inpaint_model: "stable-inpainting-512-v2-0"
-#    steps: 30 # this will have impact on credits
-#    upscaler: "esrgan-v1-x2plus"
+  services:
+    stable_diffusion_api:
+      baseUrl: "http://host.docker.internal:7860/sdapi/v1"
+      model: "photon_v1"
+      inpaint_model: "photon_v1"
+      steps: 20
+      upscaler: "ESRGAN_4x"
 
-#  open_ai:
-#    baseUrl: "https://api.openai.com/v1"
-#    apiKey: "%env(OPEN_AI_API_KEY)%"
+    dream_studio:
+      baseUrl: "https://api.stability.ai/v1"
+      apiKey: "%env(DREAM_STUDIO_API_KEY)%"
+      model: "stable-diffusion-xl-1024-v1-0"
+      inpaint_model: "stable-inpainting-512-v2-0"
+      steps: 30
+      upscaler: "esrgan-v1-x2plus"
 
-#  clip_drop:
-#    baseUrl: "https://clipdrop-api.co"
-#    apiKey: "%env(CLIP_DROP_API_KEY)%"
+    open_ai:
+      baseUrl: "https://api.openai.com/v1"
+      apiKey: "%env(OPEN_AI_API_KEY)%"
+
+    clip_drop:
+      baseUrl: "https://clipdrop-api.co"
+      apiKey: "%env(CLIP_DROP_API_KEY)%"

@@ -2,7 +2,7 @@
 
 namespace Basilicom\AiImageGeneratorBundle\Strategy\RequestFactory;
 
-use Basilicom\AiImageGeneratorBundle\Config\Configuration;
+use Basilicom\AiImageGeneratorBundle\Config\ServiceConfiguration;
 use Basilicom\AiImageGeneratorBundle\Config\Model\StableDiffusionApiConfig;
 use Basilicom\AiImageGeneratorBundle\Helper\AspectRatioCalculator;
 use Basilicom\AiImageGeneratorBundle\Model\AiImage;
@@ -19,7 +19,7 @@ class StableDiffusionRequestFactory implements RequestFactory
         $this->aspectRatioCalculator = $aspectRatioCalculator;
     }
 
-    public function createTxt2ImgRequest(Configuration $configuration): ServiceRequest
+    public function createTxt2ImgRequest(ServiceConfiguration $configuration): ServiceRequest
     {
         $getRelativeAspectRatio = $this->aspectRatioCalculator->calculateAspectRatio($configuration->getAspectRatio(), 512);
         $uri = rtrim($configuration->getBaseUrl(), '/') . '/txt2img';
@@ -43,12 +43,12 @@ class StableDiffusionRequestFactory implements RequestFactory
         return new ServiceRequest($uri, $method, $payload);
     }
 
-    public function createImgVariationsRequest(Configuration $configuration, AiImage $baseImage): ServiceRequest
+    public function createImgVariationsRequest(ServiceConfiguration $configuration, AiImage $baseImage): ServiceRequest
     {
         return $this->createTxt2ImgRequest($configuration);
     }
 
-    public function createUpscaleRequest(Configuration|StableDiffusionApiConfig $configuration, AiImage $baseImage): ServiceRequest
+    public function createUpscaleRequest(ServiceConfiguration|StableDiffusionApiConfig $configuration, AiImage $baseImage): ServiceRequest
     {
         $tmpFilePath = sys_get_temp_dir() . '/ai-image-generator--a1111.png';
         file_put_contents($tmpFilePath, $baseImage->getData(true));
@@ -88,8 +88,8 @@ class StableDiffusionRequestFactory implements RequestFactory
     }
 
     public function createInpaintBackgroundRequest(
-        Configuration|StableDiffusionApiConfig $configuration,
-        AiImage                                $baseImage
+        ServiceConfiguration|StableDiffusionApiConfig $configuration,
+        AiImage                                       $baseImage
     ): ServiceRequest {
         $resizedImage = $baseImage->getResizedImage($baseImage->getData(true), 512, 512);
         $resizedMaskImage = $baseImage->getResizedImage($baseImage->getMask(true), 512, 512);

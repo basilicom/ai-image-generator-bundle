@@ -3,14 +3,18 @@
 namespace Basilicom\AiImageGeneratorBundle\EventSubscriber;
 
 use Basilicom\AiImageGeneratorBundle\Config\ConfigurationService;
+use Basilicom\AiImageGeneratorBundle\Model\FeatureEnum;
 use Pimcore\Bundle\AdminBundle\Event\AdminEvents;
 use Pimcore\Bundle\AdminBundle\Event\IndexActionSettingsEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class PimcoreIndexActionSubscriber implements EventSubscriberInterface
 {
-    public function __construct(private ConfigurationService $configurationService)
+    private ConfigurationService $configurationService;
+
+    public function __construct(ConfigurationService $configurationService)
     {
+        $this->configurationService = $configurationService;
     }
 
     public static function getSubscribedEvents(): array
@@ -23,7 +27,12 @@ class PimcoreIndexActionSubscriber implements EventSubscriberInterface
         $event->addSetting(
             'AiImageGeneratorBundle',
             [
-                'adapter' => $this->configurationService->getConfiguration()->getName()
+                'adapter' => [
+                    FeatureEnum::TXT_2_IMG => $this->configurationService->getServiceConfiguration(FeatureEnum::TXT_2_IMG)->getName(),
+                    FeatureEnum::UPSCALE => $this->configurationService->getServiceConfiguration(FeatureEnum::UPSCALE)->getName(),
+                    FeatureEnum::IMAGE_VARIATIONS => $this->configurationService->getServiceConfiguration(FeatureEnum::IMAGE_VARIATIONS)->getName(),
+                    FeatureEnum::INPAINT_BACKGROUND => $this->configurationService->getServiceConfiguration(FeatureEnum::INPAINT_BACKGROUND)->getName(),
+                ]
             ]
         );
     }

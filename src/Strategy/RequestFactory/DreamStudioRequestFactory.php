@@ -2,7 +2,7 @@
 
 namespace Basilicom\AiImageGeneratorBundle\Strategy\RequestFactory;
 
-use Basilicom\AiImageGeneratorBundle\Config\Configuration;
+use Basilicom\AiImageGeneratorBundle\Config\ServiceConfiguration;
 use Basilicom\AiImageGeneratorBundle\Config\Model\DreamStudioApiConfig;
 use Basilicom\AiImageGeneratorBundle\Helper\AspectRatioCalculator;
 use Basilicom\AiImageGeneratorBundle\Model\AiImage;
@@ -19,7 +19,7 @@ class DreamStudioRequestFactory implements RequestFactory
         $this->aspectRatioCalculator = $aspectRatioCalculator;
     }
 
-    public function createTxt2ImgRequest(Configuration|DreamStudioApiConfig $configuration): ServiceRequest
+    public function createTxt2ImgRequest(ServiceConfiguration|DreamStudioApiConfig $configuration): ServiceRequest
     {
         $aspectRatio = $configuration->getAspectRatio();
         $getRelativeAspectRatio = $this->aspectRatioCalculator->calculateAspectRatio($aspectRatio, 512, 64);
@@ -47,15 +47,15 @@ class DreamStudioRequestFactory implements RequestFactory
     }
 
     public function createImgVariationsRequest(
-        Configuration|DreamStudioApiConfig $configuration,
-        AiImage                            $baseImage
+        ServiceConfiguration|DreamStudioApiConfig $configuration,
+        AiImage                                   $baseImage
     ): ServiceRequest {
         return $this->createTxt2ImgRequest($configuration);
     }
 
     public function createUpscaleRequest(
-        Configuration|DreamStudioApiConfig $configuration,
-        AiImage                            $baseImage
+        ServiceConfiguration|DreamStudioApiConfig $configuration,
+        AiImage                                   $baseImage
     ): ServiceRequest {
         $uri = sprintf('%s/generation/%s/image-to-image/upscale', rtrim($configuration->getBaseUrl(), '/'), $configuration->getUpscaler());
         $method = Request::METHOD_POST;
@@ -85,7 +85,7 @@ class DreamStudioRequestFactory implements RequestFactory
         return new ServiceRequest($uri, $method, $payload, ['Authorization' => $configuration->getApiKey()], true);
     }
 
-    public function createInpaintBackgroundRequest(Configuration $configuration, AiImage $baseImage): ServiceRequest
+    public function createInpaintBackgroundRequest(ServiceConfiguration $configuration, AiImage $baseImage): ServiceRequest
     {
         $uri = sprintf('%s/generation/%s/image-to-image/masking', rtrim($configuration->getBaseUrl(), '/'), $configuration->getInpaintModel());
         $method = Request::METHOD_POST;

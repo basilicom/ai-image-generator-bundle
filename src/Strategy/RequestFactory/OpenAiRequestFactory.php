@@ -2,7 +2,7 @@
 
 namespace Basilicom\AiImageGeneratorBundle\Strategy\RequestFactory;
 
-use Basilicom\AiImageGeneratorBundle\Config\Configuration;
+use Basilicom\AiImageGeneratorBundle\Config\ServiceConfiguration;
 use Basilicom\AiImageGeneratorBundle\Config\Model\OpenAiApiConfig;
 use Basilicom\AiImageGeneratorBundle\Model\AiImage;
 use Basilicom\AiImageGeneratorBundle\Model\ServiceRequest;
@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class OpenAiRequestFactory implements RequestFactory
 {
-    public function createTxt2ImgRequest(Configuration|OpenAiApiConfig $configuration): ServiceRequest
+    public function createTxt2ImgRequest(ServiceConfiguration|OpenAiApiConfig $configuration): ServiceRequest
     {
         $uri = rtrim($configuration->getBaseUrl(), '/') . '/images/generations';
         $method = Request::METHOD_POST;
@@ -28,8 +28,8 @@ class OpenAiRequestFactory implements RequestFactory
     }
 
     public function createImgVariationsRequest(
-        Configuration|OpenAiApiConfig $configuration,
-        AiImage                       $baseImage
+        ServiceConfiguration|OpenAiApiConfig $configuration,
+        AiImage                              $baseImage
     ): ServiceRequest {
         $uri = rtrim($configuration->getBaseUrl(), '/') . '/images/variations';
         $method = Request::METHOD_POST;
@@ -65,8 +65,8 @@ class OpenAiRequestFactory implements RequestFactory
      * @throws NotSupportedException
      */
     public function createUpscaleRequest(
-        Configuration|OpenAiApiConfig $configuration,
-        AiImage                       $baseImage
+        ServiceConfiguration|OpenAiApiConfig $configuration,
+        AiImage                              $baseImage
     ): ServiceRequest {
         throw new NotSupportedException('Upscaling is currently not supported');
     }
@@ -75,8 +75,8 @@ class OpenAiRequestFactory implements RequestFactory
      * @throws NotSupportedException
      */
     public function createInpaintBackgroundRequest(
-        Configuration|OpenAiApiConfig $configuration,
-        AiImage                       $baseImage
+        ServiceConfiguration|OpenAiApiConfig $configuration,
+        AiImage                              $baseImage
     ): ServiceRequest {
         throw new NotSupportedException('Upscaling is currently not supported');
     }

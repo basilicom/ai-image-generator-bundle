@@ -2,7 +2,7 @@
 
 namespace Basilicom\AiImageGeneratorBundle\Strategy\RequestFactory;
 
-use Basilicom\AiImageGeneratorBundle\Config\Configuration;
+use Basilicom\AiImageGeneratorBundle\Config\ServiceConfiguration;
 use Basilicom\AiImageGeneratorBundle\Config\Model\ClipDropApiConfig;
 use Basilicom\AiImageGeneratorBundle\Helper\AspectRatioCalculator;
 use Basilicom\AiImageGeneratorBundle\Model\AiImage;
@@ -20,8 +20,13 @@ class ClipDropRequestFactory implements RequestFactory
         $this->aspectRatioCalculator = $aspectRatioCalculator;
     }
 
-    public function createTxt2ImgRequest(Configuration|ClipDropApiConfig $configuration): ServiceRequest
+    public function createTxt2ImgRequest(ServiceConfiguration|ClipDropApiConfig $configuration): ServiceRequest
     {
+        /* @see https://clipdrop.co/apis/docs/text-to-image
+         * Clipdrop text to image API is currently using SDXL1.0. Our text to image API is a subset of the SDXL1.0 API provided by Stability that only exposes the prompt parameter for now and can only create 1024x1024 images.
+         */
+        $configuration->setAspectRatio('1:1');
+
         $uri = rtrim($configuration->getBaseUrl(), '/') . '/text-to-image/v1';
         $method = Request::METHOD_POST;
 
@@ -36,8 +41,8 @@ class ClipDropRequestFactory implements RequestFactory
     }
 
     public function createImgVariationsRequest(
-        Configuration|ClipDropApiConfig $configuration,
-        AiImage                         $baseImage
+        ServiceConfiguration|ClipDropApiConfig $configuration,
+        AiImage                                $baseImage
     ): ServiceRequest {
         $uri = rtrim($configuration->getBaseUrl(), '/') . '/reimagine/v1/reimagine';
         $method = Request::METHOD_POST;
@@ -60,8 +65,8 @@ class ClipDropRequestFactory implements RequestFactory
     }
 
     public function createUpscaleRequest(
-        Configuration|ClipDropApiConfig $configuration,
-        AiImage                         $baseImage
+        ServiceConfiguration|ClipDropApiConfig $configuration,
+        AiImage                                $baseImage
     ): ServiceRequest {
         $uri = rtrim($configuration->getBaseUrl(), '/') . '/image-upscaling/v1/upscale';
         $method = Request::METHOD_POST;
@@ -94,8 +99,8 @@ class ClipDropRequestFactory implements RequestFactory
     }
 
     public function createInpaintBackgroundRequest(
-        Configuration|ClipDropApiConfig $configuration,
-        AiImage                         $baseImage
+        ServiceConfiguration|ClipDropApiConfig $configuration,
+        AiImage                                $baseImage
     ): ServiceRequest {
         $uri = rtrim($configuration->getBaseUrl(), '/') . '/replace-background';
         $method = Request::METHOD_POST;

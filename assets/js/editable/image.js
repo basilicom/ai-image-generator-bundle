@@ -1,4 +1,6 @@
 import SimpleText2ImageWindow from "../lib/ExtJs/SimpleText2ImageWindow";
+import FeatureEnum from "../lib/FeatureEnum";
+import FeatureHelper from "../lib/FeatureHelper";
 
 pimcore.registerNS("pimcore.document.editables.image");
 pimcore.document.editables.image = Class.create(pimcore.document.editables.image, {
@@ -7,6 +9,10 @@ pimcore.document.editables.image = Class.create(pimcore.document.editables.image
 
     initialize: function ($super, id, name, config, data, inherited) {
         $super(id, name, config, data, inherited);
+
+        if(!FeatureHelper.isFeatureEnabled(FeatureEnum.TXT2IMG)) {
+            return;
+        }
 
         this.element = Ext.get(this.id);
         this.element.insertHtml("beforeEnd", "<div class=\"ai-image-generator-button\"><button>" + t(this.label) + "</button></div>");
