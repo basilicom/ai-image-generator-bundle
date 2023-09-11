@@ -2,6 +2,8 @@
 
 namespace Basilicom\AiImageGeneratorBundle\Config;
 
+use Basilicom\AiImageGeneratorBundle\Helper\AspectRatioCalculator;
+
 abstract class Configuration
 {
     protected string $name = '';
@@ -14,7 +16,7 @@ abstract class Configuration
 
     protected array $promptParts = [];
     protected array $negativePromptParts = [];
-    protected string $aspectRatio;
+    protected string $aspectRatio = AspectRatioCalculator::DEFAULT_ASPECT_RATIO;
     protected int $seed = -1;
     protected bool $upscale = false;
 

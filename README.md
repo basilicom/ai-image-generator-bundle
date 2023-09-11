@@ -153,6 +153,17 @@ copy the name of a model of your choice.
 
 * the Dreamstudio REST API does currently not support variations, I'll look forward to use the gRPC API
 
+## Upcoming 
+* disable buttons if assets are > 4058 pixels to avoid upscaling
+* allow configurations of all services and configure target service per feature
+* included Docker-Setup with A1111
+* Inpainting
+* Outpainting
+* (CLIP interrogate in order to optimize prompting) 
+* better background filling
+* creation of 2 or 4 images incl. voting (Discord Style)
+* ComfyUI + InvokeAI
+
 ### Authors
 
 Alexander Heidrich
