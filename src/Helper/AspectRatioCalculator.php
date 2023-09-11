@@ -71,12 +71,12 @@ class AspectRatioCalculator
         return abs($a);
     }
 
-    public function calculateAspectRatio(string $aspectRatio, int $modelBaseSize = 512, ?int $baseIncrement = null): AspectRatio
+    public function calculateAspectRatio(string $aspectRatio, int $maxSize = 512, ?int $baseIncrement = null): AspectRatio
     {
         list($aspectWidth, $aspectHeight) = explode(':', $aspectRatio);
 
-        $width = $modelBaseSize;
-        $height = $modelBaseSize;
+        $width = $maxSize;
+        $height = $maxSize;
 
         if ($width * $aspectHeight > $height * $aspectWidth) {
             $width = $height * $aspectWidth / $aspectHeight;
@@ -95,8 +95,8 @@ class AspectRatioCalculator
         $height = $this->calculateClosestIncrementOfValue($height, $baseIncrement);
 
         // Make sure the adjusted dimensions are not larger than 512
-        $width = min($width, $modelBaseSize);
-        $height = min($height, $modelBaseSize);
+        $width = min($width, $maxSize);
+        $height = min($height, $maxSize);
 
         return new AspectRatio($aspectRatio, $width, $height);
     }
@@ -106,5 +106,13 @@ class AspectRatioCalculator
         $remainder = $value % $increment;
 
         return $remainder > $increment / 2 ? $value + $increment - $remainder : $value - $remainder;
+    }
+
+    public function calculateUpscaleFactor(int $originalWidth, int $originalHeight, int $maxWidth = 4096, int $maxHeight = 4096): int
+    {
+        $widthScale = max(1, $maxWidth / $originalWidth);
+        $heightScale = max(1, $maxHeight / $originalHeight);
+
+        return min($widthScale, $heightScale);
     }
 }

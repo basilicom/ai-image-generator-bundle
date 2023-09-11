@@ -63,28 +63,22 @@ class DreamStudioRequestFactory implements RequestFactory
         $tmpFilePath = sys_get_temp_dir() . '/ai-image-generator--dream-studio.png';
         file_put_contents($tmpFilePath, $baseImage->getData(true));
 
-        $imageSize = getimagesize($tmpFilePath);
-        $width = $imageSize[0];
-        $height = $imageSize[1];
+        $targetAspectRatio = $this->aspectRatioCalculator->calculateAspectRatio($configuration->getAspectRatio(), 4096);
 
         $payload = [
             [
                 'name' => 'image',
                 'contents' => fopen($tmpFilePath, 'rb')
+            ],
+            [
+                'name' => 'width',
+                'contents' => $targetAspectRatio->getWidth()
+            ],
+            [
+                'name' => 'height',
+                'contents' => $targetAspectRatio->getHeight()
             ]
         ];
-
-        if ($width > $height) {
-            $payload[] = [
-                'name' => 'width',
-                'contents' => $width * 2
-            ];
-        } else {
-            $payload[] = [
-                'name' => 'height',
-                'contents' => $height * 2
-            ];
-        }
 
         unlink($tmpFilePath);
 

@@ -52,16 +52,7 @@ class ImageGenerationService
         $aiImage = $this->strategy->textToImage($config);
         $asset = $this->createPimcoreAsset($aiImage, 'generated via ' . $config->getName());
 
-        if ($config->isUpscale()) {
-            try {
-                $aiImage = $this->strategy->upscale($config, $aiImage);
-
-                return $this->updatePimcoreAsset($asset, $aiImage, 'upscaled via ' . $config->getName());
-            } catch (NotSupportedException) {
-            }
-        }
-
-        return $asset;
+        return $this->upscaleIfPossible($asset, $aiImage, $config);
     }
 
     /**
@@ -91,9 +82,9 @@ class ImageGenerationService
             $config->setPromptParts([$negativePrompt]);
         }
 
-        $upscaledAiImage = $this->strategy->upscale($config, AiImage::fromAsset($asset));
+        $aiImage = AiImage::fromAsset($asset);
 
-        return $this->updatePimcoreAsset($asset, $upscaledAiImage, 'upscaled via ' . $config->getName());
+        return $this->upscaleIfPossible($asset, $aiImage, $config);
     }
 
     /**
@@ -108,10 +99,17 @@ class ImageGenerationService
         $versions = $asset->getVersions();
         $firstVersion = $versions[0]->getData();
 
-        $inpaintedImage = $this->strategy->inpaintBackground($config, AiImage::fromAsset($firstVersion, true));
-        $inpaintedImage = $this->strategy->upscale($config, $inpaintedImage);
+        $aiImage = $this->strategy->inpaintBackground($config, AiImage::fromAsset($firstVersion, true));
+        $asset = $this->updatePimcoreAsset($asset, $aiImage, 'created background inpaint via ' . $config->getName());
 
-        return $this->updatePimcoreAsset($asset, $inpaintedImage, 'created background inpaint via ' . $config->getName());
+        return $this->upscaleIfPossible($asset, $aiImage, $config);
+    }
+
+    private function upscaleIfPossible(Asset\Image $asset, AiImage $aiImage, Configuration $config): Asset\Image
+    {
+        return $asset->getWidth() < 4096 && $asset->getHeight() < 4096
+            ? $this->updatePimcoreAsset($asset, $this->strategy->upscale($config, $aiImage), 'upscaled via ' . $config->getName())
+            : $asset;
     }
 
     /**

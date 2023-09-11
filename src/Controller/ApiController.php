@@ -95,7 +95,6 @@ class ApiController extends AbstractController
     public function upscale(Request $request): Response
     {
         $config = $this->configurationService->getConfiguration();
-        $config->setUpscale(true);
 
         return $this->process(
             $request,

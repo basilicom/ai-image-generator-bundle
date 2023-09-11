@@ -18,7 +18,6 @@ abstract class Configuration
     protected array $negativePromptParts = [];
     protected string $aspectRatio = AspectRatioCalculator::DEFAULT_ASPECT_RATIO;
     protected int $seed = -1;
-    protected bool $upscale = false;
 
     public function __construct(string $baseUrl, string $model, string $inpaintModel, int $steps, string $upscaler)
     {
@@ -92,16 +91,6 @@ abstract class Configuration
     public function setAspectRatio(string $aspectRatio): void
     {
         $this->aspectRatio = $aspectRatio;
-    }
-
-    public function isUpscale(): bool
-    {
-        return $this->upscale;
-    }
-
-    public function setUpscale(bool $upscale): void
-    {
-        $this->upscale = $upscale;
     }
 
     public function getSeed(): int

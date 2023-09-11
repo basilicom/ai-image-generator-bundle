@@ -21,8 +21,6 @@ class StableDiffusionRequestFactory implements RequestFactory
 
     public function createTxt2ImgRequest(Configuration $configuration): ServiceRequest
     {
-        $configuration->setUpscale(true);
-
         $getRelativeAspectRatio = $this->aspectRatioCalculator->calculateAspectRatio($configuration->getAspectRatio(), 512);
         $uri = rtrim($configuration->getBaseUrl(), '/') . '/txt2img';
         $method = Request::METHOD_POST;
@@ -47,17 +45,21 @@ class StableDiffusionRequestFactory implements RequestFactory
 
     public function createImgVariationsRequest(Configuration $configuration, AiImage $baseImage): ServiceRequest
     {
-        $configuration->setUpscale(true);
-
         return $this->createTxt2ImgRequest($configuration);
     }
 
     public function createUpscaleRequest(Configuration|StableDiffusionApiConfig $configuration, AiImage $baseImage): ServiceRequest
     {
-        $configuration->setUpscale(true);
+        $tmpFilePath = sys_get_temp_dir() . '/ai-image-generator--a1111.png';
+        file_put_contents($tmpFilePath, $baseImage->getData(true));
+        $imageSize = getimagesize($tmpFilePath);
+        $width = $imageSize[0];
+        $height = $imageSize[1];
 
         $uri = rtrim($configuration->getBaseUrl(), '/') . '/img2img';
         $method = Request::METHOD_POST;
+        $upscaleFactor = $this->aspectRatioCalculator->calculateUpscaleFactor($width, $height);
+
         $payload = [
             'init_images' => [$baseImage->getData()],
             'denoising_strength' => 0.1, // no/nearly no additional rendering of new features
@@ -70,7 +72,12 @@ class StableDiffusionRequestFactory implements RequestFactory
             'seed' => $configuration->getSeed(),
 
             'script_name' => 'sd upscale',
-            'script_args' => ['', 64, $configuration->getUpscaler(), 2], // unknown, tileOverlap, upscaler, factor
+            'script_args' => [
+                '',  // unknown
+                64, // tileOverlap
+                $configuration->getUpscaler(), // upscaler
+                $upscaleFactor // factor
+            ],
 
             'batch_size' => 1,
             'sampler_name' => 'Euler a',
@@ -84,8 +91,6 @@ class StableDiffusionRequestFactory implements RequestFactory
         Configuration|StableDiffusionApiConfig $configuration,
         AiImage                                $baseImage
     ): ServiceRequest {
-        $configuration->setUpscale(true);
-
         $resizedImage = $baseImage->getResizedImage($baseImage->getData(true), 512, 512);
         $resizedMaskImage = $baseImage->getResizedImage($baseImage->getMask(true), 512, 512);
 
