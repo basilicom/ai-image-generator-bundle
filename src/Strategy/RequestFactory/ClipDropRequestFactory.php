@@ -22,6 +22,11 @@ class ClipDropRequestFactory implements RequestFactory
 
     public function createTxt2ImgRequest(Configuration|ClipDropApiConfig $configuration): ServiceRequest
     {
+        /* @see https://clipdrop.co/apis/docs/text-to-image
+         * Clipdrop text to image API is currently using SDXL1.0. Our text to image API is a subset of the SDXL1.0 API provided by Stability that only exposes the prompt parameter for now and can only create 1024x1024 images.
+         */
+        $configuration->setAspectRatio('1:1');
+
         $uri = rtrim($configuration->getBaseUrl(), '/') . '/text-to-image/v1';
         $method = Request::METHOD_POST;
 
