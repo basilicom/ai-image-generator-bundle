@@ -14,6 +14,7 @@ export default class SimpleText2ImageWindow {
 
     getWindow(onRequest, onSuccess, onDone) {
         const prompt = window.localStorage.getItem('prompt') ?? '';
+        const branding = window.localStorage.getItem('branding') ?? false;
 
         let items = [
             {
@@ -33,6 +34,13 @@ export default class SimpleText2ImageWindow {
                 scale: 'small',
                 padding: '0 0 20 105',
                 width: '100%',
+            },
+            {
+                xtype: 'checkbox',
+                itemId: 'branding',
+                name: 'branding',
+                checked: branding,
+                fieldLabel: t('Branding'),
             }
         ];
 
@@ -94,12 +102,15 @@ export default class SimpleText2ImageWindow {
                         const prompt = settingsWindow.getComponent("prompt").getValue();
                         window.localStorage.setItem('prompt', prompt);
 
+                        const branding = settingsWindow.getComponent("branding").getValue();
+                        window.localStorage.setItem('branding', branding);
+
                         let payload = {
                             context: this.context,
                             id: this.id,
-                            prompt: prompt
+                            prompt: prompt,
+                            brand: branding
                         };
-
 
                         if (FeatureHelper.isAspectRatioSupported(FeatureEnum.TXT2IMG)) {
                             const aspectRatio = settingsWindow.getComponent("aspectRatio").getValue();

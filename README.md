@@ -160,7 +160,6 @@ copy the name of a model of your choice.
 * [ClipDrops text-to-image API can only create 1:1 images](https://clipdrop.co/apis/docs/text-to-image#text-to-image-api)
 
 ## Upcoming 
-* Inpainting
 * Outpainting
 * creation of 2 or 4 images incl. voting (Discord Style)
 * warnings and fallbacks if credits exceeded

@@ -16,6 +16,11 @@ interface RequestFactory
     /**
      * @throws NotSupportedException
      */
+    public function createBrandedTxt2ImgRequest(ServiceConfiguration $configuration): ServiceRequest;
+
+    /**
+     * @throws NotSupportedException
+     */
     public function createImgVariationsRequest(ServiceConfiguration $configuration, AiImage $baseImage): ServiceRequest;
 
     /**

@@ -1,4 +1,10 @@
 ai_image_generator:
+  brand:
+    colors:
+      - "#0062FF"
+      - "#B34197"
+      - "#FF444A"
+
   feature_services:
     txt2img: ~
     upscale: ~

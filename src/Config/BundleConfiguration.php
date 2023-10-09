@@ -9,21 +9,18 @@ class BundleConfiguration
 {
     private array $featureConfiguration;
     private array $serviceConfigurations;
+    private BrandConfiguration $brandConfiguration;
 
     /**
      * @param array $featureConfiguration
      * @param ServiceConfiguration[] $serviceConfigurations
+     * @param BrandConfiguration $brandConfiguration
      */
-    public function __construct(array $featureConfiguration, array $serviceConfigurations)
+    public function __construct(array $featureConfiguration, array $serviceConfigurations, BrandConfiguration $brandConfiguration)
     {
         $this->featureConfiguration = $featureConfiguration;
         $this->serviceConfigurations = $serviceConfigurations;
-
-        foreach ($this->serviceConfigurations as $serviceConfiguration) {
-            if (!($serviceConfiguration instanceof ServiceConfiguration)) {
-                throw new InvalidArgumentException('Invalid service configuration');
-            }
-        }
+        $this->brandConfiguration = $brandConfiguration;
     }
 
     public function getUsedServiceForFeature(string $feature): string
@@ -38,5 +35,10 @@ class BundleConfiguration
     public function getServiceConfiguration(string $serviceKey): ?ServiceConfiguration
     {
         return $this->serviceConfigurations[$serviceKey] ?? new NullConfig();
+    }
+
+    public function getBrandConfiguration(): BrandConfiguration
+    {
+        return $this->brandConfiguration;
     }
 }

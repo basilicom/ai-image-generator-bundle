@@ -24,7 +24,12 @@ abstract class Strategy
      */
     public function textToImage(ServiceConfiguration $config): AiImage
     {
-        $request = $this->requestFactory->createTxt2ImgRequest($config);
+        if ($config->isBrandingEnabled()) {
+            $request = $this->requestFactory->createBrandedTxt2ImgRequest($config);
+        } else {
+            $request = $this->requestFactory->createTxt2ImgRequest($config);
+        }
+
         $response = $this->requestService->callApi($request);
 
         return $this->createAiImageFromResponse($config, $response);
