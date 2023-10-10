@@ -63,22 +63,17 @@ class DreamStudioRequestFactory implements RequestFactory
         $tmpFilePath = sys_get_temp_dir() . '/ai-image-generator--dream-studio.png';
         file_put_contents($tmpFilePath, $baseImage->getData(true));
 
-        $targetAspectRatio = $this->aspectRatioCalculator->calculateAspectRatio($configuration->getAspectRatio(), 4096);
+        $targetAspectRatio = $this->aspectRatioCalculator->calculateAspectRatio($configuration->getAspectRatio(), 2048);
 
-        $payload = [
-            [
-                'name' => 'image',
-                'contents' => fopen($tmpFilePath, 'rb')
-            ],
-            [
-                'name' => 'width',
-                'contents' => $targetAspectRatio->getWidth()
-            ],
-            [
-                'name' => 'height',
-                'contents' => $targetAspectRatio->getHeight()
-            ]
-        ];
+        $width = $targetAspectRatio->getWidth();
+        $height = $targetAspectRatio->getHeight();
+
+        $payload = [['name' => 'image', 'contents' => fopen($tmpFilePath, 'rb')]];
+        if ($width > $height) {
+            $payload[] = ['name' => 'width', 'contents' => $width];
+        } else {
+            $payload[] = ['name' => 'height', 'contents' => $height];
+        }
 
         unlink($tmpFilePath);
 
@@ -87,15 +82,35 @@ class DreamStudioRequestFactory implements RequestFactory
 
     public function createInpaintBackgroundRequest(ServiceConfiguration $configuration, AiImage $baseImage): ServiceRequest
     {
+        $dimensions = $this->getValidDimensions($configuration->getAspectRatio());
+
+        $resizedImage = $baseImage->getResizedImage($dimensions['width'], $dimensions['height'], true, false);
+        $resizedMask = $baseImage->getResizedMask($dimensions['width'], $dimensions['height'], true, false);
+
+        return $this->createInpaintingRequest($configuration, $resizedImage, $resizedMask);
+    }
+
+    public function createInpaintRequest(ServiceConfiguration $configuration, AiImage $baseImage): ServiceRequest
+    {
+        $dimensions = $this->getValidDimensions($configuration->getAspectRatio());
+
+        $resizedImage = $baseImage->getResizedImage($dimensions['width'], $dimensions['height'], true, false);
+        $resizedMask = $configuration->getInpaintingMask()->getResized($dimensions['width'], $dimensions['height'], true, false);
+
+        return $this->createInpaintingRequest($configuration, $resizedImage, $resizedMask);
+    }
+
+    private function createInpaintingRequest(ServiceConfiguration $configuration, string $imageData, string $maskImageData): ServiceRequest
+    {
         $uri = sprintf('%s/generation/%s/image-to-image/masking', rtrim($configuration->getBaseUrl(), '/'), $configuration->getInpaintModel());
         $method = Request::METHOD_POST;
 
         $tmpImageFilePath = sys_get_temp_dir() . '/ai-image-generator--dream-studio--inpaint.png';
-        file_put_contents($tmpImageFilePath, $baseImage->getData(true));
+        file_put_contents($tmpImageFilePath, $imageData);
 
         // we could also use "mask_source=INIT_IMAGE_ALPHA" but i want to use the mask image also for other services
         $tmpMaskFilePath = sys_get_temp_dir() . '/ai-image-generator--dream-studio--mask.png';
-        file_put_contents($tmpMaskFilePath, $baseImage->getMask(true));
+        file_put_contents($tmpMaskFilePath, $maskImageData);
 
         $payload = [
             ['name' => 'text_prompts[0][text]', 'contents' => implode(',', $configuration->getPromptParts())],
@@ -115,5 +130,34 @@ class DreamStudioRequestFactory implements RequestFactory
         unlink($tmpMaskFilePath);
 
         return new ServiceRequest($uri, $method, $payload, ['Authorization' => $configuration->getApiKey()], true);
+    }
+
+    private function getValidDimensions(string $aspectRatio): array
+    {
+        $aspectRatio = $this->aspectRatioCalculator->calculateAspectRatio($aspectRatio, 1024);
+
+        $validDimensions = [
+            '1024x1024', '1152x896', '1216x832', '1344x768', '1536x640',
+            '640x1536', '768x1344', '832x1216', '896x1152'
+        ];
+
+        $closestDimension = null;
+        $closestDistance = PHP_INT_MAX; // Start with a large value
+
+        foreach ($validDimensions as $validDimension) {
+            list($validWidth, $validHeight) = explode('x', $validDimension);
+            $distance = sqrt(pow($aspectRatio->getWidth() - $validWidth, 2) + pow($aspectRatio->getHeight() - $validHeight, 2));
+
+            // Check if this dimension is closer than the current closest
+            if ($distance < $closestDistance) {
+                $closestDimension = $validDimension;
+                $closestDistance = $distance;
+            }
+        }
+
+        return [
+            'width' => (int) explode('x', $closestDimension)[0],
+            'height' => (int) explode('x', $closestDimension)[1],
+        ];
     }
 }

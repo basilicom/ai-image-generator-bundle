@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class StableDiffusionRequestFactory implements RequestFactory
 {
+    private const BASE_SIZE = 512;
     private AspectRatioCalculator $aspectRatioCalculator;
 
     public function __construct(AspectRatioCalculator $aspectRatioCalculator)
@@ -21,7 +22,7 @@ class StableDiffusionRequestFactory implements RequestFactory
 
     public function createTxt2ImgRequest(ServiceConfiguration $configuration): ServiceRequest
     {
-        $getRelativeAspectRatio = $this->aspectRatioCalculator->calculateAspectRatio($configuration->getAspectRatio(), 512);
+        $getRelativeAspectRatio = $this->aspectRatioCalculator->calculateAspectRatio($configuration->getAspectRatio(), self::BASE_SIZE);
         $uri = rtrim($configuration->getBaseUrl(), '/') . '/txt2img';
         $method = Request::METHOD_POST;
 
@@ -91,8 +92,8 @@ class StableDiffusionRequestFactory implements RequestFactory
         ServiceConfiguration|StableDiffusionApiConfig $configuration,
         AiImage                                       $baseImage
     ): ServiceRequest {
-        $resizedImage = $baseImage->getResizedImage($baseImage->getData(true), 512, 512);
-        $resizedMaskImage = $baseImage->getResizedImage($baseImage->getMask(true), 512, 512);
+        $resizedImage = $baseImage->getResizedImage(self::BASE_SIZE, self::BASE_SIZE);
+        $resizedMaskImage = $baseImage->getResizedMask(self::BASE_SIZE, self::BASE_SIZE);
 
         $uri = rtrim($configuration->getBaseUrl(), '/') . '/img2img';
         $method = Request::METHOD_POST;
@@ -117,8 +118,8 @@ class StableDiffusionRequestFactory implements RequestFactory
             //  1: Crop and Resize
             //  2: Resize and Fill
             'resize_mode' => 1,
-            'height' => 512,
-            'width' => 512,
+            'height' => self::BASE_SIZE,
+            'width' => self::BASE_SIZE,
 
             //Inpainting Fill
             //  0: fill
@@ -145,7 +146,7 @@ class StableDiffusionRequestFactory implements RequestFactory
                             'resize_mode' => 1,
                             'control_mode' => 0,
                             'pixel_perfect' => true,
-                            'processor_res' => 512,
+                            'processor_res' => self::BASE_SIZE,
                             'guidance_start' => 0.01,
                             'guidance_end' => 1.0,
                             'weight' => 1,
@@ -155,6 +156,60 @@ class StableDiffusionRequestFactory implements RequestFactory
                     ],
                 ],
             ],
+        ];
+
+        return new ServiceRequest($uri, $method, $payload);
+    }
+
+    public function createInpaintRequest(ServiceConfiguration $configuration, AiImage $baseImage): ServiceRequest
+    {
+        // todo ==> try to get the image but only the inpainting, than scale it to the source image width/height and apply it via imagick.
+        $inpaintingMask = $configuration->getInpaintingMask();
+
+        $resizedImage = $baseImage->getResizedImage(self::BASE_SIZE, self::BASE_SIZE);
+        $resizedMaskImage = $inpaintingMask->getResized(self::BASE_SIZE, self::BASE_SIZE);
+
+        $imageInfo = getimagesizefromstring(base64_decode($resizedImage));
+        $width = $imageInfo[0];
+        $height = $imageInfo[1];
+
+        $uri = rtrim($configuration->getBaseUrl(), '/') . '/img2img';
+        $method = Request::METHOD_POST;
+        $payload = [
+            'steps' => $configuration->getSteps(),
+            'sd_model_checkpoint' => $configuration->getInpaintModel(),
+
+            'prompt' => implode(',', $configuration->getPromptParts()),
+            'negative_prompt' => implode(',', $configuration->getNegativePromptParts()),
+            'seed' => $configuration->getSeed(),
+
+            'init_images' => [$resizedImage],
+            'mask' => $resizedMaskImage,
+            'mask_blur' => 2,
+            'denoising_strength' => 0.9,
+
+            'inpaint_full_res_padding' => 32,
+            'inpaint_full_res' => 1,
+            'inpainting_mask_invert' => 1,
+
+            //Resize_mode
+            //  0: Just Resize
+            //  1: Crop and Resize
+            //  2: Resize and Fill
+            'resize_mode' => 1,
+            'height' => $height,
+            'width' => $width,
+
+            //Inpainting Fill
+            //  0: fill
+            //  1: original
+            //  2: latent noise
+            //  3: latent nothing
+            'inpainting_fill' => 1,
+
+            'batch_size' => 1,
+            'sampler_name' => 'Euler a',
+            'cfg_scale' => 7,
         ];
 
         return new ServiceRequest($uri, $method, $payload);

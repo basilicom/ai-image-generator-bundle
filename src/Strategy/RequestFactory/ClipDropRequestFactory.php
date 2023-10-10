@@ -47,7 +47,7 @@ class ClipDropRequestFactory implements RequestFactory
         $uri = rtrim($configuration->getBaseUrl(), '/') . '/reimagine/v1/reimagine';
         $method = Request::METHOD_POST;
 
-        $resizedImage = $baseImage->getResizedImage($baseImage->getData(true), 1024, 1024);
+        $resizedImage = $baseImage->getResizedImage(1024, 1024);
 
         $tmpFilePath = sys_get_temp_dir() . '/ai-image-generator--clip-drop.png';
         file_put_contents($tmpFilePath, base64_decode($resizedImage));
@@ -71,7 +71,7 @@ class ClipDropRequestFactory implements RequestFactory
         $uri = rtrim($configuration->getBaseUrl(), '/') . '/image-upscaling/v1/upscale';
         $method = Request::METHOD_POST;
 
-        $resizedImage = $baseImage->getResizedImage($baseImage->getData(true), 1024, 1024);
+        $resizedImage = $baseImage->getResizedImage(1024, 1024);
 
         $targetAspectRatio = $this->aspectRatioCalculator->calculateAspectRatio($configuration->getAspectRatio(), 4096);
 
@@ -105,7 +105,7 @@ class ClipDropRequestFactory implements RequestFactory
         $uri = rtrim($configuration->getBaseUrl(), '/') . '/replace-background';
         $method = Request::METHOD_POST;
 
-        $resizedImage = $baseImage->getResizedImage($baseImage->getData(true), 1024, 1024);
+        $resizedImage = $baseImage->getResizedImage(1024, 1024);
 
         $tmpFilePath = sys_get_temp_dir() . '/replace-background';
         file_put_contents($tmpFilePath, base64_decode($resizedImage));
@@ -133,5 +133,10 @@ class ClipDropRequestFactory implements RequestFactory
             ],
             true
         );
+    }
+
+    public function createInpaintRequest(ServiceConfiguration $configuration, AiImage $baseImage): ServiceRequest
+    {
+        throw new \Exception('Not implemented yet');
     }
 }

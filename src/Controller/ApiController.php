@@ -7,6 +7,7 @@ namespace Basilicom\AiImageGeneratorBundle\Controller;
 use Basilicom\AiImageGeneratorBundle\Config\ConfigurationService;
 use Basilicom\AiImageGeneratorBundle\Helper\AspectRatioCalculator;
 use Basilicom\AiImageGeneratorBundle\Model\FeatureEnum;
+use Basilicom\AiImageGeneratorBundle\Model\InpaintingMask;
 use Basilicom\AiImageGeneratorBundle\Model\MetaDataEnum;
 use Basilicom\AiImageGeneratorBundle\Service\ImageGenerationService;
 use Basilicom\AiImageGeneratorBundle\Service\LockManager;
@@ -17,6 +18,7 @@ use Pimcore\Model\DataObject;
 use Pimcore\Model\Document\PageSnippet;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -168,6 +170,65 @@ class ApiController extends AbstractController
             $request,
             fn () => $this->imageGenerationService->inpaintBackground($config, (int)$request->get('id'))
         );
+    }
+
+    #[Route(
+        '/inpaint/{id}',
+        name: 'ai_image_inpaint',
+        requirements: [
+            'prompt' => '.+',
+            'draft' => 'true|false',
+        ],
+        methods: ['POST']
+    )]
+    public function inpaint(Request $request): Response
+    {
+        $payload = $request->request->all();
+
+        $assetId = (int)$request->get('id');
+        $asset = Asset\Image::getById($assetId);
+        if (!$asset) {
+            return $this->respond($request, null, Response::HTTP_NOT_FOUND, 'No such asset');
+        }
+
+        $prompt = (string)($payload['prompt'] ?? $asset->getMetadata(MetaDataEnum::PROMPT));
+        $isDraft = (bool)$payload['draft'];
+        $aspectRatio = $this->aspectRatioCalculator->getAspectRatioFromDimensions($asset->getWidth(), $asset->getHeight());
+
+        /** @var UploadedFile $mask */
+        $mask = $request->files->get('mask');
+        $mask = new InpaintingMask(base64_encode($mask->getContent()));
+
+        $config = $this->configurationService->getServiceConfiguration(FeatureEnum::INPAINT);
+        $config->setPromptParts([$prompt]);
+        $config->setAspectRatio($aspectRatio);
+        $config->setInpaintingMask($mask);
+
+        return $this->process(
+            $request,
+            fn () => $this->imageGenerationService->inpaint($config, (int)$request->get('id'), !$isDraft)
+        );
+    }
+
+    #[Route(
+        '/save/{id}',
+        name: 'ai_image_save',
+        methods: ['POST']
+    )]
+    public function saveAsset(Request $request): Response
+    {
+        $assetId = (int)$request->get('id');
+        $asset = Asset\Image::getById($assetId);
+        if (!$asset) {
+            return $this->respond($request, null, Response::HTTP_NOT_FOUND, 'No such asset');
+        }
+
+        /** @var UploadedFile $image */
+        $image = $request->files->get('data');
+        $asset->setData($image->getContent());
+        $asset->save();
+
+        return $this->process($request, fn () => $asset);
     }
 
     private function process(Request $request, callable $imageGenerationMethod): Response

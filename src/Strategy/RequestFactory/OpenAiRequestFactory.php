@@ -80,4 +80,9 @@ class OpenAiRequestFactory implements RequestFactory
     ): ServiceRequest {
         throw new NotSupportedException('Upscaling is currently not supported');
     }
+
+    public function createInpaintRequest(ServiceConfiguration $configuration, AiImage $baseImage): ServiceRequest
+    {
+        throw new \Exception('Not implemented yet');
+    }
 }

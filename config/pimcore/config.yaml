@@ -1,9 +1,10 @@
 ai_image_generator:
   feature_services:
-    txt2img: stable_diffusion_api
-    upscale: stable_diffusion_api
-    inpaint_background: stable_diffusion_api
-    image_variations: stable_diffusion_api
+    txt2img: ~
+    upscale: ~
+    inpaint: ~
+    inpaint_background: ~
+    image_variations: ~
 
   services:
     stable_diffusion_api:
@@ -17,7 +18,7 @@ ai_image_generator:
       baseUrl: "https://api.stability.ai/v1"
       apiKey: "%env(DREAM_STUDIO_API_KEY)%"
       model: "stable-diffusion-xl-1024-v1-0"
-      inpaint_model: "stable-inpainting-512-v2-0"
+      inpaint_model: "stable-diffusion-xl-1024-v1-0"
       steps: 30
       upscaler: "esrgan-v1-x2plus"
 

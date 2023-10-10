@@ -3,6 +3,7 @@
 namespace Basilicom\AiImageGeneratorBundle\Config;
 
 use Basilicom\AiImageGeneratorBundle\Helper\AspectRatioCalculator;
+use Basilicom\AiImageGeneratorBundle\Model\InpaintingMask;
 
 abstract class ServiceConfiguration
 {
@@ -13,6 +14,7 @@ abstract class ServiceConfiguration
     protected string $inpaintModel;
     protected int $steps;
     protected string $upscaler;
+    protected ?InpaintingMask $inpaintingMask = null;
 
     protected array $promptParts = [];
     protected array $negativePromptParts = [];
@@ -101,5 +103,15 @@ abstract class ServiceConfiguration
     public function setSeed(int $seed): void
     {
         $this->seed = $seed;
+    }
+
+    public function getInpaintingMask(): ?InpaintingMask
+    {
+        return $this->inpaintingMask;
+    }
+
+    public function setInpaintingMask(?InpaintingMask $inpaintingMask): void
+    {
+        $this->inpaintingMask = $inpaintingMask;
     }
 }
