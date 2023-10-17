@@ -7,6 +7,7 @@ use Basilicom\AiImageGeneratorBundle\Config\Model\ClipDropApiConfig;
 use Basilicom\AiImageGeneratorBundle\Helper\AspectRatioCalculator;
 use Basilicom\AiImageGeneratorBundle\Model\AiImage;
 use Basilicom\AiImageGeneratorBundle\Model\ServiceRequest;
+use Basilicom\AiImageGeneratorBundle\Strategy\NotSupportedException;
 use Basilicom\AiImageGeneratorBundle\Strategy\RequestFactory;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -137,6 +138,11 @@ class ClipDropRequestFactory implements RequestFactory
 
     public function createInpaintRequest(ServiceConfiguration $configuration, AiImage $baseImage): ServiceRequest
     {
-        throw new \Exception('Not implemented yet');
+        throw new NotSupportedException('Not implemented yet');
+    }
+
+    public function createBrandedTxt2ImgRequest(ServiceConfiguration $configuration): ServiceRequest
+    {
+        throw new NotSupportedException('Upscaling is currently not supported');
     }
 }

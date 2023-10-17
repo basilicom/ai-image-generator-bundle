@@ -21,13 +21,16 @@ abstract class ServiceConfiguration
     protected string $aspectRatio = AspectRatioCalculator::DEFAULT_ASPECT_RATIO;
     protected int $seed = -1;
 
-    public function __construct(string $baseUrl, string $model, string $inpaintModel, int $steps, string $upscaler)
+    private bool $useBrand;
+
+    public function __construct(string $baseUrl, string $model, string $inpaintModel, int $steps, string $upscaler, bool $useBrand = false)
     {
         $this->baseUrl = $baseUrl;
         $this->model = $model;
         $this->inpaintModel = $inpaintModel;
         $this->steps = $steps;
         $this->upscaler = $upscaler;
+        $this->useBrand = $useBrand;
     }
 
     public function getName(): ?string
@@ -113,5 +116,15 @@ abstract class ServiceConfiguration
     public function setInpaintingMask(?InpaintingMask $inpaintingMask): void
     {
         $this->inpaintingMask = $inpaintingMask;
+    }
+
+    public function isBrandingEnabled(): bool
+    {
+        return $this->useBrand;
+    }
+
+    public function setUseBrand(bool $useBrand): void
+    {
+        $this->useBrand = $useBrand;
     }
 }

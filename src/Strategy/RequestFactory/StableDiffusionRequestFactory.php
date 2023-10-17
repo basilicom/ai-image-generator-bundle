@@ -7,6 +7,7 @@ use Basilicom\AiImageGeneratorBundle\Config\Model\StableDiffusionApiConfig;
 use Basilicom\AiImageGeneratorBundle\Helper\AspectRatioCalculator;
 use Basilicom\AiImageGeneratorBundle\Model\AiImage;
 use Basilicom\AiImageGeneratorBundle\Model\ServiceRequest;
+use Basilicom\AiImageGeneratorBundle\Strategy\NotSupportedException;
 use Basilicom\AiImageGeneratorBundle\Strategy\RequestFactory;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -213,5 +214,11 @@ class StableDiffusionRequestFactory implements RequestFactory
         ];
 
         return new ServiceRequest($uri, $method, $payload);
+    }
+
+    public function createBrandedTxt2ImgRequest(ServiceConfiguration $configuration): ServiceRequest
+    {
+        // todo ==> check img2img vs IPAdapter
+        throw new NotSupportedException('Upscaling is currently not supported');
     }
 }

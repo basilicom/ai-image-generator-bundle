@@ -9,6 +9,7 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 class ConfigurationDefinition implements ConfigurationInterface
 {
+    public const BRAND = 'brand';
     public const FEATURE_SERVICES = 'feature_services';
     public const SERVICES = 'services';
 
@@ -24,6 +25,8 @@ class ConfigurationDefinition implements ConfigurationInterface
     public const API_KEY = 'apiKey';
     public const UPSCALER = 'upscaler';
 
+    public const COLORS = 'colors';
+
     /**
      * {@inheritdoc}
      */
@@ -33,6 +36,14 @@ class ConfigurationDefinition implements ConfigurationInterface
         $rootNode = $treeBuilder->getRootNode();
         $rootNode
             ->children()
+                ->arrayNode(self::BRAND)
+                    ->isRequired()
+                    ->children()
+                        ->arrayNode(self::COLORS)
+                            ->scalarPrototype()->end()
+                        ->end()
+                    ->end()
+                ->end()
                 ->arrayNode(self::FEATURE_SERVICES)
                     ->isRequired()
                     ->children()

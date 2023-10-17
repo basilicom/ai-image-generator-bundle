@@ -11,17 +11,14 @@ class ConfigurationFactory
 {
     public function createBundleConfiguration(array $configData): BundleConfiguration
     {
-        $serviceConfigurationData = $configData[ConfigurationDefinition::SERVICES];
-
+        $featureConfiguration = $configData[ConfigurationDefinition::FEATURE_SERVICES];
+        $brandConfiguration = $this->createBrandConfiguration($configData);
         $serviceConfigurations = [];
-        foreach($serviceConfigurationData as $serviceKey => $data) {
+        foreach ($configData[ConfigurationDefinition::SERVICES] as $serviceKey => $data) {
             $serviceConfigurations[$serviceKey] = $this->createServiceConfiguration($serviceKey, $data);
         }
 
-        return new BundleConfiguration(
-            $configData[ConfigurationDefinition::FEATURE_SERVICES],
-            $serviceConfigurations
-        );
+        return new BundleConfiguration($featureConfiguration, $serviceConfigurations, $brandConfiguration);
     }
 
     private function createServiceConfiguration(string $apiService, array $configurationData): ServiceConfiguration
@@ -41,5 +38,12 @@ class ConfigurationFactory
             ConfigurationDefinition::OPEN_AI => new OpenAiApiConfig($baseUrl, $apiKey),
             ConfigurationDefinition::CLIP_DROP => new ClipDropApiConfig($baseUrl, $apiKey),
         };
+    }
+
+    protected function createBrandConfiguration(array $configData): BrandConfiguration
+    {
+        $colors = $configData[ConfigurationDefinition::BRAND][ConfigurationDefinition::COLORS] ?? [];
+
+        return new BrandConfiguration($colors);
     }
 }

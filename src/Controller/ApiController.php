@@ -68,6 +68,7 @@ class ApiController extends AbstractController
 
         $context = (string)$request->get('context');
         $contextElementId = (int)$request->get('id');
+        $useBrand = $request->get('brand') === 'true';
         $aspectRatio = $this->aspectRatioCalculator->isValidAspectRatio((string)$payload['aspectRatio'])
             ? ((string)$payload['aspectRatio'])
             : AspectRatioCalculator::DEFAULT_ASPECT_RATIO;
@@ -87,6 +88,7 @@ class ApiController extends AbstractController
         $config->setPromptParts($prompt);
         $config->setNegativePromptParts([$negativePrompt]);
         $config->setAspectRatio($aspectRatio);
+        $config->setUseBrand($useBrand);
 
         return $this->process(
             $request,

@@ -83,6 +83,11 @@ class OpenAiRequestFactory implements RequestFactory
 
     public function createInpaintRequest(ServiceConfiguration $configuration, AiImage $baseImage): ServiceRequest
     {
-        throw new \Exception('Not implemented yet');
+        throw new NotSupportedException('Not implemented yet');
+    }
+
+    public function createBrandedTxt2ImgRequest(ServiceConfiguration $configuration): ServiceRequest
+    {
+        throw new NotSupportedException('Upscaling is currently not supported');
     }
 }
