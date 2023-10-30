@@ -55,5 +55,4 @@ node_modules
 vendor
 
 public/*.txt
-
-.phpunit.result*
+.phpunit.result.*

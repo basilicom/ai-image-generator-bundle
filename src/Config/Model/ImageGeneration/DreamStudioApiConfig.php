@@ -1,10 +1,10 @@
 <?php
 
-namespace Basilicom\AiImageGeneratorBundle\Config\Model;
+namespace Basilicom\AiImageGeneratorBundle\Config\Model\ImageGeneration;
 
-use Basilicom\AiImageGeneratorBundle\Config\ServiceConfiguration;
+use Basilicom\AiImageGeneratorBundle\Config\Model\ImageGenerationConfig;
 
-class DreamStudioApiConfig extends ServiceConfiguration
+class DreamStudioApiConfig extends ImageGenerationConfig
 {
     protected ?string $name = 'DreamStudio';
     protected int $seed = 0;

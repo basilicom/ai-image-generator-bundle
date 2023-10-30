@@ -2,10 +2,18 @@
 
 namespace Basilicom\AiImageGeneratorBundle\Config;
 
-use Basilicom\AiImageGeneratorBundle\Config\Model\ClipDropApiConfig;
-use Basilicom\AiImageGeneratorBundle\Config\Model\DreamStudioApiConfig;
-use Basilicom\AiImageGeneratorBundle\Config\Model\OpenAiApiConfig;
-use Basilicom\AiImageGeneratorBundle\Config\Model\StableDiffusionApiConfig;
+use Basilicom\AiImageGeneratorBundle\Config\Model\BrandConfiguration;
+use Basilicom\AiImageGeneratorBundle\Config\Model\BundleConfiguration;
+use Basilicom\AiImageGeneratorBundle\Config\Model\ImageGenerationConfig;
+use Basilicom\AiImageGeneratorBundle\Config\Model\Prompting\BasilicomPromptConfig;
+use Basilicom\AiImageGeneratorBundle\Config\Model\ImageGeneration\ClipDropApiConfig;
+use Basilicom\AiImageGeneratorBundle\Config\Model\ImageGeneration\DreamStudioApiConfig;
+use Basilicom\AiImageGeneratorBundle\Config\Model\Prompting\NullApiConfig;
+use Basilicom\AiImageGeneratorBundle\Config\Model\Prompting\OllamaPromptConfig;
+use Basilicom\AiImageGeneratorBundle\Config\Model\ImageGeneration\OpenAiApiConfig;
+use Basilicom\AiImageGeneratorBundle\Config\Model\Prompting\OpenAIPromptConfig;
+use Basilicom\AiImageGeneratorBundle\Config\Model\PromptEnhancementConfig;
+use Basilicom\AiImageGeneratorBundle\Config\Model\ImageGeneration\StableDiffusionApiConfig;
 
 class ConfigurationFactory
 {
@@ -13,15 +21,21 @@ class ConfigurationFactory
     {
         $featureConfiguration = $configData[ConfigurationDefinition::FEATURE_SERVICES];
         $brandConfiguration = $this->createBrandConfiguration($configData);
+        $promptingConfiguration = $this->createPromptingConfiguration($configData);
         $serviceConfigurations = [];
         foreach ($configData[ConfigurationDefinition::SERVICES] as $serviceKey => $data) {
-            $serviceConfigurations[$serviceKey] = $this->createServiceConfiguration($serviceKey, $data);
+            $serviceConfigurations[$serviceKey] = $this->createImageServiceConfiguration($serviceKey, $data);
         }
 
-        return new BundleConfiguration($featureConfiguration, $serviceConfigurations, $brandConfiguration);
+        return new BundleConfiguration(
+            $featureConfiguration,
+            $serviceConfigurations,
+            $brandConfiguration,
+            $promptingConfiguration
+        );
     }
 
-    private function createServiceConfiguration(string $apiService, array $configurationData): ServiceConfiguration
+    private function createImageServiceConfiguration(string $apiService, array $configurationData): ImageGenerationConfig
     {
         $baseUrl = $configurationData[ConfigurationDefinition::BASE_URL];
         $apiKey = $configurationData[ConfigurationDefinition::API_KEY] ?? '';
@@ -40,10 +54,30 @@ class ConfigurationFactory
         };
     }
 
-    protected function createBrandConfiguration(array $configData): BrandConfiguration
+    private function createBrandConfiguration(array $configData): BrandConfiguration
     {
         $colors = $configData[ConfigurationDefinition::BRAND][ConfigurationDefinition::COLORS] ?? [];
 
         return new BrandConfiguration($colors);
+    }
+
+    private function createPromptingConfiguration(array $configData): PromptEnhancementConfig
+    {
+        $configData = $configData[ConfigurationDefinition::PROMPT_ENHANCEMENT];
+        $apiService = $configData[ConfigurationDefinition::SERVICE] ?? '';
+
+        $serviceConfigurations = [];
+        foreach ($configData[ConfigurationDefinition::SERVICES] as $serviceKey => $data) {
+            $baseUrl = $data[ConfigurationDefinition::BASE_URL];
+            $model = $data[ConfigurationDefinition::MODEL] ?? '';
+            $apiKey = $data[ConfigurationDefinition::API_KEY] ?? '';
+            $serviceConfigurations[$serviceKey] = match ($apiService) {
+                ConfigurationDefinition::BASILICOM => new BasilicomPromptConfig($baseUrl),
+                ConfigurationDefinition::OLLAMA => new OllamaPromptConfig($baseUrl, $model),
+                ConfigurationDefinition::OPEN_AI => new OpenAiPromptConfig($baseUrl, $apiKey, $model),
+            };
+        }
+
+        return $serviceConfigurations[$apiService] ?? new NullApiConfig();
     }
 }

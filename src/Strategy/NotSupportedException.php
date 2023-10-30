@@ -2,6 +2,8 @@
 
 namespace Basilicom\AiImageGeneratorBundle\Strategy;
 
-final class NotSupportedException extends \Exception
+use Exception;
+
+final class NotSupportedException extends Exception
 {
 }

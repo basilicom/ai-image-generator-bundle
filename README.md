@@ -22,23 +22,46 @@ Make sure to also install the bundle via `BundleSetupSubscriber` or console.
 ## Configuration
 
 ```
-ai_image_generator:
+ai_image_generator:  brand:
+    colors:
+      - "#0062FF"
+      - "#B34197"
+      - "#FF444A"
+
+  prompt_enhancement:
+    service: ~|ollama|basilicom|open_ai
+
+    services:
+      ollama:
+        baseUrl: "http://localhost:11434/"
+        model: "llama2"
+
+      basilicom:
+        baseUrl: "http://localhost:8080/"
+
+      open_ai:
+        baseUrl: "https://api.openai.com/v1"
+        apiKey: "%env(OPEN_AI_API_KEY)%"
+
   feature_services:
-    txt2img: ~
-    upscale: ~
-    inpaint: ~
-    inpaint_background: ~
-    image_variations: ~
+    prompting: ollama|basilicom|open_ai
+    txt2img: stable_diffusion_api|dream_studio|open_ai|clip_drop
+    image_variations: stable_diffusion_api|dream_studio|open_ai|clip_drop
+    upscale: stable_diffusion_api|dream_studio|clip_drop
+    inpaint: stable_diffusion_api|dream_studio
+    inpaint_background: stable_diffusion_api|clip_drop
 
   stable_diffusion_api:
-    baseUrl: "http://host.docker.internal:7860" # the url to your Stable Diffusion API instance
-    model: "reliberate_v10" # the model checkpoint name
-    steps: 30 # this will have impact on generation-time
-    upscaler: "ESRGAN_4x" # this will have impact on generation-time
+    baseUrl: "http://host.docker.internal:7860"
+    model: "JuggernautXL"
+    inpaint_model: "JuggernautXL"
+    steps: 30
+    upscaler: "ESRGAN_4x"
 
   dream_studio:
     baseUrl: "https://api.stability.ai"
     model: "stable-diffusion-xl-beta-v2-2-2"
+    inpaint_model: "stable-diffusion-xl-1024-v1-0"
     steps: 10 
     apiKey: "%env(DREAM_STUDIO_API_KEY)%"
     upscaler: "esrgan-v1-x2plus"
@@ -50,7 +73,6 @@ ai_image_generator:
   clip_drop:
     baseUrl: "https://clipdrop-api.co"
     apiKey: "%env(CLIP_DROP_API_KEY)%"
-
 ```
 
 ## Usage
@@ -155,19 +177,38 @@ copy the name of a model of your choice.
 * ControlNet with `canny` and `ip2p`
 * _SD Upscaler_ Post Processor Script
 
+## Using LLM-driven prompt enhancing
+In order to enhance prompts, we use local images of LLMs.
+There are three supported prompt enhancement services:
+- `open_ai` (ChatGPT)
+- `basilicom` (a simple LLM implementation, see [Docker Hub](https://hub.docker.com/r/basilicom/llm-api))
+- `ollama` (see [Github](https://hub.docker.com/r/ollama/ollama))
+
 ## Limitations
 * the DreamStudio REST API does currently not support variations, I'll look forward to use the gRPC API
 * [ClipDrops text-to-image API can only create 1:1 images](https://clipdrop.co/apis/docs/text-to-image#text-to-image-api)
 
-## Upcoming 
-* Outpainting
-* creation of 2 or 4 images incl. voting (Discord Style)
-* warnings and fallbacks if credits exceeded
-* CLIP interrogate in order to optimize prompting
-* better background filling
-* ComfyUI
+## Additional ideas
+* Prompting
+    * enhance prompts, especially for background inpainting, like 
+      ```
+      background = "a creepy forest at night"
+      image_type = "a haunted castle background"
+      characters = "medieval warriors"
+      action = "fighting for the honor"
+      prompt = f"{image_type} in {background} with {characters} {action}"
+      ```
+* generate prompt in lightbox before sending?
+* background-inpainting for other service by using masks
+* CLIP interrogate in order to optimize variation prompting
+  * allow variants by img2img and CLIP
+* run IMG2IMG with low denoise on background-inpainting
+* LCM for super fast preview generation => midjourney-like/inpainting-like image selection before upscaling, etc.
+* outpainting via Thumbnail
+* better error handling (warnings and fallbacks if credits exceeded)
+* ComfyUI + Nodes to Python as fixed presets
+  * allow docker images with presets
 * InvokeAI
-* Docker-Setup with A1111/ComfyUI/InvokeAI
 
 ### Authors
 

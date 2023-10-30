@@ -2,18 +2,18 @@
 
 namespace Basilicom\AiImageGeneratorBundle\Service;
 
-use Basilicom\AiImageGeneratorBundle\Config\ServiceConfiguration;
-use Basilicom\AiImageGeneratorBundle\Config\Model\ClipDropApiConfig;
-use Basilicom\AiImageGeneratorBundle\Config\Model\DreamStudioApiConfig;
-use Basilicom\AiImageGeneratorBundle\Config\Model\OpenAiApiConfig;
-use Basilicom\AiImageGeneratorBundle\Config\Model\StableDiffusionApiConfig;
+use Basilicom\AiImageGeneratorBundle\Config\Model\ImageGenerationConfig;
+use Basilicom\AiImageGeneratorBundle\Config\Model\ImageGeneration\ClipDropApiConfig;
+use Basilicom\AiImageGeneratorBundle\Config\Model\ImageGeneration\DreamStudioApiConfig;
+use Basilicom\AiImageGeneratorBundle\Config\Model\ImageGeneration\OpenAiApiConfig;
+use Basilicom\AiImageGeneratorBundle\Config\Model\ImageGeneration\StableDiffusionApiConfig;
 use Basilicom\AiImageGeneratorBundle\Model\AiImage;
 use Basilicom\AiImageGeneratorBundle\Model\MetaDataEnum;
-use Basilicom\AiImageGeneratorBundle\Strategy\ClipDropStrategy;
-use Basilicom\AiImageGeneratorBundle\Strategy\DreamStudioStrategy;
-use Basilicom\AiImageGeneratorBundle\Strategy\OpenAiStrategy;
-use Basilicom\AiImageGeneratorBundle\Strategy\StableDiffusionStrategy;
-use Basilicom\AiImageGeneratorBundle\Strategy\Strategy;
+use Basilicom\AiImageGeneratorBundle\Strategy\ImageGeneration\ClipDropStrategy;
+use Basilicom\AiImageGeneratorBundle\Strategy\ImageGeneration\DreamStudioStrategy;
+use Basilicom\AiImageGeneratorBundle\Strategy\ImageGeneration\OpenAiStrategy;
+use Basilicom\AiImageGeneratorBundle\Strategy\ImageGeneration\StableDiffusionStrategy;
+use Basilicom\AiImageGeneratorBundle\Strategy\ImageGeneration\Strategy;
 use Exception;
 use Pimcore\Model\Asset;
 use Psr\Container\ContainerInterface;
@@ -28,7 +28,7 @@ class ImageGenerationService
         $this->container = $container;
     }
 
-    private function setStrategy(ServiceConfiguration $config): void
+    private function setStrategy(ImageGenerationConfig $config): void
     {
         if ($config instanceof StableDiffusionApiConfig) {
             $this->strategy = $this->container->get(StableDiffusionStrategy::class);
@@ -44,7 +44,7 @@ class ImageGenerationService
     /**
      * @throws Exception
      */
-    public function generateImage(ServiceConfiguration $config): Asset
+    public function generateImage(ImageGenerationConfig $config): Asset
     {
         $this->setStrategy($config);
 
@@ -57,7 +57,7 @@ class ImageGenerationService
     /**
      * @throws Exception
      */
-    public function varyImage(ServiceConfiguration $config, Asset\Image $asset): Asset\Image
+    public function varyImage(ImageGenerationConfig $config, Asset\Image $asset): Asset\Image
     {
         $this->setStrategy($config);
 
@@ -69,7 +69,7 @@ class ImageGenerationService
     /**
      * @throws Exception
      */
-    public function upscaleImage(ServiceConfiguration $config, int $assetId): Asset\Image
+    public function upscaleImage(ImageGenerationConfig $config, int $assetId): Asset\Image
     {
         $this->setStrategy($config);
 
@@ -89,7 +89,7 @@ class ImageGenerationService
     /**
      * @throws Exception
      */
-    public function inpaintBackground(ServiceConfiguration $config, int $assetId): Asset\Image
+    public function inpaintBackground(ImageGenerationConfig $config, int $assetId): Asset\Image
     {
         $this->setStrategy($config);
 
@@ -101,13 +101,15 @@ class ImageGenerationService
         $aiImage = $this->strategy->inpaintBackground($config, AiImage::fromAsset($firstVersion, true));
         $asset = $this->updatePimcoreAsset($asset, $aiImage, 'created background inpaint via ' . $config->getName());
 
+        // todo ==> rerun with inpaint and a very low denoise to adapt color grading of main item
+
         return $this->upscaleIfPossible($asset, $aiImage, $config);
     }
 
     /**
      * @throws Exception
      */
-    public function inpaint(ServiceConfiguration $config, int $assetId, bool $save = true): Asset\Image
+    public function inpaint(ImageGenerationConfig $config, int $assetId, bool $save = true): Asset\Image
     {
         $this->setStrategy($config);
 
@@ -117,7 +119,7 @@ class ImageGenerationService
         return $this->updatePimcoreAsset($asset, $aiImage, 'created inpaint via ' . $config->getName(), $save);
     }
 
-    private function upscaleIfPossible(Asset\Image $asset, AiImage $aiImage, ServiceConfiguration $config): Asset\Image
+    private function upscaleIfPossible(Asset\Image $asset, AiImage $aiImage, ImageGenerationConfig $config): Asset\Image
     {
         return $asset->getWidth() < 4096 && $asset->getHeight() < 4096
             ? $this->updatePimcoreAsset($asset, $this->strategy->upscale($config, $aiImage), 'upscaled via ' . $config->getName())

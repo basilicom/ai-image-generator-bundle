@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  ollama:
+    build:
+      context: ollama
+    container_name: ollama
+    restart: always
+    environment:
+      - MODEL=llama2
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    networks:
+      - default
+
+volumes:
+  ollama-data:
+    driver: local
+
+networks:
+  default:
+    driver: bridge

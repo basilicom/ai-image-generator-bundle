@@ -1,6 +1,6 @@
 <?php
 
-namespace Basilicom\AiImageGeneratorBundle\Config;
+namespace Basilicom\AiImageGeneratorBundle\Config\Model;
 
 class BrandConfiguration
 {

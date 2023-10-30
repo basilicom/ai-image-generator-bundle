@@ -1,8 +1,7 @@
 <?php
 
-namespace Basilicom\AiImageGeneratorBundle\Config;
+namespace Basilicom\AiImageGeneratorBundle\Config\Model;
 
-use Basilicom\AiImageGeneratorBundle\Config\Model\NullConfig;
 use InvalidArgumentException;
 
 class BundleConfiguration
@@ -10,17 +9,24 @@ class BundleConfiguration
     private array $featureConfiguration;
     private array $serviceConfigurations;
     private BrandConfiguration $brandConfiguration;
+    private PromptEnhancementConfig $promptingConfiguration;
 
     /**
      * @param array $featureConfiguration
-     * @param ServiceConfiguration[] $serviceConfigurations
+     * @param ImageGenerationConfig[] $serviceConfigurations
      * @param BrandConfiguration $brandConfiguration
+     * @param PromptEnhancementConfig $promptingConfiguration
      */
-    public function __construct(array $featureConfiguration, array $serviceConfigurations, BrandConfiguration $brandConfiguration)
-    {
+    public function __construct(
+        array                  $featureConfiguration,
+        array                  $serviceConfigurations,
+        BrandConfiguration     $brandConfiguration,
+        PromptEnhancementConfig $promptingConfiguration
+    ) {
         $this->featureConfiguration = $featureConfiguration;
         $this->serviceConfigurations = $serviceConfigurations;
         $this->brandConfiguration = $brandConfiguration;
+        $this->promptingConfiguration = $promptingConfiguration;
     }
 
     public function getUsedServiceForFeature(string $feature): string
@@ -32,7 +38,7 @@ class BundleConfiguration
         return $this->featureConfiguration[$feature] ?? '';
     }
 
-    public function getServiceConfiguration(string $serviceKey): ?ServiceConfiguration
+    public function getServiceConfiguration(string $serviceKey): ?ImageGenerationConfig
     {
         return $this->serviceConfigurations[$serviceKey] ?? new NullConfig();
     }
@@ -40,5 +46,10 @@ class BundleConfiguration
     public function getBrandConfiguration(): BrandConfiguration
     {
         return $this->brandConfiguration;
+    }
+
+    public function getPromptEnhancementConfiguration(): PromptEnhancementConfig
+    {
+        return $this->promptingConfiguration;
     }
 }

@@ -1,14 +1,14 @@
 <?php
 
-namespace Basilicom\AiImageGeneratorBundle\Strategy\RequestFactory;
+namespace Basilicom\AiImageGeneratorBundle\Strategy\ImageGeneration\RequestFactory;
 
-use Basilicom\AiImageGeneratorBundle\Config\ServiceConfiguration;
-use Basilicom\AiImageGeneratorBundle\Config\Model\StableDiffusionApiConfig;
+use Basilicom\AiImageGeneratorBundle\Config\Model\ImageGenerationConfig;
+use Basilicom\AiImageGeneratorBundle\Config\Model\ImageGeneration\StableDiffusionApiConfig;
 use Basilicom\AiImageGeneratorBundle\Helper\AspectRatioCalculator;
 use Basilicom\AiImageGeneratorBundle\Model\AiImage;
 use Basilicom\AiImageGeneratorBundle\Model\ServiceRequest;
 use Basilicom\AiImageGeneratorBundle\Strategy\NotSupportedException;
-use Basilicom\AiImageGeneratorBundle\Strategy\RequestFactory;
+use Basilicom\AiImageGeneratorBundle\Strategy\ImageGeneration\RequestFactory;
 use Symfony\Component\HttpFoundation\Request;
 
 class StableDiffusionRequestFactory implements RequestFactory
@@ -21,18 +21,18 @@ class StableDiffusionRequestFactory implements RequestFactory
         $this->aspectRatioCalculator = $aspectRatioCalculator;
     }
 
-    public function createTxt2ImgRequest(ServiceConfiguration $configuration): ServiceRequest
+    public function createTxt2ImgRequest(ImageGenerationConfig $configuration): ServiceRequest
     {
         $getRelativeAspectRatio = $this->aspectRatioCalculator->calculateAspectRatio($configuration->getAspectRatio(), self::BASE_SIZE);
-        $uri = rtrim($configuration->getBaseUrl(), '/') . '/txt2img';
+        $uri = $configuration->getBaseUrl() . '/txt2img';
         $method = Request::METHOD_POST;
 
         $payload = [
             'steps' => $configuration->getSteps(),
             'sd_model_checkpoint' => $configuration->getModel(),
 
-            'prompt' => $configuration->getPrompt(),
-            'negative_prompt' => $configuration->getNegativePrompt(),
+            'prompt' => $configuration->getPrompt()->getPositive(),
+            'negative_prompt' => $configuration->getPrompt()->getNegative(),
             'seed' => $configuration->getSeed(),
             'width' => $getRelativeAspectRatio->getWidth(),
             'height' => $getRelativeAspectRatio->getHeight(),
@@ -45,12 +45,12 @@ class StableDiffusionRequestFactory implements RequestFactory
         return new ServiceRequest($uri, $method, $payload);
     }
 
-    public function createImgVariationsRequest(ServiceConfiguration $configuration, AiImage $baseImage): ServiceRequest
+    public function createImgVariationsRequest(ImageGenerationConfig $configuration, AiImage $baseImage): ServiceRequest
     {
         return $this->createTxt2ImgRequest($configuration);
     }
 
-    public function createUpscaleRequest(ServiceConfiguration|StableDiffusionApiConfig $configuration, AiImage $baseImage): ServiceRequest
+    public function createUpscaleRequest(ImageGenerationConfig|StableDiffusionApiConfig $configuration, AiImage $baseImage): ServiceRequest
     {
         $tmpFilePath = sys_get_temp_dir() . '/ai-image-generator--a1111.png';
         file_put_contents($tmpFilePath, $baseImage->getData(true));
@@ -58,7 +58,7 @@ class StableDiffusionRequestFactory implements RequestFactory
         $width = $imageSize[0];
         $height = $imageSize[1];
 
-        $uri = rtrim($configuration->getBaseUrl(), '/') . '/img2img';
+        $uri = $configuration->getBaseUrl() . '/img2img';
         $method = Request::METHOD_POST;
         $upscaleFactor = $this->aspectRatioCalculator->calculateUpscaleFactor($width, $height);
 
@@ -69,8 +69,8 @@ class StableDiffusionRequestFactory implements RequestFactory
             'steps' => $configuration->getSteps(),
             'sd_model_checkpoint' => $configuration->getModel(),
 
-            'prompt' => $configuration->getPrompt(),
-            'negative_prompt' => $configuration->getNegativePrompt(),
+            'prompt' => $configuration->getPrompt()->getPositive(),
+            'negative_prompt' => $configuration->getPrompt()->getNegative(),
             'seed' => $configuration->getSeed(),
 
             'script_name' => 'sd upscale',
@@ -90,20 +90,20 @@ class StableDiffusionRequestFactory implements RequestFactory
     }
 
     public function createInpaintBackgroundRequest(
-        ServiceConfiguration|StableDiffusionApiConfig $configuration,
-        AiImage                                       $baseImage
+        ImageGenerationConfig|StableDiffusionApiConfig $configuration,
+        AiImage                                        $baseImage
     ): ServiceRequest {
         $resizedImage = $baseImage->getResizedImage(self::BASE_SIZE, self::BASE_SIZE);
         $resizedMaskImage = $baseImage->getResizedMask(self::BASE_SIZE, self::BASE_SIZE);
 
-        $uri = rtrim($configuration->getBaseUrl(), '/') . '/img2img';
+        $uri = $configuration->getBaseUrl() . '/img2img';
         $method = Request::METHOD_POST;
         $payload = [
             'steps' => $configuration->getSteps(),
             'sd_model_checkpoint' => $configuration->getModel(),
 
-            'prompt' => $configuration->getPrompt() . ', ((product photo))', // todo
-            'negative_prompt' => implode(',', $configuration->getNegativePrompt()) . ', dark, ((fantasy))',
+            'prompt' => $configuration->getPrompt()->getPositive(),
+            'negative_prompt' => $configuration->getPrompt()->getNegative(),
             'seed' => $configuration->getSeed(),
 
             'init_images' => [$resizedImage],
@@ -162,7 +162,7 @@ class StableDiffusionRequestFactory implements RequestFactory
         return new ServiceRequest($uri, $method, $payload);
     }
 
-    public function createInpaintRequest(ServiceConfiguration $configuration, AiImage $baseImage): ServiceRequest
+    public function createInpaintRequest(ImageGenerationConfig $configuration, AiImage $baseImage): ServiceRequest
     {
         // todo ==> try to get the image but only the inpainting, than scale it to the source image width/height and apply it via imagick.
         $inpaintingMask = $configuration->getInpaintingMask();
@@ -174,14 +174,14 @@ class StableDiffusionRequestFactory implements RequestFactory
         $width = $imageInfo[0];
         $height = $imageInfo[1];
 
-        $uri = rtrim($configuration->getBaseUrl(), '/') . '/img2img';
+        $uri = $configuration->getBaseUrl() . '/img2img';
         $method = Request::METHOD_POST;
         $payload = [
             'steps' => $configuration->getSteps(),
             'sd_model_checkpoint' => $configuration->getInpaintModel(),
 
-            'prompt' => $configuration->getPrompt(),
-            'negative_prompt' => $configuration->getNegativePrompt(),
+            'prompt' => $configuration->getPrompt()->getPositive(),
+            'negative_prompt' => $configuration->getPrompt()->getNegative(),
             'seed' => $configuration->getSeed(),
 
             'init_images' => [$resizedImage],
@@ -216,7 +216,7 @@ class StableDiffusionRequestFactory implements RequestFactory
         return new ServiceRequest($uri, $method, $payload);
     }
 
-    public function createBrandedTxt2ImgRequest(ServiceConfiguration $configuration): ServiceRequest
+    public function createBrandedTxt2ImgRequest(ImageGenerationConfig $configuration): ServiceRequest
     {
         // todo ==> check img2img vs IPAdapter
         throw new NotSupportedException('Branding via IMG2IMG is currently not supported');
