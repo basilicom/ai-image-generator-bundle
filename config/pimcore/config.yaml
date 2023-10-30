@@ -15,8 +15,8 @@ ai_image_generator:
   services:
     stable_diffusion_api:
       baseUrl: "http://host.docker.internal:7860/sdapi/v1"
-      model: "photon_v1"
-      inpaint_model: "photon_v1"
+      model: "JuggernautXL"
+      inpaint_model: "JuggernautXL"
       steps: 20
       upscaler: "ESRGAN_4x"
 

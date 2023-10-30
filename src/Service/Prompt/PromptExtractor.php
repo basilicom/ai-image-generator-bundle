@@ -1,6 +1,6 @@
 <?php
 
-namespace Basilicom\AiImageGeneratorBundle\Service;
+namespace Basilicom\AiImageGeneratorBundle\Service\Prompt;
 
 use Pimcore\Model\DataObject;
 use Pimcore\Model\Document\Page;
@@ -8,42 +8,25 @@ use Pimcore\Model\Document\PageSnippet;
 use Pimcore\Model\Document\Service;
 use ReflectionClass;
 
-class PromptCreator
+class PromptExtractor
 {
-    public const DEFAULT_NEGATIVE_PROMPT = '(((nsfw, nude, naked))), (semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime:1.4), text, close up, cropped, out of frame, worst quality, low quality, jpeg artifacts, ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, dehydrated, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck';
-
-    public function createPromptFromPimcoreElement(PageSnippet|DataObject $element): array
+    public function createPromptFromPimcoreElement(PageSnippet|DataObject $element): string
     {
-        $promptParts = [];
         if ($element instanceof PageSnippet) {
-            $promptParts = [
-                ...$promptParts,
-                ...$this->getPromptFromDocumentContext($element),
-            ];
+            $prompt = $this->getPromptFromDocumentContext($element);
         } elseif ($element instanceof DataObject) {
-            $promptParts = [
-                ...$promptParts,
-                (new ReflectionClass($element))->getShortName(),
-                ...$this->getPromptFromDataObjectContext($element)
-            ];
+            $prompt = $this->getPromptFromDataObjectContext($element);
         }
 
-        if (empty($promptParts)) {
-            $promptParts = ['an inspiring market, emotional, camcorder effect'];
-        }
-
-        $promptParts[] = '(best quality, masterpiece)';
-
-        return [
-            ...$promptParts,
-            '8k, uhd, soft lighting, high quality',
-        ];
+        return !empty($prompt)
+            ? $prompt
+            : 'an inspiring market, emotional, camcorder effect';
     }
 
-    private function getPromptFromDocumentContext(?PageSnippet $page): array
+    private function getPromptFromDocumentContext(?PageSnippet $page): string
     {
         if (!$page) {
-            return [];
+            return '';
         }
 
         $prompts = [];
@@ -59,10 +42,10 @@ class PromptCreator
             }
         }
 
-        return [
+        return implode(',', [
             ...$prompts,
             ...$this->extractImportantTexts($page)
-        ];
+        ]);
     }
 
     private function extractImportantTexts(PageSnippet $page): array
@@ -100,16 +83,14 @@ class PromptCreator
         return array_filter($contents);
     }
 
-    private function getPromptFromDataObjectContext(DataObject $object): array
+    private function getPromptFromDataObjectContext(DataObject $object): string
     {
-        $contents = [];
-
+        $contents = [(new ReflectionClass($object))->getShortName()];
         $possibleFields = [
             'key',
             'title',
             'name',
             'productName',
-            'description',
         ];
 
         foreach ($possibleFields as $field) {
@@ -119,6 +100,6 @@ class PromptCreator
             }
         }
 
-        return array_filter($contents);
+        return implode(',', array_filter($contents));
     }
 }

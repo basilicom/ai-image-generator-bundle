@@ -31,8 +31,8 @@ class StableDiffusionRequestFactory implements RequestFactory
             'steps' => $configuration->getSteps(),
             'sd_model_checkpoint' => $configuration->getModel(),
 
-            'prompt' => implode(',', $configuration->getPromptParts()),
-            'negative_prompt' => implode(',', $configuration->getNegativePromptParts()),
+            'prompt' => $configuration->getPrompt(),
+            'negative_prompt' => $configuration->getNegativePrompt(),
             'seed' => $configuration->getSeed(),
             'width' => $getRelativeAspectRatio->getWidth(),
             'height' => $getRelativeAspectRatio->getHeight(),
@@ -69,8 +69,8 @@ class StableDiffusionRequestFactory implements RequestFactory
             'steps' => $configuration->getSteps(),
             'sd_model_checkpoint' => $configuration->getModel(),
 
-            'prompt' => implode(',', $configuration->getPromptParts()),
-            'negative_prompt' => implode(',', $configuration->getNegativePromptParts()),
+            'prompt' => $configuration->getPrompt(),
+            'negative_prompt' => $configuration->getNegativePrompt(),
             'seed' => $configuration->getSeed(),
 
             'script_name' => 'sd upscale',
@@ -102,8 +102,8 @@ class StableDiffusionRequestFactory implements RequestFactory
             'steps' => $configuration->getSteps(),
             'sd_model_checkpoint' => $configuration->getModel(),
 
-            'prompt' => implode(',', $configuration->getPromptParts()) . ', ((product photo))',
-            'negative_prompt' => implode(',', $configuration->getNegativePromptParts()) . ', dark, ((fantasy))',
+            'prompt' => $configuration->getPrompt() . ', ((product photo))', // todo
+            'negative_prompt' => implode(',', $configuration->getNegativePrompt()) . ', dark, ((fantasy))',
             'seed' => $configuration->getSeed(),
 
             'init_images' => [$resizedImage],
@@ -180,8 +180,8 @@ class StableDiffusionRequestFactory implements RequestFactory
             'steps' => $configuration->getSteps(),
             'sd_model_checkpoint' => $configuration->getInpaintModel(),
 
-            'prompt' => implode(',', $configuration->getPromptParts()),
-            'negative_prompt' => implode(',', $configuration->getNegativePromptParts()),
+            'prompt' => $configuration->getPrompt(),
+            'negative_prompt' => $configuration->getNegativePrompt(),
             'seed' => $configuration->getSeed(),
 
             'init_images' => [$resizedImage],
@@ -219,6 +219,6 @@ class StableDiffusionRequestFactory implements RequestFactory
     public function createBrandedTxt2ImgRequest(ServiceConfiguration $configuration): ServiceRequest
     {
         // todo ==> check img2img vs IPAdapter
-        throw new NotSupportedException('Upscaling is currently not supported');
+        throw new NotSupportedException('Branding via IMG2IMG is currently not supported');
     }
 }

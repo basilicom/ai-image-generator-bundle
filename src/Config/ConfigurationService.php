@@ -2,7 +2,6 @@
 
 namespace Basilicom\AiImageGeneratorBundle\Config;
 
-use Basilicom\AiImageGeneratorBundle\Helper\AspectRatioCalculator;
 use Basilicom\AiImageGeneratorBundle\Model\AiImage;
 use Imagick;
 use ImagickPixel;
@@ -12,16 +11,13 @@ class ConfigurationService
 {
     public const CACHE_TAG = 'ai-image-bundle';
 
-    private AspectRatioCalculator $aspectRatioCalculator;
     private BundleConfiguration $config;
 
     public function __construct(
-        ConfigurationFactory  $factory,
-        AspectRatioCalculator $aspectRatioCalculator,
-        array                 $configData
+        ConfigurationFactory $factory,
+        array                $configData
     ) {
         $this->config = $factory->createBundleConfiguration($configData);
-        $this->aspectRatioCalculator = $aspectRatioCalculator;
     }
 
     public function getServiceConfiguration(string $feature): ?ServiceConfiguration
@@ -31,9 +27,14 @@ class ConfigurationService
         return $this->config->getServiceConfiguration($usedService);
     }
 
+    public function getBrandColors(): array
+    {
+        return $this->config->getBrandConfiguration()->getColorScheme();
+    }
+
     public function getBrandReferenceImage(int $width, int $height): AiImage
     {
-        $colors = $this->config->getBrandConfiguration()->getColorScheme();
+        $colors = $this->getBrandColors();
         if (empty($colors)) {
             return new AiImage();
         }

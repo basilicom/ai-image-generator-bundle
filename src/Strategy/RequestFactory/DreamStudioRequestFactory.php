@@ -38,7 +38,7 @@ class DreamStudioRequestFactory implements RequestFactory
             'height' => $dimensions['height'],
 
             'text_prompts' => [
-                ['text' => implode(',', $configuration->getPromptParts()), 'weight' => 1.0]
+                ['text' => $configuration->getPrompt(), 'weight' => 1.0]
             ],
 
             'seed' => max($configuration->getSeed(), 0), // [0 .. 4294967295]
@@ -63,11 +63,11 @@ class DreamStudioRequestFactory implements RequestFactory
         file_put_contents($tmpImageFilePath, $brandReferenceImage->getData(true));
 
         $payload = [
-            ['name' => 'text_prompts[0][text]', 'contents' => implode(',', $configuration->getPromptParts())],
+            ['name' => 'text_prompts[0][text]', 'contents' => $configuration->getPrompt()],
             ['name' => 'text_prompts[0][weight]', 'contents' => 1.0],
 
             ['name' => 'init_image', 'contents' => fopen($tmpImageFilePath, 'rb')],
-            ['name' => 'image_strength', 'contents' => 0.1],
+            ['name' => 'image_strength', 'contents' => 0.05], // 0.1 is quiet good
 
             ['name' => 'steps', 'contents' => $configuration->getSteps()],
             ['name' => 'sampler', 'contents' => self::SAMPLER],
@@ -104,8 +104,8 @@ class DreamStudioRequestFactory implements RequestFactory
         }
 
         return [
-            'width' => (int) explode('x', $closestDimension)[0],
-            'height' => (int) explode('x', $closestDimension)[1],
+            'width' => (int)explode('x', $closestDimension)[0],
+            'height' => (int)explode('x', $closestDimension)[1],
         ];
     }
 
@@ -176,7 +176,7 @@ class DreamStudioRequestFactory implements RequestFactory
         file_put_contents($tmpMaskFilePath, $maskImageData);
 
         $payload = [
-            ['name' => 'text_prompts[0][text]', 'contents' => implode(',', $configuration->getPromptParts())],
+            ['name' => 'text_prompts[0][text]', 'contents' => $configuration->getPrompt()],
             ['name' => 'text_prompts[0][weight]', 'contents' => 1.0],
 
             ['name' => 'init_image', 'contents' => fopen($tmpImageFilePath, 'rb')],

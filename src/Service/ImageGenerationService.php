@@ -75,10 +75,10 @@ class ImageGenerationService
 
         $asset = Asset\Image::getById($assetId);
         if ($prompt = $asset->getMetadata(MetaDataEnum::PROMPT)) {
-            $config->setPromptParts([$prompt]);
+            $config->setPrompt($prompt);
         }
         if ($negativePrompt = $asset->getMetadata(MetaDataEnum::NEGATIVE_PROMPT)) {
-            $config->setPromptParts([$negativePrompt]);
+            $config->setPrompt($negativePrompt);
         }
 
         $aiImage = AiImage::fromAsset($asset);

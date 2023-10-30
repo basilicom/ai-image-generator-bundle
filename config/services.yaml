@@ -20,7 +20,9 @@ services:
 
   Basilicom\AiImageGeneratorBundle\Service\RequestService: ~
   Basilicom\AiImageGeneratorBundle\Service\LockManager: ~
-  Basilicom\AiImageGeneratorBundle\Service\PromptCreator: ~
+  Basilicom\AiImageGeneratorBundle\Service\Prompt\PromptExtractor: ~
+  Basilicom\AiImageGeneratorBundle\Service\Brand\ColorService: ~
+  Basilicom\AiImageGeneratorBundle\Service\PromptService: ~
   Basilicom\AiImageGeneratorBundle\Service\ImageGenerationService:
     arguments:
       - "@service_container"

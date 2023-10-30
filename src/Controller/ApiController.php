@@ -11,7 +11,7 @@ use Basilicom\AiImageGeneratorBundle\Model\InpaintingMask;
 use Basilicom\AiImageGeneratorBundle\Model\MetaDataEnum;
 use Basilicom\AiImageGeneratorBundle\Service\ImageGenerationService;
 use Basilicom\AiImageGeneratorBundle\Service\LockManager;
-use Basilicom\AiImageGeneratorBundle\Service\PromptCreator;
+use Basilicom\AiImageGeneratorBundle\Service\PromptService;
 use Exception;
 use Pimcore\Model\Asset;
 use Pimcore\Model\DataObject;
@@ -31,11 +31,11 @@ class ApiController extends AbstractController
     private ImageGenerationService $imageGenerationService;
     private ConfigurationService $configurationService;
     private AspectRatioCalculator $aspectRatioCalculator;
-    private PromptCreator $promptCreator;
+    private PromptService $promptService;
 
     public function __construct(
         ImageGenerationService $imageGenerationService,
-        PromptCreator          $promptCreator,
+        PromptService          $promptService,
         AspectRatioCalculator  $aspectRatioCalculator,
         ConfigurationService   $configurationService,
         LockManager            $lockManager,
@@ -46,7 +46,7 @@ class ApiController extends AbstractController
         $this->lockManager = $lockManager;
         $this->logger = $logger;
         $this->aspectRatioCalculator = $aspectRatioCalculator;
-        $this->promptCreator = $promptCreator;
+        $this->promptService = $promptService;
     }
 
     #[Route(
@@ -68,7 +68,7 @@ class ApiController extends AbstractController
 
         $context = (string)$request->get('context');
         $contextElementId = (int)$request->get('id');
-        $useBrand = $request->get('brand') === 'true';
+        $useBrand = (string)$request->get('brand') === 'true';
         $aspectRatio = $this->aspectRatioCalculator->isValidAspectRatio((string)$payload['aspectRatio'])
             ? ((string)$payload['aspectRatio'])
             : AspectRatioCalculator::DEFAULT_ASPECT_RATIO;
@@ -78,15 +78,10 @@ class ApiController extends AbstractController
             'object' => DataObject::getById($contextElementId),
         };
 
-        $payload = json_decode($request->getContent(), true);
-
-        $prompt = $payload['prompt'] ?? '';
-        $prompt = empty($prompt) ? $this->promptCreator->createPromptFromPimcoreElement($element) : [$prompt];
-        $negativePrompt = PromptCreator::DEFAULT_NEGATIVE_PROMPT;
+        $prompt = $this->promptService->getPrompt($payload['prompt'], $element, $useBrand);
 
         $config = $this->configurationService->getServiceConfiguration(FeatureEnum::TXT_2_IMG);
-        $config->setPromptParts($prompt);
-        $config->setNegativePromptParts([$negativePrompt]);
+        $config->setPrompt($prompt);
         $config->setAspectRatio($aspectRatio);
         $config->setUseBrand($useBrand);
 
@@ -126,14 +121,11 @@ class ApiController extends AbstractController
             return $this->respond($request, null, Response::HTTP_NOT_FOUND, 'No such asset');
         }
 
-        $prompt = (string)($payload['prompt'] ?? $asset->getMetadata(MetaDataEnum::PROMPT));
-        $negativePrompt = (string)$asset->getMetadata(MetaDataEnum::NEGATIVE_PROMPT);
         $seed = (int)($payload['seed'] ?? $asset->getMetadata(MetaDataEnum::SEED));
         $aspectRatio = $this->aspectRatioCalculator->getAspectRatioFromDimensions($asset->getWidth(), $asset->getHeight());
 
         $config = $this->configurationService->getServiceConfiguration(FeatureEnum::IMAGE_VARIATIONS);
-        $config->setPromptParts([$prompt]);
-        $config->setNegativePromptParts([$negativePrompt]);
+        $config->setPrompt($this->promptService->getPrompt($payload['prompt'], $asset));
         $config->setAspectRatio($aspectRatio);
         $config->setSeed($seed);
 
@@ -161,11 +153,11 @@ class ApiController extends AbstractController
             return $this->respond($request, null, Response::HTTP_NOT_FOUND, 'No such asset');
         }
 
-        $prompt = (string)($payload['prompt'] ?? $asset->getMetadata(MetaDataEnum::PROMPT));
         $aspectRatio = $this->aspectRatioCalculator->getAspectRatioFromDimensions($asset->getWidth(), $asset->getHeight());
+        $useBrand = (string)$request->get('brand') === 'true';
 
         $config = $this->configurationService->getServiceConfiguration(FeatureEnum::INPAINT_BACKGROUND);
-        $config->setPromptParts([$prompt]);
+        $config->setPrompt($this->promptService->getPrompt($payload['prompt'], $asset, $useBrand));
         $config->setAspectRatio($aspectRatio);
 
         return $this->process(
@@ -193,7 +185,6 @@ class ApiController extends AbstractController
             return $this->respond($request, null, Response::HTTP_NOT_FOUND, 'No such asset');
         }
 
-        $prompt = (string)($payload['prompt'] ?? $asset->getMetadata(MetaDataEnum::PROMPT));
         $isDraft = (bool)$payload['draft'];
         $aspectRatio = $this->aspectRatioCalculator->getAspectRatioFromDimensions($asset->getWidth(), $asset->getHeight());
 
@@ -202,7 +193,7 @@ class ApiController extends AbstractController
         $mask = new InpaintingMask(base64_encode($mask->getContent()));
 
         $config = $this->configurationService->getServiceConfiguration(FeatureEnum::INPAINT);
-        $config->setPromptParts([$prompt]);
+        $config->setPrompt($this->promptService->getPrompt($payload['prompt'], $asset));
         $config->setAspectRatio($aspectRatio);
         $config->setInpaintingMask($mask);
 
