@@ -34,7 +34,7 @@ class ClipDropRequestFactory implements RequestFactory
         $payload = [
             [
                 'name' => 'prompt',
-                'contents' => implode(',', $configuration->getPromptParts()),
+                'contents' => $configuration->getPrompt(),
             ]
         ];
 
@@ -118,7 +118,7 @@ class ClipDropRequestFactory implements RequestFactory
             ],
             [
                 'name' => 'prompt',
-                'contents' => implode(',', $configuration->getPromptParts()),
+                'contents' => $configuration->getPrompt(),
             ]
         ];
 

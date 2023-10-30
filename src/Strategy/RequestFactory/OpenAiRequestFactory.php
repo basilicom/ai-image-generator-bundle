@@ -18,7 +18,7 @@ class OpenAiRequestFactory implements RequestFactory
         $method = Request::METHOD_POST;
 
         $payload = [
-            'prompt' => implode(',', $configuration->getPromptParts()),
+            'prompt' => $configuration->getPrompt(),
             'size' => '1024x1024',
             'n' => 1,
             'response_format' => 'b64_json',

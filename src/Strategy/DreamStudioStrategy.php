@@ -27,8 +27,8 @@ class DreamStudioStrategy extends Strategy
         $aiImage->setData($imageData);
         $aiImage->setMetadata(MetaDataEnum::MODEL, $config->getModel());
         $aiImage->setMetadata(MetaDataEnum::STEPS, $config->getSteps());
-        $aiImage->setMetadata(MetaDataEnum::PROMPT, implode(', ', $config->getPromptParts()));
-        $aiImage->setMetadata(MetaDataEnum::NEGATIVE_PROMPT, implode(', ', $config->getNegativePromptParts()));
+        $aiImage->setMetadata(MetaDataEnum::PROMPT, $config->getPrompt());
+        $aiImage->setMetadata(MetaDataEnum::NEGATIVE_PROMPT, $config->getNegativePrompt());
         $aiImage->setMetadata(MetaDataEnum::SEED, $seed);
         $aiImage->setMetadata(MetaDataEnum::ASPECT_RATIO, $config->getAspectRatio());
 

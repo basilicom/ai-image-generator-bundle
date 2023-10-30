@@ -4,6 +4,7 @@ namespace Basilicom\AiImageGeneratorBundle\Config;
 
 use Basilicom\AiImageGeneratorBundle\Helper\AspectRatioCalculator;
 use Basilicom\AiImageGeneratorBundle\Model\InpaintingMask;
+use Basilicom\AiImageGeneratorBundle\Service\PromptService;
 
 abstract class ServiceConfiguration
 {
@@ -16,8 +17,7 @@ abstract class ServiceConfiguration
     protected string $upscaler;
     protected ?InpaintingMask $inpaintingMask = null;
 
-    protected array $promptParts = [];
-    protected array $negativePromptParts = [];
+    protected string $prompt = '';
     protected string $aspectRatio = AspectRatioCalculator::DEFAULT_ASPECT_RATIO;
     protected int $seed = -1;
 
@@ -63,29 +63,19 @@ abstract class ServiceConfiguration
         return $this->upscaler;
     }
 
-    public function getPromptParts(): array
+    public function getPrompt(): string
     {
-        return $this->promptParts;
+        return $this->prompt;
     }
 
-    public function setPromptParts(array $promptParts): void
+    public function setPrompt(string $promptParts): void
     {
-        $this->promptParts = $promptParts;
+        $this->prompt = $promptParts;
     }
 
-    public function getNegativePromptParts(): array
+    public function getNegativePrompt(): string
     {
-        $negativePromptParts = $this->negativePromptParts;
-        $negativePromptParts[] = 'nsfw';
-        $negativePromptParts[] = 'nude';
-        $negativePromptParts[] = 'naked';
-
-        return $negativePromptParts;
-    }
-
-    public function setNegativePromptParts(array $negativePromptParts): void
-    {
-        $this->negativePromptParts = $negativePromptParts;
+        return implode(',', PromptService::DEFAULT_NEGATIVE_PROMPT);
     }
 
     public function getAspectRatio(): string
