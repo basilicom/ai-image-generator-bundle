@@ -2,6 +2,9 @@
 
 namespace Basilicom\AiImageGeneratorBundle\Config;
 
+use Basilicom\AiImageGeneratorBundle\Config\Model\BundleConfiguration;
+use Basilicom\AiImageGeneratorBundle\Config\Model\ImageGenerationConfig;
+use Basilicom\AiImageGeneratorBundle\Config\Model\PromptEnhancementConfig;
 use Basilicom\AiImageGeneratorBundle\Model\AiImage;
 use Imagick;
 use ImagickPixel;
@@ -20,7 +23,7 @@ class ConfigurationService
         $this->config = $factory->createBundleConfiguration($configData);
     }
 
-    public function getServiceConfiguration(string $feature): ?ServiceConfiguration
+    public function getServiceConfiguration(string $feature): ?ImageGenerationConfig
     {
         $usedService = $this->config->getUsedServiceForFeature($feature);
 
@@ -91,5 +94,10 @@ class ConfigurationService
         $image->resizeImage($finalWidth, $finalHeight, Imagick::FILTER_LANCZOS, 1);
 
         return $image;
+    }
+
+    public function getPromptEnhancementConfiguration(): PromptEnhancementConfig
+    {
+        return $this->config->getPromptEnhancementConfiguration();
     }
 }

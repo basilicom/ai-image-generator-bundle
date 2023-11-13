@@ -12,11 +12,14 @@ class ConfigurationDefinition implements ConfigurationInterface
     public const BRAND = 'brand';
     public const FEATURE_SERVICES = 'feature_services';
     public const SERVICES = 'services';
+    public const PROMPT_ENHANCEMENT = 'prompt_enhancement';
 
     public const STABLE_DIFFUSION_API = 'stable_diffusion_api';
     public const DREAM_STUDIO = 'dream_studio';
     public const OPEN_AI = 'open_ai';
     public const CLIP_DROP = 'clip_drop';
+    public const OLLAMA = 'ollama';
+    public const BASILICOM = 'basilicom';
 
     public const BASE_URL = 'baseUrl';
     public const MODEL = 'model';
@@ -27,6 +30,9 @@ class ConfigurationDefinition implements ConfigurationInterface
 
     public const COLORS = 'colors';
 
+    public const SERVICE = 'service';
+
+
     /**
      * {@inheritdoc}
      */
@@ -36,6 +42,41 @@ class ConfigurationDefinition implements ConfigurationInterface
         $rootNode = $treeBuilder->getRootNode();
         $rootNode
             ->children()
+                ->arrayNode(self::PROMPT_ENHANCEMENT)
+                    ->isRequired()
+                    ->children()
+                        ->scalarNode(self::SERVICE)->end()
+                        ->arrayNode(self::SERVICES)
+                            ->isRequired()
+                            ->useAttributeAsKey('serviceKey')
+                            ->arrayPrototype()
+                                ->children()
+                                    ->scalarNode(self::BASE_URL)->isRequired()->end()
+                                    ->scalarNode(self::MODEL)->end()
+                                    ->scalarNode(self::API_KEY)->end()
+                                ->end()
+                            ->end()
+                            ->validate()
+                                ->ifTrue(function ($configurationData) {
+                                    foreach ($configurationData as $serviceKey => $serviceConfig) {
+                                        $expectedKeys = match ($serviceKey) {
+                                            self::BASILICOM => ['baseUrl'],
+                                            self::OLLAMA => ['baseUrl', 'model'],
+                                            self::OPEN_AI => ['baseUrl', 'apiKey'],
+                                        };
+
+                                        foreach ($expectedKeys as $key) {
+                                            if (!array_key_exists($key, $serviceConfig) || empty($serviceConfig[$key])) {
+                                                throw new InvalidArgumentException('Expected ' . $key . ' to be provided for ' . $serviceKey);
+                                            }
+                                        }
+                                    }
+                                })
+                                ->thenInvalid('Invalid config provided.')
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end()
                 ->arrayNode(self::BRAND)
                     ->isRequired()
                     ->children()
@@ -86,6 +127,8 @@ class ConfigurationDefinition implements ConfigurationInterface
                                     self::DREAM_STUDIO => ['baseUrl', 'model', 'inpaint_model', 'steps', 'upscaler', 'apiKey'],
                                     self::OPEN_AI => ['baseUrl', 'apiKey'],
                                     self::CLIP_DROP => ['baseUrl', 'apiKey'],
+                                    self::BASILICOM => ['baseUrl'],
+                                    self::OLLAMA => ['baseUrl'],
                                 };
 
                                 foreach ($expectedKeys as $key) {

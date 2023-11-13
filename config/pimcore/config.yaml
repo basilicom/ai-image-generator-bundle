@@ -5,6 +5,22 @@ ai_image_generator:
       - "#B34197"
       - "#FF444A"
 
+  prompt_enhancement:
+    service: ~
+
+    services:
+#      ollama:
+#        baseUrl: ~
+#        model: "llama2"
+
+#      basilicom:
+#        baseUrl: ~
+
+#      open_ai:
+#        baseUrl: "https://api.openai.com/v1"
+#        apiKey: "%env(OPEN_AI_API_KEY)%"
+#        model: "gpt-3.5-turbo"
+
   feature_services:
     txt2img: ~
     upscale: ~

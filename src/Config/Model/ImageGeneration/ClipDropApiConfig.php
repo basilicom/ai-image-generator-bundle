@@ -1,12 +1,12 @@
 <?php
 
-namespace Basilicom\AiImageGeneratorBundle\Config\Model;
+namespace Basilicom\AiImageGeneratorBundle\Config\Model\ImageGeneration;
 
-use Basilicom\AiImageGeneratorBundle\Config\ServiceConfiguration;
+use Basilicom\AiImageGeneratorBundle\Config\Model\ImageGenerationConfig;
 
-class OpenAiApiConfig extends ServiceConfiguration
+class ClipDropApiConfig extends ImageGenerationConfig
 {
-    protected ?string $name = 'OpenAi';
+    protected ?string $name = 'ClipDrop';
     protected string $apiKey;
 
     public function __construct(string $baseUrl, string $apiKey)

@@ -78,10 +78,8 @@ class ApiController extends AbstractController
             'object' => DataObject::getById($contextElementId),
         };
 
-        $prompt = $this->promptService->getPrompt($payload['prompt'], $element, $useBrand);
-
         $config = $this->configurationService->getServiceConfiguration(FeatureEnum::TXT_2_IMG);
-        $config->setPrompt($prompt);
+        $config->setPrompt($this->promptService->getPrompt($payload['prompt'], $element, $useBrand));
         $config->setAspectRatio($aspectRatio);
         $config->setUseBrand($useBrand);
 

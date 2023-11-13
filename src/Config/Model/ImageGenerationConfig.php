@@ -1,12 +1,12 @@
 <?php
 
-namespace Basilicom\AiImageGeneratorBundle\Config;
+namespace Basilicom\AiImageGeneratorBundle\Config\Model;
 
 use Basilicom\AiImageGeneratorBundle\Helper\AspectRatioCalculator;
 use Basilicom\AiImageGeneratorBundle\Model\InpaintingMask;
-use Basilicom\AiImageGeneratorBundle\Service\PromptService;
+use Basilicom\AiImageGeneratorBundle\Model\Prompt;
 
-abstract class ServiceConfiguration
+abstract class ImageGenerationConfig
 {
     protected ?string $name = null;
 
@@ -17,7 +17,7 @@ abstract class ServiceConfiguration
     protected string $upscaler;
     protected ?InpaintingMask $inpaintingMask = null;
 
-    protected string $prompt = '';
+    protected Prompt $prompt;
     protected string $aspectRatio = AspectRatioCalculator::DEFAULT_ASPECT_RATIO;
     protected int $seed = -1;
 
@@ -40,7 +40,7 @@ abstract class ServiceConfiguration
 
     public function getBaseUrl(): string
     {
-        return $this->baseUrl;
+        return rtrim($this->baseUrl, '/');
     }
 
     public function getModel(): string
@@ -63,19 +63,14 @@ abstract class ServiceConfiguration
         return $this->upscaler;
     }
 
-    public function getPrompt(): string
+    public function getPrompt(): Prompt
     {
-        return $this->prompt;
+        return $this->prompt ?? new Prompt();
     }
 
-    public function setPrompt(string $promptParts): void
+    public function setPrompt(Prompt $prompt): void
     {
-        $this->prompt = $promptParts;
-    }
-
-    public function getNegativePrompt(): string
-    {
-        return implode(',', PromptService::DEFAULT_NEGATIVE_PROMPT);
+        $this->prompt = $prompt;
     }
 
     public function getAspectRatio(): string

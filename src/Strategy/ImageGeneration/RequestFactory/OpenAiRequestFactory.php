@@ -1,24 +1,24 @@
 <?php
 
-namespace Basilicom\AiImageGeneratorBundle\Strategy\RequestFactory;
+namespace Basilicom\AiImageGeneratorBundle\Strategy\ImageGeneration\RequestFactory;
 
-use Basilicom\AiImageGeneratorBundle\Config\ServiceConfiguration;
-use Basilicom\AiImageGeneratorBundle\Config\Model\OpenAiApiConfig;
+use Basilicom\AiImageGeneratorBundle\Config\Model\ImageGenerationConfig;
+use Basilicom\AiImageGeneratorBundle\Config\Model\ImageGeneration\OpenAiApiConfig;
 use Basilicom\AiImageGeneratorBundle\Model\AiImage;
 use Basilicom\AiImageGeneratorBundle\Model\ServiceRequest;
 use Basilicom\AiImageGeneratorBundle\Strategy\NotSupportedException;
-use Basilicom\AiImageGeneratorBundle\Strategy\RequestFactory;
+use Basilicom\AiImageGeneratorBundle\Strategy\ImageGeneration\RequestFactory;
 use Symfony\Component\HttpFoundation\Request;
 
 class OpenAiRequestFactory implements RequestFactory
 {
-    public function createTxt2ImgRequest(ServiceConfiguration|OpenAiApiConfig $configuration): ServiceRequest
+    public function createTxt2ImgRequest(ImageGenerationConfig|OpenAiApiConfig $configuration): ServiceRequest
     {
-        $uri = rtrim($configuration->getBaseUrl(), '/') . '/images/generations';
+        $uri = $configuration->getBaseUrl() . '/images/generations';
         $method = Request::METHOD_POST;
 
         $payload = [
-            'prompt' => $configuration->getPrompt(),
+            'prompt' => $configuration->getPrompt()->getPositive(),
             'size' => '1024x1024',
             'n' => 1,
             'response_format' => 'b64_json',
@@ -28,10 +28,10 @@ class OpenAiRequestFactory implements RequestFactory
     }
 
     public function createImgVariationsRequest(
-        ServiceConfiguration|OpenAiApiConfig $configuration,
-        AiImage                              $baseImage
+        ImageGenerationConfig|OpenAiApiConfig $configuration,
+        AiImage                               $baseImage
     ): ServiceRequest {
-        $uri = rtrim($configuration->getBaseUrl(), '/') . '/images/variations';
+        $uri = $configuration->getBaseUrl() . '/images/variations';
         $method = Request::METHOD_POST;
 
         $tmpFilePath = sys_get_temp_dir() . '/ai-image-generator--open-ai.png';
@@ -65,8 +65,8 @@ class OpenAiRequestFactory implements RequestFactory
      * @throws NotSupportedException
      */
     public function createUpscaleRequest(
-        ServiceConfiguration|OpenAiApiConfig $configuration,
-        AiImage                              $baseImage
+        ImageGenerationConfig|OpenAiApiConfig $configuration,
+        AiImage                               $baseImage
     ): ServiceRequest {
         throw new NotSupportedException('Upscaling is currently not supported');
     }
@@ -75,18 +75,18 @@ class OpenAiRequestFactory implements RequestFactory
      * @throws NotSupportedException
      */
     public function createInpaintBackgroundRequest(
-        ServiceConfiguration|OpenAiApiConfig $configuration,
-        AiImage                              $baseImage
+        ImageGenerationConfig|OpenAiApiConfig $configuration,
+        AiImage                               $baseImage
     ): ServiceRequest {
         throw new NotSupportedException('Upscaling is currently not supported');
     }
 
-    public function createInpaintRequest(ServiceConfiguration $configuration, AiImage $baseImage): ServiceRequest
+    public function createInpaintRequest(ImageGenerationConfig $configuration, AiImage $baseImage): ServiceRequest
     {
         throw new NotSupportedException('Not implemented yet');
     }
 
-    public function createBrandedTxt2ImgRequest(ServiceConfiguration $configuration): ServiceRequest
+    public function createBrandedTxt2ImgRequest(ImageGenerationConfig $configuration): ServiceRequest
     {
         throw new NotSupportedException('Upscaling is currently not supported');
     }

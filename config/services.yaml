@@ -18,11 +18,16 @@ services:
 
   Basilicom\AiImageGeneratorBundle\Helper\AspectRatioCalculator: ~
 
+  Basilicom\AiImageGeneratorBundle\Service\Brand\ColorService: ~
   Basilicom\AiImageGeneratorBundle\Service\RequestService: ~
   Basilicom\AiImageGeneratorBundle\Service\LockManager: ~
+
   Basilicom\AiImageGeneratorBundle\Service\Prompt\PromptExtractor: ~
-  Basilicom\AiImageGeneratorBundle\Service\Brand\ColorService: ~
-  Basilicom\AiImageGeneratorBundle\Service\PromptService: ~
+  Basilicom\AiImageGeneratorBundle\Service\Prompt\PromptPreset: ~
+  Basilicom\AiImageGeneratorBundle\Service\PromptService:
+    arguments:
+      $container: "@service_container"
+
   Basilicom\AiImageGeneratorBundle\Service\ImageGenerationService:
     arguments:
       - "@service_container"
