@@ -10,8 +10,8 @@ export default class InpaintingWindow {
     }
 
     getWindow(onRequest, onSuccess, onDone) {
-        const onError = () => {
-
+        const onError = (jsonData) => {
+            pimcore.helpers.showNotification(t('error'), jsonData.message, 'error');
         };
 
         return Ext.create('AiImageGeneratorBundle.view.CanvasWindow', {

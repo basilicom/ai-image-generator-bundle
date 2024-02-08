@@ -22,57 +22,58 @@ Make sure to also install the bundle via `BundleSetupSubscriber` or console.
 ## Configuration
 
 ```
-ai_image_generator:  brand:
+ai_image_generator:
+   brand:
     colors:
       - "#0062FF"
       - "#B34197"
       - "#FF444A"
 
   prompt_enhancement:
-    service: ~|ollama|basilicom|open_ai
+    service:        ~|ollama|basilicom|open_ai
 
     services:
       ollama:
-        baseUrl: "http://localhost:11434/"
-        model: "llama2"
+        baseUrl:    "http://localhost:11434/"
+        model:      "llama2"
 
       basilicom:
-        baseUrl: "http://localhost:8080/"
+        baseUrl:    "http://localhost:8080/"
 
       open_ai:
-        baseUrl: "https://api.openai.com/v1"
-        apiKey: "%env(OPEN_AI_API_KEY)%"
+        baseUrl:    "https://api.openai.com/v1"
+        apiKey:     "%env(OPEN_AI_API_KEY)%"
 
   feature_services:
-    prompting: ollama|basilicom|open_ai
-    txt2img: stable_diffusion_api|dream_studio|open_ai|clip_drop
-    image_variations: stable_diffusion_api|dream_studio|open_ai|clip_drop
-    upscale: stable_diffusion_api|dream_studio|clip_drop
-    inpaint: stable_diffusion_api|dream_studio
-    inpaint_background: stable_diffusion_api|clip_drop
+    txt2img:            open_ai | stable_diffusion_api | dream_studio | clip_drop
+    image_variations:   open_ai | stable_diffusion_api | dream_studio | clip_drop
+    upscale:            -       | stable_diffusion_api | dream_studio | clip_drop
+    inpaint:            open_ai | stable_diffusion_api | dream_studio | -
+    inpaint_background: open_ai | stable_diffusion_api | -            | clip_drop
 
-  stable_diffusion_api:
-    baseUrl: "http://host.docker.internal:7860"
-    model: "JuggernautXL"
-    inpaint_model: "JuggernautXL"
-    steps: 30
-    upscaler: "ESRGAN_4x"
-
-  dream_studio:
-    baseUrl: "https://api.stability.ai"
-    model: "stable-diffusion-xl-beta-v2-2-2"
-    inpaint_model: "stable-diffusion-xl-1024-v1-0"
-    steps: 10 
-    apiKey: "%env(DREAM_STUDIO_API_KEY)%"
-    upscaler: "esrgan-v1-x2plus"
+  services:
+    stable_diffusion_api:
+      baseUrl:        "http://host.docker.internal:7860"
+      model:          "JuggernautXL"
+      inpaint_model:  "JuggernautXL"
+      steps:          30
+      upscaler:       "ESRGAN_4x"
     
-  open_ai:
-    baseUrl: "https://api.openai.com/v1"
-    apiKey: "%env(OPEN_AI_API_KEY)%"
-    
-  clip_drop:
-    baseUrl: "https://clipdrop-api.co"
-    apiKey: "%env(CLIP_DROP_API_KEY)%"
+    dream_studio:
+      baseUrl:        "https://api.stability.ai"
+      model:          "stable-diffusion-xl-beta-v2-2-2"
+      inpaint_model:  "stable-diffusion-xl-1024-v1-0"
+      steps:          10 
+      apiKey:         "%env(DREAM_STUDIO_API_KEY)%"
+      upscaler:       "esrgan-v1-x2plus"
+      
+    open_ai:
+      baseUrl:        "https://api.openai.com/v1"
+      apiKey:         "%env(OPEN_AI_API_KEY)%"
+      
+    clip_drop:
+      baseUrl:        "https://clipdrop-api.co"
+      apiKey:         "%env(CLIP_DROP_API_KEY)%"
 ```
 
 ## Usage

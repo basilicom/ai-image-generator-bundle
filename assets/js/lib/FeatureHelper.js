@@ -33,6 +33,8 @@ class FeatureHelper {
             case ServiceEnum.OPEN_AI:
                 switch (feature) {
                     case FeatureEnum.TXT2IMG:
+                    case FeatureEnum.INPAINT:
+                    case FeatureEnum.INPAINT_BACKGROUND:
                     case FeatureEnum.IMAGE_VARIATIONS:
                         return true;
                     default:

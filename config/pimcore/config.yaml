@@ -30,7 +30,7 @@ ai_image_generator:
 
   services:
     stable_diffusion_api:
-      baseUrl: "http://host.docker.internal:7860/sdapi/v1"
+      baseUrl: "http://*******/sdapi/v1"
       model: "JuggernautXL"
       inpaint_model: "JuggernautXL"
       steps: 20

@@ -71,8 +71,11 @@ class AspectRatioCalculator
         return abs($a);
     }
 
-    public function calculateAspectRatio(string $aspectRatio, int $maxSize = 512, ?int $baseIncrement = null): AspectRatio
-    {
+    public function calculateAspectRatio(
+        string $aspectRatio,
+        int $maxSize = 512,
+        ?int $baseIncrement = null
+    ): AspectRatio {
         list($aspectWidth, $aspectHeight) = explode(':', $aspectRatio);
 
         $width = $maxSize;
@@ -108,11 +111,36 @@ class AspectRatioCalculator
         return $remainder > $increment / 2 ? $value + $increment - $remainder : $value - $remainder;
     }
 
-    public function calculateUpscaleFactor(int $originalWidth, int $originalHeight, int $maxWidth = 4096, int $maxHeight = 4096): int
-    {
+    public function calculateUpscaleFactor(
+        int $originalWidth,
+        int $originalHeight,
+        int $maxWidth = 4096,
+        int $maxHeight = 4096
+    ): int {
         $widthScale = max(1, $maxWidth / $originalWidth);
         $heightScale = max(1, $maxHeight / $originalHeight);
 
         return min($widthScale, $heightScale);
+    }
+
+    public function isPortrait(string $aspectRatio): bool
+    {
+        list($width, $height) = explode(':', $aspectRatio);
+
+        return $width < $height;
+    }
+
+    public function isSquare(string $aspectRatio): bool
+    {
+        list($width, $height) = explode(':', $aspectRatio);
+
+        return $width === $height;
+    }
+
+    public function isLandscape(string $aspectRatio): bool
+    {
+        list($width, $height) = explode(':', $aspectRatio);
+
+        return $width > $height;
     }
 }

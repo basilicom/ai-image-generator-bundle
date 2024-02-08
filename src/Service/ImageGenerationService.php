@@ -101,8 +101,6 @@ class ImageGenerationService
         $aiImage = $this->strategy->inpaintBackground($config, AiImage::fromAsset($firstVersion, true));
         $asset = $this->updatePimcoreAsset($asset, $aiImage, 'created background inpaint via ' . $config->getName());
 
-        // todo ==> rerun with inpaint and a very low denoise to adapt color grading of main item
-
         return $this->upscaleIfPossible($asset, $aiImage, $config);
     }
 
@@ -121,9 +119,19 @@ class ImageGenerationService
 
     private function upscaleIfPossible(Asset\Image $asset, AiImage $aiImage, ImageGenerationConfig $config): Asset\Image
     {
-        return $asset->getWidth() < 4096 && $asset->getHeight() < 4096
-            ? $this->updatePimcoreAsset($asset, $this->strategy->upscale($config, $aiImage), 'upscaled via ' . $config->getName())
-            : $asset;
+        return $asset;
+        if ($asset->getWidth() < 4096 && $asset->getHeight() < 4096) {
+            try {
+                $asset = $this->updatePimcoreAsset(
+                    $asset,
+                    $this->strategy->upscale($config, $aiImage),
+                    'upscaled via ' . $config->getName()
+                );
+            } catch (Exception) {
+            }
+        }
+
+        return $asset;
     }
 
     /**
@@ -147,8 +155,12 @@ class ImageGenerationService
     /**
      * @throws Exception
      */
-    private function updatePimcoreAsset(Asset\Image $asset, AiImage $generatedImage, string $versionNote = '', bool $save = true): Asset\Image
-    {
+    private function updatePimcoreAsset(
+        Asset\Image $asset,
+        AiImage $generatedImage,
+        string $versionNote = '',
+        bool $save = true
+    ): Asset\Image {
         $asset->setData($generatedImage->getData(true));
 
         foreach ($generatedImage->getAllMetadata() as $key => $value) {

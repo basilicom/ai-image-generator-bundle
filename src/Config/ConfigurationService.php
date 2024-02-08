@@ -18,7 +18,7 @@ class ConfigurationService
 
     public function __construct(
         ConfigurationFactory $factory,
-        array                $configData
+        array $configData
     ) {
         $this->config = $factory->createBundleConfiguration($configData);
     }
@@ -48,20 +48,17 @@ class ConfigurationService
             return $cachedImage;
         }
 
-        $image = $this->getGradientImage($width, $height, $colors);
+        $gradientImage = $this->getGradientImage($width, $height, $colors);
 
         $aiImage = new AiImage();
-        $aiImage->setData(base64_encode($image->getImageBlob()));
+        $aiImage->setData($gradientImage);
 
         Cache::save($aiImage, $cacheKey, [self::CACHE_TAG]);
 
         return $aiImage;
     }
 
-    /**
-     * todo => improve
-     */
-    protected function getGradientImage(int $finalWidth, int $finalHeight, array $colors): Imagick
+    protected function getGradientImage(int $finalWidth, int $finalHeight, array $colors): string
     {
         $width = 1024;
         $height = 1024;
@@ -79,11 +76,13 @@ class ConfigurationService
             $gradient = new Imagick();
             $gradient->newPseudoImage($width, $segmentHeight, 'gradient:' . $colors[$i] . '-' . $colors[$i + 1]);
             $gradientImage->compositeImage($gradient, Imagick::COMPOSITE_OVER, 0, $i * $segmentHeight);
+
+            $gradient->destroy();
         }
 
         $diagonalLength = sqrt($width * $width + $height * $height);
         $angle = atan2($width, $height) * -180 / M_PI;
-        $gradientImage->rotateImage(new ImagickPixel('#fff'), $angle);
+        $gradientImage->rotateImage(new ImagickPixel('white'), $angle);
         $gradientImage->resizeImage($width * 2, $height * 2, Imagick::FILTER_LANCZOS, 1);
 
         $offsetX = ($diagonalLength - $width) / 2;
@@ -93,7 +92,12 @@ class ConfigurationService
         $image->compositeImage($gradientImage, Imagick::COMPOSITE_OVER, 0, 0);
         $image->resizeImage($finalWidth, $finalHeight, Imagick::FILTER_LANCZOS, 1);
 
-        return $image;
+        $imageBlob = base64_encode($image->getImageBlob());
+
+        $gradientImage->destroy();
+        $image->destroy();
+
+        return $imageBlob;
     }
 
     public function getPromptEnhancementConfiguration(): PromptEnhancementConfig
