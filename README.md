@@ -17,7 +17,7 @@ Make sure to also install the bundle via `BundleSetupSubscriber` or console.
 | ClipDrop    |       X       |     X      |     X     |     -      |           X           | 
 | A1111       |       X       |     X      |     X     |     X      |           X           | 
 | DreamStudio |       X       |     X      |     X     |     X      |           ~           | 
-| Dall-E      |       X       |     X      |     -     |     -      |           -           | 
+| OpenAI      |       X       |     X      |     -     |     X      |           X           | 
 
 ## Configuration
 
@@ -106,7 +106,8 @@ If no prompt is given, the prompt will be generated (and not translated!) by try
 
 #### `(POST) /admin/ai-images/generate/{context}-{id}`
 
-Generate an image based on a document or object context. If the prompt is empty, the budle-logic for prompting will take effect.
+Generate an image based on a document or object context. If the prompt is empty, the budle-logic for prompting will take
+effect.
 
 | Parameter   | Type   | Example         |
 |-------------|--------|-----------------|
@@ -179,19 +180,23 @@ copy the name of a model of your choice.
 * _SD Upscaler_ Post Processor Script
 
 ## Using LLM-driven prompt enhancing
+
 In order to enhance prompts, we use local images of LLMs.
 There are three supported prompt enhancement services:
+
 - `open_ai` (ChatGPT)
 - `basilicom` (a simple LLM implementation, see [Docker Hub](https://hub.docker.com/r/basilicom/llm-api))
 - `ollama` (see [Github](https://hub.docker.com/r/ollama/ollama))
 
 ## Limitations
+
 * the DreamStudio REST API does currently not support variations, I'll look forward to use the gRPC API
 * [ClipDrops text-to-image API can only create 1:1 images](https://clipdrop.co/apis/docs/text-to-image#text-to-image-api)
 
 ## Additional ideas
+
 * Prompting
-    * enhance prompts, especially for background inpainting, like 
+    * enhance prompts, especially for background inpainting, like
       ```
       background = "a creepy forest at night"
       image_type = "a haunted castle background"
@@ -202,13 +207,13 @@ There are three supported prompt enhancement services:
 * generate prompt in lightbox before sending?
 * background-inpainting for other service by using masks
 * CLIP interrogate in order to optimize variation prompting
-  * allow variants by img2img and CLIP
+    * allow variants by img2img and CLIP
 * run IMG2IMG with low denoise on background-inpainting
 * LCM for super fast preview generation => midjourney-like/inpainting-like image selection before upscaling, etc.
 * outpainting via Thumbnail
 * better error handling (warnings and fallbacks if credits exceeded)
 * ComfyUI + Nodes to Python as fixed presets
-  * allow docker images with presets
+    * allow docker images with presets
 * InvokeAI
 
 ### Authors

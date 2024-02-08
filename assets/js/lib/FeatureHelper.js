@@ -23,8 +23,9 @@ class FeatureHelper {
             case ServiceEnum.DREAM_STUDIO:
                 switch (feature) {
                     case FeatureEnum.TXT2IMG:
-                    case FeatureEnum.INPAINT:
                     case FeatureEnum.UPSCALE:
+                    case FeatureEnum.INPAINT:
+                    case FeatureEnum.INPAINT_BACKGROUND:
                     case FeatureEnum.IMAGE_VARIATIONS:
                         return true;
                     default:
